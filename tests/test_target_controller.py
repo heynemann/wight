@@ -8,11 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-from cement.utils import test
-from preggy import expect
-from mock import patch
+#from cement.utils import test
+#from preggy import expect
+#from mock import patch
 
-from wight.cli.base import WightBaseController
+#from wight.cli.target import TargetHandler
 
 
 #class TestBaseHandler(test.CementTestCase):
