@@ -14,7 +14,7 @@ from cement.core import controller
 class WightBaseController(controller.CementBaseController):
     class Meta:
         label = 'base'
-        description = "wight load testing scheduler and tracker."
+        description = 'wight load testing scheduler and tracker.'
 
         #config_defaults = dict(
             #foo='bar',
