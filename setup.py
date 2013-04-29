@@ -47,7 +47,8 @@ wight is a load testing scheduling and tracking tool.
     packages=['wight'],
     install_requires=[
         'argparse',
-        'cement'
+        'cement',
+        'derpconf'
     ],
     extras_require={
         'tests': tests_require,

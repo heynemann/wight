@@ -14,14 +14,20 @@ from cement.core import controller
 class ScheduleController(controller.CementBaseController):
     class Meta:
         label = 'schedule'
-        #stacked_on = 'base'
         description = 'Schedules a new load test for the given repository.'
         config_defaults = dict()
 
         arguments = [
             (['--repo'], dict(help='Repository to run tests from.', required=True)),
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
         ]
 
     @controller.expose(hide=True, help='Schedules a new load test for the given repository.')
     def default(self):
-        self.log.info('Inside schedule function.')
+        conf_path = self.app.pargs.conf
+        if conf_path is None:
+            conf_path = "/etc/wight.conf"
+
+        self.log.info('Using configuration file in %s.' % conf_path)
+        self.log.info("Scheduling load test for repository '%s'." % self.app.pargs.repo)
+        self.log.info("Type 'wight list' to keep track of your scheduled tests.")
