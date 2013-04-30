@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+import sys
 from cement.core import controller
 
 from wight.cli.base import WightBaseController
@@ -28,4 +29,4 @@ class ScheduleController(WightBaseController):
     def default(self):
         self.load_conf()
         self.log.info("Scheduling load test for repository '%s'." % self.arguments.repo)
-        self.log.info("Type 'wight list' to keep track of your scheduled tests.")
+        self.write("Type 'wight list' to keep track of your scheduled tests.\n")

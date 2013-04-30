@@ -25,3 +25,5 @@ class TestCase(test.CementTestCase):
         controller.log = Mock()
 
         return controller
+
+

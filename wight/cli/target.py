@@ -33,7 +33,7 @@ class TargetSetController(WightBaseController):
         self.load_conf()
 
         target = self.arguments.target
-        self.log.info("Setting target to '%s'." % target)
+        self.write("Setting target to '%s'." % target)
 
         ud = UserData.load()
         if ud is None:
@@ -62,7 +62,7 @@ class TargetGetController(WightBaseController):
         user_data = UserData.load(expanduser("~/.wight"))
 
         if user_data is None:
-            self.log.info("No target set.")
+            self.write("No target set.")
             return
 
-        self.log.info("Current target set to '%s'." % user_data.target)
+        self.write("Current target set to '%s'." % user_data.target)

@@ -8,25 +8,17 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+from cement.core import backend
 
-from cement.core import foundation, handler, backend
-
-from wight.cli.base import WightDefaultController
-from wight.cli.schedule import ScheduleController
-from wight.cli.target import TargetSetController, TargetGetController
-
-
-class WightApp(foundation.CementApp):
-    class Meta:
-        label = 'wight'
-        base_controller = WightDefaultController
+from wight.cli.app import WightApp
 
 
 def main():
-    app = WightApp(config_defaults=backend.defaults('wight'))
-    handler.register(ScheduleController)
-    handler.register(TargetSetController)
-    handler.register(TargetGetController)
+    defaults = backend.defaults('wight', 'log')
+    defaults['log']['level'] = 'WARN'
+
+    app = WightApp(config_defaults=defaults)
+    app.register_controllers()
 
     try:
         app.setup()

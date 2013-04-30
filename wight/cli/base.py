@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+import sys
+
 from cement.core import controller
 
 from wight.models import UserData
@@ -37,6 +39,9 @@ class WightBaseController(controller.CementBaseController):
         #TODO: load config using derpconf
 
         self.log.info('Using configuration file in %s.' % conf_path)
+
+    def write(self, msg):
+        sys.stdout.write('%s\n' % msg)
 
 
 class WightDefaultController(WightBaseController):
