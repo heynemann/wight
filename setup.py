@@ -49,7 +49,7 @@ wight is a load testing scheduling and tracking tool.
     install_requires=[
         'argparse',
         'cement',
-        'derpconf'
+        'derpconf==0.4.1'
     ],
     extras_require={
         'tests': tests_require,
