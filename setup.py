@@ -17,6 +17,7 @@ tests_require = [
     'yanc',
     'preggy',
     'mock',
+    'tox'
 ]
 
 setup(
