@@ -10,8 +10,10 @@
 
 from cement.core import controller
 
+from wight.cli.base import WightBaseController
 
-class ScheduleController(controller.CementBaseController):
+
+class ScheduleController(WightBaseController):
     class Meta:
         label = 'schedule'
         description = 'Schedules a new load test for the given repository.'
@@ -24,10 +26,6 @@ class ScheduleController(controller.CementBaseController):
 
     @controller.expose(hide=True, help='Schedules a new load test for the given repository.')
     def default(self):
-        conf_path = self.app.pargs.conf
-        if conf_path is None:
-            conf_path = "/etc/wight.conf"
-
-        self.log.info('Using configuration file in %s.' % conf_path)
-        self.log.info("Scheduling load test for repository '%s'." % self.app.pargs.repo)
+        self.load_conf()
+        self.log.info("Scheduling load test for repository '%s'." % self.arguments.repo)
         self.log.info("Type 'wight list' to keep track of your scheduled tests.")

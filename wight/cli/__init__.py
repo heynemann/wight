@@ -11,13 +11,22 @@
 
 from cement.core import foundation, handler
 
-from wight.cli.base import WightBaseController
+from wight.cli.base import WightDefaultController
 from wight.cli.schedule import ScheduleController
+from wight.cli.target import TargetSetController, TargetGetController
+
+
+class WightApp(foundation.CementApp):
+    class Meta:
+        label = 'wight'
+        base_controller = WightDefaultController
 
 
 def main():
-    app = foundation.CementApp('wight', base_controller=WightBaseController)
+    app = WightApp()
     handler.register(ScheduleController)
+    handler.register(TargetSetController)
+    handler.register(TargetGetController)
 
     try:
         app.setup()

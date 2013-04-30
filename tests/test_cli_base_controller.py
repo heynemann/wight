@@ -13,20 +13,20 @@ try:
 except ImportError:
     from io import StringIO
 
-from cement.utils import test
 from preggy import expect
 from mock import patch
 
-from wight.cli.base import WightBaseController
+from wight.cli.base import WightDefaultController
+from tests.base import TestCase
 
 
-class TestBaseHandler(test.CementTestCase):
+class TestDefaultHandler(TestCase):
 
     def test_meta_label(self):
-        expect(WightBaseController.Meta.label).to_equal('base')
+        expect(WightDefaultController.Meta.label).to_equal('base')
 
     def test_meta_desc(self):
-        expect(WightBaseController.Meta.description).to_equal('wight load testing scheduler and tracker.')
+        expect(WightDefaultController.Meta.description).to_equal('wight load testing scheduler and tracker.')
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_default_action(self, mock_stdout):
@@ -38,10 +38,7 @@ class TestBaseHandler(test.CementTestCase):
         --debug     toggle debug output
         --quiet     suppress all output"""
 
-        self.app.setup()
-
-        ctrl = WightBaseController()
-        ctrl.app = self.app
+        ctrl = self.make_controller(WightDefaultController)
         ctrl.default()
 
         expect(mock_stdout.getvalue()).to_be_like(expected)

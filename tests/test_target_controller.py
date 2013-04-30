@@ -8,35 +8,20 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-#from cement.utils import test
-#from preggy import expect
-#from mock import patch
+from os.path import expanduser
 
-#from wight.cli.target import TargetHandler
+from preggy import expect
+
+from wight.models import UserData
+from wight.cli.target import TargetSetController
+from tests.base import TestCase
 
 
-#class TestBaseHandler(test.CementTestCase):
+class TestTargetSetController(TestCase):
+    def test_set_target(self):
+        ctrl = self.make_controller(TargetSetController, conf='/tmp/conf', target='http://my-target.wight.com')
+        ctrl.default()
 
-    #def test_meta_label(self):
-        #expect(WightBaseController.Meta.label).to_equal('base')
-
-    #def test_meta_desc(self):
-        #expect(WightBaseController.Meta.description).to_equal('wight load testing scheduler and tracker.')
-
-    #@patch('sys.stdout', new_callable=StringIO)
-    #def test_default_action(self, mock_stdout):
-        #expected = """
-        #usage: nosetests [-h] [--debug] [--quiet]
-
-        #optional arguments:
-        #-h, --help  show this help message and exit
-        #--debug     toggle debug output
-        #--quiet     suppress all output"""
-
-        #self.app.setup()
-
-        #ctrl = WightBaseController()
-        #ctrl.app = self.app
-        #ctrl.default()
-
-        #expect(mock_stdout.getvalue()).to_be_like(expected)
+        ud = UserData.load()
+        expect(ud).not_to_be_null()
+        expect(ud.target).to_equal("http://my-target.wight.com")

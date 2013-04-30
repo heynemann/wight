@@ -8,10 +8,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+from os.path import exists, expanduser
 from json import dumps, loads
 
 
 class UserData(object):
+    DEFAULT_PATH = expanduser("~/.wight")
+
     def __init__(self, target):
         self.target = target
 
@@ -20,7 +23,10 @@ class UserData(object):
             "target": self.target
         }
 
-    def write(self, path):
+    def write(self, path=None):
+        if path is None:
+            path = UserData.DEFAULT_PATH
+
         with open(path, 'w') as serializable:
             serializable.write(dumps(self.to_dict()))
 
@@ -30,6 +36,12 @@ class UserData(object):
         return item
 
     @classmethod
-    def load(cls, path):
+    def load(cls, path=None):
+        if path is None:
+            path = UserData.DEFAULT_PATH
+
+        if not exists(path):
+            return None
+
         with open(path, 'r') as serializable:
             return cls.from_dict(loads(serializable.read()))
