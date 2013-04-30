@@ -1,7 +1,7 @@
-test: redis
+test: mongo redis
 	@nosetests -vv --pdb --pdb-failures --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/
 
-ci-test: redis
+ci-test: mongo redis
 	@nosetests -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/
 
 tox:
@@ -16,3 +16,11 @@ kill_redis:
 redis: kill_redis
 	redis-server ./redis.conf; sleep 1
 	redis-cli -p 7780 info
+
+kill_mongo:
+	@ps aux | awk '(/mongod/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
+
+mongo: kill_mongo
+	@rm -rf /tmp/wight/mongodata && mkdir -p /tmp/wight/mongodata
+	@mongod --dbpath /tmp/wight/mongodata --logpath /tmp/wight/mongolog --port 7777 --quiet &
+	@sleep 1
