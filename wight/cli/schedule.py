@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-import sys
 from cement.core import controller
 
 from wight.cli.base import WightBaseController

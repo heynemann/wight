@@ -55,5 +55,8 @@ wight is a load testing scheduling and tracking tool.
         'tests': tests_require,
     },
     entry_points={
+        'console_scripts': [
+            'wight=wight.cli:main',
+        ],
     },
 )
