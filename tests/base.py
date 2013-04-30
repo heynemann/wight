@@ -8,9 +8,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+from os.path import dirname, abspath, join
+
 from mock import Mock
 
 from cement.utils import test
+
+ROOT_PATH = abspath(join(dirname(__file__), '..'))
 
 
 class TestCase(test.CementTestCase):
@@ -26,4 +30,5 @@ class TestCase(test.CementTestCase):
 
         return controller
 
-
+    def fixture_for(self, filename):
+        return join(ROOT_PATH, 'tests', 'fixtures', filename)

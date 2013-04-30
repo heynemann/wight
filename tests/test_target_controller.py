@@ -19,7 +19,7 @@ from tests.base import TestCase
 
 class TestTargetSetController(TestCase):
     def test_set_target(self):
-        ctrl = self.make_controller(TargetSetController, conf='/tmp/conf', target='http://my-target.wight.com')
+        ctrl = self.make_controller(TargetSetController, conf=self.fixture_for('test.conf'), target='http://my-target.wight.com')
         ctrl.default()
 
         ud = UserData.load()

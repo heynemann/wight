@@ -13,6 +13,7 @@ import sys
 from cement.core import controller
 
 from wight.models import UserData
+from wight.cli.config import Config
 
 
 class WightBaseController(controller.CementBaseController):
@@ -36,9 +37,8 @@ class WightBaseController(controller.CementBaseController):
         if conf_path is None:
             conf_path = UserData.DEFAULT_PATH
 
-        #TODO: load config using derpconf
-
         self.log.info('Using configuration file in %s.' % conf_path)
+        self.config = Config.load(conf_path)
 
     def write(self, msg):
         sys.stdout.write('%s\n' % msg)

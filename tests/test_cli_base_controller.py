@@ -42,3 +42,10 @@ class TestDefaultHandler(TestCase):
         ctrl.default()
 
         expect(mock_stdout.getvalue()).to_be_like(expected)
+
+    def test_load_conf(self):
+#conf='/tmp/conf'
+        ctrl = self.make_controller(WightDefaultController, conf=self.fixture_for('test.conf'))
+        ctrl.load_conf()
+
+        expect(ctrl.config).not_to_be_null()
