@@ -44,7 +44,7 @@ class TargetSetController(WightBaseController):
         ud.write()
 
 
-class TargetGetController(controller.CementBaseController):
+class TargetGetController(WightBaseController):
     class Meta:
         label = 'target-get'
         stack_on = 'base'
@@ -55,7 +55,7 @@ class TargetGetController(controller.CementBaseController):
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
         ]
 
-    @controller.expose(hide=False, aliases=["target-set"], help='Sets wight target to the specified target.')
+    @controller.expose(hide=False, aliases=["target-get"], help='Gets the target wight is using currently.')
     def default(self):
         self.load_conf()
 

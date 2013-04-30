@@ -10,6 +10,8 @@
 
 from cement.core import controller
 
+from wight.models import UserData
+
 
 class WightBaseController(controller.CementBaseController):
     def __init__(self, *args, **kw):
@@ -21,13 +23,16 @@ class WightBaseController(controller.CementBaseController):
 
         super(WightBaseController, self).__init__(*args, **kw)
 
+    def _parse_args(self):
+        super(WightBaseController, self)._parse_args()
+
         if self.arguments is None:
             self.arguments = self.app.pargs
 
     def load_conf(self):
-        conf_path = self.arguments.conf
+        conf_path = self.arguments and self.arguments.conf or None
         if conf_path is None:
-            conf_path = "/etc/wight.conf"
+            conf_path = UserData.DEFAULT_PATH
 
         #TODO: load config using derpconf
 

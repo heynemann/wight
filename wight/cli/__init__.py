@@ -9,7 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 
-from cement.core import foundation, handler
+from cement.core import foundation, handler, backend
 
 from wight.cli.base import WightDefaultController
 from wight.cli.schedule import ScheduleController
@@ -23,7 +23,7 @@ class WightApp(foundation.CementApp):
 
 
 def main():
-    app = WightApp()
+    app = WightApp(config_defaults=backend.defaults('wight'))
     handler.register(ScheduleController)
     handler.register(TargetSetController)
     handler.register(TargetGetController)
