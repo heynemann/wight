@@ -9,6 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 import sys
+from os.path import exists
 
 from cement.core import controller
 
@@ -38,7 +39,10 @@ class WightBaseController(controller.CementBaseController):
             conf_path = UserData.DEFAULT_PATH
 
         self.log.info('Using configuration file in %s.' % conf_path)
-        self.config = Config.load(conf_path)
+        if exists(conf_path):
+            self.config = Config.load(conf_path)
+        else:
+            self.config = Config()
 
     def write(self, msg):
         sys.stdout.write('%s\n' % msg)

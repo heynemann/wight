@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+import os
 try:
     from StringIO import StringIO
 except ImportError:
@@ -17,6 +18,7 @@ from preggy import expect
 from mock import patch
 
 from wight.cli.base import WightDefaultController
+from wight.models import UserData
 from tests.base import TestCase
 
 
@@ -44,8 +46,27 @@ class TestDefaultHandler(TestCase):
         expect(mock_stdout.getvalue()).to_be_like(expected)
 
     def test_load_conf(self):
-#conf='/tmp/conf'
         ctrl = self.make_controller(WightDefaultController, conf=self.fixture_for('test.conf'))
         ctrl.load_conf()
 
         expect(ctrl.config).not_to_be_null()
+
+    def test_load_conf_that_does_not_exist(self):
+        ctrl = self.make_controller(WightDefaultController, conf=self.fixture_for('invalid.conf'))
+        ctrl.load_conf()
+
+        expect(ctrl.config).not_to_be_null()
+
+    def test_default_path_load_conf(self):
+        ctrl = self.make_controller(WightDefaultController, conf=None)
+
+        with open(UserData.DEFAULT_PATH, 'w') as f:
+            f.write('')
+
+        try:
+            ctrl.load_conf()
+
+            expect(ctrl.config).not_to_be_null()
+            expect(ctrl.config.config_file).to_equal(UserData.DEFAULT_PATH)
+        finally:
+            os.remove(UserData.DEFAULT_PATH)
