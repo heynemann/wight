@@ -12,6 +12,7 @@ from os.path import abspath, join, dirname
 import logging
 
 import redis
+from mongoengine import connect
 import tornado.web
 import tornado.wsgi
 from tornado.web import url
@@ -45,6 +46,14 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         port=self.config.REDIS_PORT,
         db=self.config.REDIS_DB_COUNT,
         password=self.config.REDIS_PASSWORD
+    )
+
+    connect(
+        self.config.MONGO_DB,
+        host=self.config.MONGO_HOST,
+        port=self.config.MONGO_PORT,
+        username=self.config.MONGO_USER,
+        password=self.config.MONGO_PASS
     )
 
     #self.session_store = RedisSessionStore(

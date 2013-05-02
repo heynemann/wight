@@ -17,12 +17,14 @@ HOURS = 60 * MINUTES
 
 Config.define('COOKIE_SECRET', '1617401289404f2182bqwelf7cddd0f', 'To sign secure cookie info.', 'Basic')
 
-Config.define('MONGO_HOST', '127.0.0.1', 'The host where the Redis server is running.', 'DB')
-Config.define('MONGO_PORT', 7778, 'The port that Redis server is running.', 'DB')
-Config.define('MONGO_DB', 0, 'The number of redis db.', 'DB')
+Config.define('MONGO_HOST', '127.0.0.1', 'The host where the Mongo server is running.', 'DB')
+Config.define('MONGO_PORT', 7777, 'The port that the Mongo server is running.', 'DB')
+Config.define('MONGO_DB', 'wight-api', 'The database name we should use for the api in mongo.', 'DB')
+Config.define('MONGO_USER', None, 'The user name to authenticate with mongo.', 'DB')
+Config.define('MONGO_PASS', None, 'The password to authenticate with mongo.', 'DB')
 
 Config.define('REDIS_HOST', '127.0.0.1', 'The host where the Redis server is running.', 'Cache')
-Config.define('REDIS_PORT', 7778, 'The port that Redis server is running.', 'Cache')
+Config.define('REDIS_PORT', 7780, 'The port that Redis server is running.', 'Cache')
 Config.define('REDIS_DB_COUNT', 0, 'The number of redis db.', 'Cache')
 Config.define('REDIS_PASSWORD', '', 'The redis password', 'Cache')
 Config.define('REDIS_SESSION_EXPIRATION', 7200, 'Time for session expiration in Redis.', 'Cache')
