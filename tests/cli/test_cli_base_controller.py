@@ -9,6 +9,8 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 import os
+from wight.cli import WightApp
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -17,9 +19,17 @@ except ImportError:
 from preggy import expect
 from mock import patch
 
-from wight.cli.base import WightDefaultController
+from wight.cli.base import WightDefaultController, WightBaseController
 from wight.models import UserData
 from tests.base import TestCase
+
+
+class TestBaseController(TestCase):
+    def test_has_api(self):
+        app = WightApp(argv=[], config_files=[])
+        app.setup()
+        ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'), app=app)
+        expect(ctrl.api).to_be_true()
 
 
 class TestDefaultHandler(TestCase):
@@ -29,6 +39,7 @@ class TestDefaultHandler(TestCase):
 
     def test_meta_desc(self):
         expect(WightDefaultController.Meta.description).to_equal('wight load testing scheduler and tracker.')
+
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_default_action(self, mock_stdout):

@@ -26,6 +26,11 @@ class WightBaseController(controller.CementBaseController):
             self.arguments = pargs
 
         super(WightBaseController, self).__init__(*args, **kw)
+        self.ignored += ['api']
+
+    @property
+    def api(self):
+        return self.app.api
 
     def _parse_args(self):
         super(WightBaseController, self)._parse_args()
