@@ -23,7 +23,7 @@ kill_mongo:
 mongo: kill_mongo
 	@rm -rf /tmp/wight/mongodata && mkdir -p /tmp/wight/mongodata
 	@mongod --dbpath /tmp/wight/mongodata --logpath /tmp/wight/mongolog --port 7777 --quiet &
-	@sleep 1
+	@sleep 3
 
 run: mongo redis
 	@python wight/api/server.py --port 2367 --bind 0.0.0.0 --conf ./wight/api/local.conf -vvv --debug

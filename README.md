@@ -8,4 +8,4 @@ wight is a load test scheduler and reporter based on funkload.
 Supported Pythons
 -----------------
 
-2.6, 2.7, 3.2, 3.3.
+2.6, 2.7, 3.2, 3.3, PyPy.
