@@ -9,6 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from cement.core import foundation, handler
+import slumber
 
 from wight.cli.base import WightDefaultController
 from wight.cli.schedule import ScheduleController
@@ -19,6 +20,10 @@ class WightApp(foundation.CementApp):
     class Meta:
         label = 'wight'
         base_controller = WightDefaultController
+
+    def __init__(self, label=None, **kw):
+        super(WightApp, self).__init__(**kw)
+        self.api = slumber.API("http://localhost:8000/v1/")
 
     def register_controllers(self):
         self.controllers = [

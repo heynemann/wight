@@ -52,7 +52,8 @@ wight is a load testing scheduling and tracking tool.
         'derpconf==0.4.7',
         'tornado',
         'redis',
-        'mongoengine'
+        'mongoengine',
+        'slumber'
     ],
     extras_require={
         'tests': tests_require,

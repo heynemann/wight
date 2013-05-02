@@ -38,3 +38,6 @@ class TestWightApp(TestCase):
         expect(self.app.controllers).to_include(ScheduleController)
         expect(self.app.controllers).to_include(TargetSetController)
         expect(self.app.controllers).to_include(TargetGetController)
+
+    def test_has_an_api_since_the_beggin(self):
+        expect(self.app.api).to_be_true()
