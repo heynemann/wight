@@ -21,7 +21,6 @@ class HealthcheckHandlerTest(ApiTestCase):
     def test_healthcheck(self):
         response = self.fetch('/healthcheck')
         expect(response.code).to_equal(200)
-        import ipdb;ipdb.set_trace()
         expect(response.body).to_be_like('WORKING')
 
 
