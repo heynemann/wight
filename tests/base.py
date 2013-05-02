@@ -9,9 +9,11 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from os.path import dirname, abspath, join
+import socket
 
 from mock import Mock
-from tornado.testing import AsyncHTTPTestCase
+from tornado.netutil import bind_sockets
+from tornado.testing import AsyncHTTPTestCase, get_unused_port, AsyncTestCase
 from cement.utils import test
 
 from wight.api.app import WightApp
@@ -38,6 +40,18 @@ class TestCase(test.CementTestCase):
 
 
 class ApiTestCase(AsyncHTTPTestCase):
+
+    def setUp(self):
+        AsyncTestCase.setUp(self)
+        port = get_unused_port()
+        sock = bind_sockets(port, 'localhost', socket.AF_INET)[0]
+        self.__port = port
+        setattr(self, "_AsyncHTTPTestCase__port", port)
+        self.http_client = self.get_http_client()
+        self._app = self.get_app()
+        self.http_server = self.get_http_server()
+        self.http_server.add_sockets([sock])
+
     def make_app(self, config=None):
         if not config:
             config = Config()
