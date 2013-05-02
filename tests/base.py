@@ -11,8 +11,11 @@
 from os.path import dirname, abspath, join
 
 from mock import Mock
-
+from tornado.testing import AsyncHTTPTestCase
 from cement.utils import test
+
+from wight.api.app import WightApp
+from wight.api.config import Config
 
 ROOT_PATH = abspath(join(dirname(__file__), '..'))
 
@@ -32,3 +35,10 @@ class TestCase(test.CementTestCase):
 
     def fixture_for(self, filename):
         return join(ROOT_PATH, 'tests', 'fixtures', filename)
+
+
+class ApiTestCase(AsyncHTTPTestCase):
+    def make_app(self, config=None):
+        if not config:
+            config = Config()
+        return WightApp(config=config)
