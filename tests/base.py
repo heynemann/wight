@@ -54,6 +54,9 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.http_client.fetch(req, self.stop)
         return self.wait()
 
+    def reverse_url(self, url):
+        return self._app.reverse_url(url)
+
 
 class ModelTestCase(PythonTestCase):
     @classmethod
