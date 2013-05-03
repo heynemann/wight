@@ -36,3 +36,28 @@ class AuthenticationHandler(BaseHandler):
         self.set_status(200)
         self.write(user.token)
         self.finish()
+
+
+class AuthenticationWithTokenHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    def get(self):
+        token = self.request.headers.get("Token", None)
+
+        if not token:
+            self.set_status(400)
+            self.finish()
+            return
+
+        user = User.authenticate_with_token(token, expiration=self.application.config.TOKEN_EXPIRATION_IN_MINUTES)
+
+        if user is None:
+            self.set_status(403)
+            self.finish()
+            return
+
+        self.set_status(200)
+        self.set_header("Token", user.token)
+        self.set_header("Token-Expiration", user.token_expiration.isoformat())
+        self.write("OK")
+        self.finish()

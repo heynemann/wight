@@ -42,3 +42,44 @@ class UserAuthenticationTest(ApiTestCase):
     def test_authenticate_with_no_headers(self):
         response = self.fetch('/auth/user/')
         expect(response.code).to_equal(400)
+
+
+class UserAuthenticationWithTokenTest(ApiTestCase):
+    def get_app(self):
+        return self.make_app()
+
+    def test_authenticate_with_valid_user(self):
+        email = "test_auth_token1@gmail.com"
+        password = "12345"
+        user = User(email=email, password=password)
+        user.save()
+
+        user = User.authenticate(email=email, password=password)
+
+        response = self.fetch_with_headers('/auth/token/', token=user.token)
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+
+        user = User.objects.filter(email=email).first()
+
+        expect(response.headers).to_include('Token-Expiration')
+        # without nano seconds
+        expect(response.headers['Token-Expiration'][:19]).to_equal(user.token_expiration.isoformat()[:19])
+
+        expect(response.headers).to_include('Token')
+        expect(response.headers['Token']).to_equal(user.token)
+
+    #def test_authenticate_with_invalid_user(self):
+        #response = self.fetch_with_headers('/auth/user/', username="test_auth99999@gmail.com", password="12345")
+        #expect(response.code).to_equal(403)
+
+    #def test_authenticate_with_invalid_pass(self):
+        #user = User(email="test_auth2@gmail.com", password="12345")
+        #user.save()
+
+        #response = self.fetch_with_headers('/auth/user/', username="test_auth2@gmail.com", password="12346")
+        #expect(response.code).to_equal(403)
+
+    #def test_authenticate_with_no_headers(self):
+        #response = self.fetch('/auth/user/')
+        #expect(response.code).to_equal(400)

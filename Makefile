@@ -1,7 +1,4 @@
-test: mongo redis
-	@nosetests -vv --pdb --pdb-failures --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/
-
-ci-test: mongo redis
+test ci-test: mongo redis
 	@nosetests -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/
 
 tox:
