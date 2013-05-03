@@ -15,7 +15,7 @@ tests_require = [
     'nose',
     'coverage',
     'yanc',
-    'preggy==0.3.9',
+    'preggy==0.3.12',
     'mock',
     'tox',
     'ipdb'
