@@ -27,3 +27,7 @@ class UserAuthenticationTest(ApiTestCase):
 
         user = User.objects.filter(email="test_auth1@gmail.com")
         expect(response.body).to_be_like(user.first().token)
+
+    def test_authenticate_with_invalid_user(self):
+        response = self.fetch('/auth/user/?username=test_auth2@gmail.com&password=12345')
+        expect(response.code).to_equal(403)
