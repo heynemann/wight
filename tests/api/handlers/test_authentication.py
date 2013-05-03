@@ -22,12 +22,23 @@ class UserAuthenticationTest(ApiTestCase):
         user = User(email="test_auth1@gmail.com", password="12345")
         user.save()
 
-        response = self.fetch('/auth/user/?username=test_auth1@gmail.com&password=12345')
+        response = self.fetch_with_headers('/auth/user/', username="test_auth1@gmail.com", password="12345")
         expect(response.code).to_equal(200)
 
         user = User.objects.filter(email="test_auth1@gmail.com")
         expect(response.body).to_be_like(user.first().token)
 
     def test_authenticate_with_invalid_user(self):
-        response = self.fetch('/auth/user/?username=test_auth2@gmail.com&password=12345')
+        response = self.fetch_with_headers('/auth/user/', username="test_auth99999@gmail.com", password="12345")
         expect(response.code).to_equal(403)
+
+    def test_authenticate_with_invalid_pass(self):
+        user = User(email="test_auth2@gmail.com", password="12345")
+        user.save()
+
+        response = self.fetch_with_headers('/auth/user/', username="test_auth2@gmail.com", password="12346")
+        expect(response.code).to_equal(403)
+
+    def test_authenticate_with_no_headers(self):
+        response = self.fetch('/auth/user/')
+        expect(response.code).to_equal(400)

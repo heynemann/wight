@@ -13,6 +13,7 @@ from unittest import TestCase as PythonTestCase
 
 from mock import Mock
 from tornado.testing import AsyncHTTPTestCase
+from tornado.httpclient import HTTPRequest
 from cement.utils import test
 from mongoengine import connect
 
@@ -45,6 +46,13 @@ class ApiTestCase(AsyncHTTPTestCase):
         if not config:
             config = Config()
         return WightApp(config=config)
+
+    def fetch_with_headers(self, path, **kw):
+        url = self.get_url(path)
+        req = HTTPRequest(url=url, headers=kw)
+
+        self.http_client.fetch(req, self.stop)
+        return self.wait()
 
 
 class ModelTestCase(PythonTestCase):

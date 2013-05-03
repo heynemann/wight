@@ -18,8 +18,13 @@ class AuthenticationHandler(BaseHandler):
 
     @tornado.web.asynchronous
     def get(self):
-        user = self.get_argument("username")
-        password = self.get_argument("password")
+        user = self.request.headers.get("Username", None)
+        password = self.request.headers.get("Password", None)
+
+        if not user or not password:
+            self.set_status(400)
+            self.finish()
+            return
 
         user = User.authenticate(user, password, expiration=self.application.config.TOKEN_EXPIRATION_IN_MINUTES)
 
