@@ -9,13 +9,16 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from os.path import dirname, abspath, join
+from unittest import TestCase as PythonTestCase
 
 from mock import Mock
 from tornado.testing import AsyncHTTPTestCase
 from cement.utils import test
+from mongoengine import connect
 
 from wight.api.app import WightApp
 from wight.api.config import Config
+from wight.models import User
 
 ROOT_PATH = abspath(join(dirname(__file__), '..'))
 
@@ -42,3 +45,15 @@ class ApiTestCase(AsyncHTTPTestCase):
         if not config:
             config = Config()
         return WightApp(config=config)
+
+
+class ModelTestCase(PythonTestCase):
+    @classmethod
+    def setUpClass(cls):
+        connect(
+            "mongo-test",
+            host="localhost",
+            port=7777
+        )
+
+        User.objects.delete()
