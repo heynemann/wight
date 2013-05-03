@@ -16,6 +16,7 @@ MINUTES = 60
 HOURS = 60 * MINUTES
 
 Config.define('COOKIE_SECRET', '1617401289404f2182bqwelf7cddd0f', 'To sign secure cookie info.', 'Basic')
+Config.define('TOKEN_EXPIRATION_IN_MINUTES', 2 * 24 * 60, 'Expiration of authentication tokens in minutes.', 'Basic')
 
 Config.define('MONGO_HOST', '127.0.0.1', 'The host where the Mongo server is running.', 'DB')
 Config.define('MONGO_PORT', 7777, 'The port that the Mongo server is running.', 'DB')

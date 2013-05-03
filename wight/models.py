@@ -62,12 +62,49 @@ class User(Document):
     email = StringField(max_length=2000, required=True)
     password = StringField(max_length=2000, required=True)
     salt = StringField(required=True, default=get_uuid)
+    token = StringField(required=False)
+    token_expiration = DateTimeField(required=False)
     date_modified = DateTimeField(default=datetime.datetime.now)
     date_created = DateTimeField(default=datetime.datetime.now)
 
     def clean(self):
         # Make sure that password is hashed
-        self.password = hmac.new(six.b(self.salt), six.b(self.password), hashlib.sha1).hexdigest()
+        self.password = User.get_hash_for(self.salt, self.password)
 
         # Updates date_modified field
         self.date_modified = datetime.datetime.now()
+
+    @classmethod
+    def get_hash_for(cls, salt, password):
+        return hmac.new(six.b(str(salt)), six.b(password), hashlib.sha1).hexdigest()
+
+    @classmethod
+    def authenticate(cls, email, password, expiration=2 * 60 * 24):
+        user = User.objects.filter(email__iexact=email).first()
+
+        if user is None:
+            return None
+
+        if user.password != cls.get_hash_for(user.salt, password):
+            return None
+
+        user.token = get_uuid()
+        user.token_expiration = datetime.datetime.now() + datetime.timedelta(minutes=expiration)
+        user.save()
+
+        return user
+
+    @classmethod
+    def authenticate_with_token(cls, token, expiration=2 * 60 * 24):
+        user = User.objects.filter(token=token).first()
+
+        if user is None:
+            return None
+
+        if user.token_expiration < datetime.datetime.now():
+            return None
+
+        user.token_expiration = datetime.datetime.now() + datetime.timedelta(minutes=expiration)
+        user.save()
+
+        return user

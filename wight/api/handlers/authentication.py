@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# wight load testing
+# https://github.com/heynemann/wight
+
+# Licensed under the MIT license:
+# http://www.opensource.org/licenses/mit-license
+# Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+
+import tornado.web
+
+from wight.api.handlers.base import BaseHandler
+from wight.models import User
+
+
+class AuthenticationHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    def get(self):
+        user = self.get_argument("username")
+        password = self.get_argument("password")
+
+        user = User.authenticate(user, password, expiration=self.application.config.TOKEN_EXPIRATION_IN_MINUTES)
+
+        if user is None:
+            self.set_status(403)
+            self.finish()
+            return
+
+        self.set_status(200)
+        self.write(user.token)
+        self.finish()
