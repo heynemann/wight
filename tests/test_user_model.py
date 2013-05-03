@@ -20,8 +20,7 @@ from tests.base import ModelTestCase
 
 class TestUserModel(ModelTestCase):
     def test_can_create_user(self):
-        user = User(email="user@gmail.com", password="12345")
-        user.save()
+        user = User.create(email="user@gmail.com", password="12345")
 
         password = hmac.new(six.b(user.salt), six.b("12345"), hashlib.sha1).hexdigest()
 
@@ -29,6 +28,12 @@ class TestUserModel(ModelTestCase):
         expect(retrieved.count()).to_equal(1)
         expect(retrieved.first().password).to_equal(password)
         expect(retrieved.first().email).to_equal("user@gmail.com")
+        expect(retrieved.first().token).to_equal(user.token)
+
+    def test_cant_create_user_with_same_email_twice(self):
+        User.create(email="repeated@gmail.com", password="12345")
+        user = User.create(email="repeated@gmail.com", password="12345")
+        expect(user).to_be_null()
 
     def test_authenticating_with_wrong_pass_returns_none(self):
         user = User(email="user2@gmail.com", password="12345")

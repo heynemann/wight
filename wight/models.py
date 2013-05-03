@@ -17,6 +17,7 @@ from uuid import uuid4
 
 import six
 from mongoengine import Document, StringField, DateTimeField
+from mongoengine.queryset import NotUniqueError
 
 
 class UserData(object):
@@ -59,7 +60,7 @@ def get_uuid():
 
 
 class User(Document):
-    email = StringField(max_length=2000, required=True)
+    email = StringField(max_length=2000, unique=True, required=True)
     password = StringField(max_length=2000, required=True)
     salt = StringField(required=True, default=get_uuid)
     token = StringField(required=False)
@@ -73,6 +74,11 @@ class User(Document):
 
         # Updates date_modified field
         self.date_modified = datetime.datetime.now()
+
+    def validate_token(self, expiration=2 * 60 * 24, generate=True):
+        if generate:
+            self.token = get_uuid()
+        self.token_expiration = datetime.datetime.now() + datetime.timedelta(minutes=expiration)
 
     @classmethod
     def get_hash_for(cls, salt, password):
@@ -88,8 +94,7 @@ class User(Document):
         if user.password != cls.get_hash_for(user.salt, password):
             return None
 
-        user.token = get_uuid()
-        user.token_expiration = datetime.datetime.now() + datetime.timedelta(minutes=expiration)
+        user.validate_token(expiration)
         user.save()
 
         return user
@@ -104,7 +109,19 @@ class User(Document):
         if user.token_expiration < datetime.datetime.now():
             return None
 
-        user.token_expiration = datetime.datetime.now() + datetime.timedelta(minutes=expiration)
+        user.validate_token(expiration, generate=False)
         user.save()
+
+        return user
+
+    @classmethod
+    def create(cls, email, password, expiration=2 * 60 * 24):
+        user = User(email=email, password=password)
+        user.validate_token(expiration=expiration)
+
+        try:
+            user.save()
+        except NotUniqueError:
+            return None
 
         return user
