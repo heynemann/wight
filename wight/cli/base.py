@@ -30,10 +30,6 @@ class WightBaseController(controller.CementBaseController):
         super(WightBaseController, self).__init__(*args, **kw)
         self.ignored += ['api']
 
-    @property
-    def api(self):
-        return self.app.api
-
     def _parse_args(self):
         super(WightBaseController, self)._parse_args()
 
@@ -66,6 +62,15 @@ class WightBaseController(controller.CementBaseController):
 
         url = join(self.app.user_data.target.rstrip('/'), path.lstrip('/'))
         return requests.get(url, headers=headers)
+
+    def post(self, path, data={}, headers={}):
+        if self.app.user_data is None:
+            raise RuntimeError("Need to set target before trying to access api")
+        headers.update({"Token": self.app.user_data.token})
+        target = self.app.user_data.target.rstrip('/')
+        data.update({"target": target})
+        url = join(target, path.lstrip('/'))
+        return requests.post(url, data=data, headers=headers)
 
 
 class WightDefaultController(WightBaseController):

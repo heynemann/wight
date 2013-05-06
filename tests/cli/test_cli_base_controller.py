@@ -9,7 +9,6 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 import os
-from wight.cli import WightApp
 
 try:
     from StringIO import StringIO
@@ -21,15 +20,31 @@ from mock import patch
 
 from wight.cli.base import WightDefaultController, WightBaseController
 from wight.models import UserData
+from wight.cli import WightApp
+import wight.cli.base as base
+
 from tests.base import TestCase
 
 
 class TestBaseController(TestCase):
-    def test_has_api(self):
-        app = WightApp(argv=[], config_files=[])
-        app.setup()
-        ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'), app=app)
-        expect(ctrl.api).to_be_true()
+    @patch.object(base.requests, 'post')
+    def test_make_a_post(self, post_mock):
+        ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.post("/post-url", data={"some": "data"})
+        expect(post_mock.called).to_be_true()
+
+    @patch.object(base.requests, 'post')
+    def test_make_a_post_with_correct_values(self, post_mock):
+        ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
+        ctrl.post("/post-url", data={"some": "data"})
+        post_mock.assert_called_with(
+            "Target/post-url",
+            data={"some": "data", "target": "Target"},
+            headers={"Token": "token-value"}
+        )
 
 
 class TestDefaultHandler(TestCase):
