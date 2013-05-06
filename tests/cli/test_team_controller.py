@@ -12,11 +12,21 @@ from mock import patch
 
 from wight.cli.team import CreateTeamController
 from tests.base import TestCase
+from wight.models import UserData
 
 
 class TestCreateTeamController(TestCase):
     @patch.object(CreateTeamController, 'post')
     def test_create_team(self, post_mock):
         ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
         ctrl.default()
         post_mock.assert_called_with("/teams", {"name": "nameless"})
+
+    @patch.object(CreateTeamController, 'post')
+    @patch.object(CreateTeamController, 'write')
+    def test_create_team_notify_user(self, write_mock, post_mock):
+        ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.default()
+        write_mock.assert_called_with("Created 'nameless' team in 'Target' target.")

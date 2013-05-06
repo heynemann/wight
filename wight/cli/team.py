@@ -12,7 +12,6 @@ from os.path import expanduser
 from cement.core import controller
 
 from wight.cli.base import WightBaseController
-from wight.models import UserData
 
 
 class CreateTeamController(WightBaseController):
@@ -30,7 +29,7 @@ class CreateTeamController(WightBaseController):
     @controller.expose(hide=False, aliases=["create-team"], help='Create a team.')
     def default(self):
         self.load_conf()
-        user_data = UserData.load(expanduser("~/.wight"))
+        target = self.app.user_data.target
         name = self.arguments.team_name
-        self.write("Created '%s' team in '%s' target." % (name, user_data.target))
+        self.write("Created '%s' team in '%s' target." % (name, target))
         self.post("/teams", {"name": name})
