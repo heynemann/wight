@@ -53,12 +53,9 @@ class AuthController(WightBaseController):
         if response.status_code == 403:
             print("Authentication failed.")
             return False
-        elif response.status_code == 200:
-            print("Authenticated.")
-
-        if response.status_code == 404:
+        elif response.status_code == 404:
             register = self.ask_for("User does not exist. Do you wish to register? [y/n]")
-            if not register or register.lower() not in ("y", "n"):
+            if not register or register.lower() not in ("y", "n") or register.lower() == "n":
                 print("Aborting...")
                 return False
 
@@ -68,6 +65,8 @@ class AuthController(WightBaseController):
             })
 
             print("User registered and authenticated.")
+        elif response.status_code == 200:
+            print("Authenticated.")
 
         self.__update_token(response)
         return True
