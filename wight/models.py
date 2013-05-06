@@ -16,7 +16,7 @@ import hmac
 from uuid import uuid4
 
 import six
-from mongoengine import Document, StringField, DateTimeField
+from mongoengine import Document, StringField, DateTimeField, ListField, ReferenceField
 from mongoengine.queryset import NotUniqueError
 
 
@@ -132,3 +132,27 @@ class User(Document):
             return None
 
         return user
+
+
+class Team(Document):
+    name = StringField(max_length=2000, unique=True, required=True)
+    members = ListField(ReferenceField(User))
+    date_modified = DateTimeField(default=datetime.datetime.now)
+    date_created = DateTimeField(default=datetime.datetime.now)
+
+    def clean(self):
+        # Updates date_modified field
+        self.date_modified = datetime.datetime.now()
+
+    @classmethod
+    def create(cls, name, members=None):
+        team = Team(name=name)
+        if members:
+            for member in members:
+                team.members.append(member)
+        try:
+            team.save()
+        except NotUniqueError:
+            return None
+
+        return team

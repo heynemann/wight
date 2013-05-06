@@ -18,7 +18,7 @@ tests_require = [
     'preggy==0.3.12',
     'mock',
     'tox',
-    'ipdb'
+    'ipdb',
 ]
 
 setup(
@@ -62,6 +62,7 @@ wight is a load testing scheduling and tracking tool.
     entry_points={
         'console_scripts': [
             'wight=wight.cli:main',
+            'wight-api=wight.api.server:main'
         ],
     },
 )
