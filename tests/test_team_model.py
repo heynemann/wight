@@ -38,3 +38,16 @@ class TestTeamModel(ModelTestCase):
         Team.create(name="test-team-3")
         team = Team.create(name="test-team-3")
         expect(team).to_be_null()
+
+    def test_to_dict(self):
+        u1 = User.create(email="team-user3@gmail.com", password="12345")
+        u2 = User.create(email="team-user4@gmail.com", password="12345")
+        team = Team.create(name="test-team-to-dict-4", members=[u1, u2])
+
+        expect(team.to_dict()).to_be_like({
+            "name": "test-team-to-dict-4",
+            "members": [
+                "team-user3@gmail.com",
+                "team-user4@gmail.com"
+            ]
+        })

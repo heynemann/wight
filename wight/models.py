@@ -82,6 +82,9 @@ class User(Document):
         # Updates date_modified field
         self.date_modified = datetime.datetime.now()
 
+    def to_dict(self):
+        return self.email
+
     def validate_token(self, expiration=2 * 60 * 24, generate=True):
         if generate:
             self.token = get_uuid()
@@ -143,6 +146,12 @@ class Team(Document):
     def clean(self):
         # Updates date_modified field
         self.date_modified = datetime.datetime.now()
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "members": [member.to_dict() for member in self.members]
+        }
 
     @classmethod
     def create(cls, name, members=None):
