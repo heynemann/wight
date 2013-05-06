@@ -15,9 +15,6 @@ from tests.base import ApiTestCase
 
 
 class HealthcheckHandlerTest(ApiTestCase):
-    def get_app(self):
-        return self.make_app()
-
     def test_healthcheck(self):
         response = self.fetch('/healthcheck')
         expect(response.code).to_equal(200)
@@ -27,7 +24,7 @@ class HealthcheckHandlerTest(ApiTestCase):
 class HealthcheckWithCustomTextHandlerTest(ApiTestCase):
     def get_app(self):
         cfg = Config(HEALTHCHECK_TEXT="works")
-        return self.make_app(cfg)
+        return self.create_api_app(cfg)
 
     def test_healthcheck(self):
         response = self.fetch('/healthcheck')
