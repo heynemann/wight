@@ -11,7 +11,11 @@
 from os.path import dirname, abspath, join
 from unittest import TestCase as PythonTestCase
 import socket
-import urllib
+
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 
 from mock import Mock
 from tornado.testing import AsyncHTTPTestCase, AsyncTestCase, get_unused_port
@@ -68,7 +72,7 @@ class ApiTestCase(AsyncHTTPTestCase):
 
         body = ""
         if kw:
-            body = urllib.urlencode(kw)
+            body = urlencode(kw)
 
         req = HTTPRequest(self.get_url(path), method='POST', headers=headers, body=body)
         self.http_client.fetch(req, self.stop)
