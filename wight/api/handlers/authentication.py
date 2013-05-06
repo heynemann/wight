@@ -26,7 +26,12 @@ class AuthenticationHandler(BaseHandler):
             self.finish()
             return
 
-        user = User.authenticate(email, password, expiration=self.application.config.TOKEN_EXPIRATION_IN_MINUTES)
+        exists, user = User.authenticate(email, password, expiration=self.application.config.TOKEN_EXPIRATION_IN_MINUTES)
+
+        if not exists:
+            self.set_status(404)
+            self.finish()
+            return
 
         if user is None:
             self.set_status(403)
@@ -85,7 +90,7 @@ class RegisterUserHandler(BaseHandler):
             self.finish()
             return
 
-        user = User.authenticate(email, password)
+        exists, user = User.authenticate(email, password)
 
         self.set_status(200)
         self.write("OK")

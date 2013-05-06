@@ -13,6 +13,7 @@ from preggy import expect
 from wight.cli.app import WightApp
 from wight.cli.schedule import ScheduleController
 from wight.cli.target import TargetSetController, TargetGetController
+from wight.cli.auth import AuthController
 from tests.base import TestCase
 
 
@@ -34,10 +35,8 @@ class TestWightApp(TestCase):
 
         self.app.register_controllers()
 
-        expect(self.app.controllers).to_length(3)
+        expect(self.app.controllers).to_length(4)
         expect(self.app.controllers).to_include(ScheduleController)
         expect(self.app.controllers).to_include(TargetSetController)
         expect(self.app.controllers).to_include(TargetGetController)
-
-    def test_has_an_api_since_the_beggin(self):
-        expect(self.app.api).to_be_true()
+        expect(self.app.controllers).to_include(AuthController)

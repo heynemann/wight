@@ -39,14 +39,19 @@ class TestUserModel(ModelTestCase):
         user = User(email="user2@gmail.com", password="12345")
         user.save()
 
-        expect(User.authenticate(email="user3@gmail.com", password="12345")).to_be_null()
-        expect(User.authenticate(email="user2@gmail.com", password="54321")).to_be_null()
+        exists, user = User.authenticate(email="user3@gmail.com", password="12345")
+        expect(exists).to_be_false()
+        expect(user).to_be_null()
+        exists, user = User.authenticate(email="user2@gmail.com", password="54312")
+        expect(exists).to_be_true()
+        expect(user).to_be_null()
 
     def test_authenticating(self):
         user = User(email="user4@gmail.com", password="12345")
         user.save()
 
-        auth_user = User.authenticate(email="user4@gmail.com", password="12345")
+        exists, auth_user = User.authenticate(email="user4@gmail.com", password="12345")
+        expect(exists).to_be_true()
         expect(auth_user).not_to_be_null()
 
         expect(auth_user.token).not_to_be_null()
@@ -60,7 +65,7 @@ class TestUserModel(ModelTestCase):
         user = User(email="user6@gmail.com", password="12345")
         user.save()
 
-        auth_user = User.authenticate(email="user6@gmail.com", password="12345", expiration=0)
+        exists, auth_user = User.authenticate(email="user6@gmail.com", password="12345", expiration=0)
         expect(auth_user).not_to_be_null()
 
         auth_user = User.authenticate_with_token(token=auth_user.token)
@@ -70,7 +75,7 @@ class TestUserModel(ModelTestCase):
         user = User(email="user5@gmail.com", password="12345")
         user.save()
 
-        auth_user = User.authenticate(email="user5@gmail.com", password="12345")
+        exists, auth_user = User.authenticate(email="user5@gmail.com", password="12345")
         expect(auth_user).not_to_be_null()
 
         auth_user = User.authenticate_with_token(token=auth_user.token)

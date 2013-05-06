@@ -9,9 +9,11 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 import sys
-from os.path import exists
+from os.path import exists, join
+import getpass
 
 from cement.core import controller
+import requests
 
 from wight.models import UserData
 from wight.cli.config import Config
@@ -51,6 +53,19 @@ class WightBaseController(controller.CementBaseController):
 
     def write(self, msg):
         sys.stdout.write('%s\n' % msg)
+
+    def get_pass(self, msg):
+        return getpass.getpass(prompt="%s " % msg)
+
+    def ask_for(self, msg):
+        return raw_input("%s " % msg)
+
+    def api(self, path, headers={}):
+        if self.app.user_data is None:
+            raise RuntimeError("Need to set target before trying to access api")
+
+        url = join(self.app.user_data.target.rstrip('/'), path.lstrip('/'))
+        return requests.get(url, headers=headers)
 
 
 class WightDefaultController(WightBaseController):

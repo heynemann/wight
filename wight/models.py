@@ -23,15 +23,17 @@ from mongoengine.queryset import NotUniqueError
 class UserData(object):
     DEFAULT_PATH = expanduser("~/.wight")
 
-    def __init__(self, target):
+    def __init__(self, target, token=None):
         self.target = target
+        self.token = token
 
     def to_dict(self):
         return {
-            "target": self.target
+            "target": self.target,
+            "token": self.token
         }
 
-    def write(self, path=None):
+    def save(self, path=None):
         if path is None:
             path = UserData.DEFAULT_PATH
 
@@ -40,7 +42,10 @@ class UserData(object):
 
     @classmethod
     def from_dict(cls, data):
-        item = cls(data['target'])
+        item = cls(
+            target=data['target'],
+            token=data.get('token', None)
+        )
         return item
 
     @classmethod
@@ -62,15 +67,17 @@ def get_uuid():
 class User(Document):
     email = StringField(max_length=2000, unique=True, required=True)
     password = StringField(max_length=2000, required=True)
-    salt = StringField(required=True, default=get_uuid)
+    salt = StringField(required=False)
     token = StringField(required=False)
     token_expiration = DateTimeField(required=False)
     date_modified = DateTimeField(default=datetime.datetime.now)
     date_created = DateTimeField(default=datetime.datetime.now)
 
     def clean(self):
-        # Make sure that password is hashed
-        self.password = User.get_hash_for(self.salt, self.password)
+        if self.salt is None:
+            self.salt = get_uuid()
+            # Make sure that password is hashed
+            self.password = User.get_hash_for(self.salt, self.password)
 
         # Updates date_modified field
         self.date_modified = datetime.datetime.now()
@@ -82,22 +89,22 @@ class User(Document):
 
     @classmethod
     def get_hash_for(cls, salt, password):
-        return hmac.new(six.b(str(salt)), six.b(password), hashlib.sha1).hexdigest()
+        return (hmac.new(six.b(str(salt)), six.b(str(password)), hashlib.sha1).hexdigest())
 
     @classmethod
     def authenticate(cls, email, password, expiration=2 * 60 * 24):
         user = User.objects.filter(email__iexact=email).first()
 
         if user is None:
-            return None
+            return False, None
 
-        if user.password != cls.get_hash_for(user.salt, password):
-            return None
+        if str(user.password) != cls.get_hash_for(user.salt, password):
+            return True, None
 
         user.validate_token(expiration)
         user.save()
 
-        return user
+        return True, user
 
     @classmethod
     def authenticate_with_token(cls, token, expiration=2 * 60 * 24):

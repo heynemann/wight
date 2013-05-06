@@ -36,7 +36,7 @@ def main(args=None):
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--port', '-p', type=int, default="3000", help="Port to start the server with.")
+    parser.add_argument('--port', '-p', type=int, default="2367", help="Port to start the server with.")
     parser.add_argument('--bind', '-b', default="local.wight.com", help="IP to bind the server to.")
     parser.add_argument('--conf', '-c', default=DEFAULT_CONFIG_PATH, help="Path to configuration file.")
     parser.add_argument('--verbose', '-v', action='count', default=0, help='Log level: v=warning, vv=info, vvv=debug.')

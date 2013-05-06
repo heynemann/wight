@@ -41,7 +41,7 @@ class TargetSetController(WightBaseController):
         else:
             ud.target = target
 
-        ud.write()
+        ud.save()
 
 
 class TargetGetController(WightBaseController):
