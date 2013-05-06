@@ -11,6 +11,7 @@
 from json import loads
 
 from preggy import expect
+import six
 
 from wight.models import Team
 from tests.base import ApiTestCase
@@ -42,7 +43,11 @@ class TeamHandlerTest(ApiTestCase):
         response = self.fetch("/teams/team3")
         expect(response.code).to_equal(200)
 
-        expect(loads(response.body)).to_be_like({
+        obj = response.body
+        if isinstance(obj, six.binary_type):
+            obj = obj.decode('utf-8')
+
+        expect(loads(obj)).to_be_like({
             "name": "team3",
             "members": []
         })

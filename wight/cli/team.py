@@ -7,7 +7,8 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
-from os.path import expanduser
+
+import sys
 
 from cement.core import controller
 import requests
@@ -37,6 +38,7 @@ class CreateTeamController(WightBaseController):
             self.post("/teams", {"name": name})
             self.log.info(log_message)
             self.write(log_message)
-        except requests.ConnectionError, ex:
+        except requests.ConnectionError:
+            ex = sys.exc_info()[1]
             self.log.error(ex)
             self.write("The server did not respond. Check your connection with the target '%s'." % target)
