@@ -13,7 +13,7 @@ from unittest import TestCase as PythonTestCase
 import socket
 
 from mock import Mock
-from tornado.testing import AsyncHTTPTestCase, get_unused_port
+from tornado.testing import AsyncHTTPTestCase, AsyncTestCase, get_unused_port
 from tornado.httpclient import HTTPRequest
 from tornado import netutil
 from cement.utils import test
@@ -63,9 +63,10 @@ class ApiTestCase(AsyncHTTPTestCase):
         return self._app.reverse_url(url)
 
     def setUp(self):
-        super(ApiTestCase, self).setUp()
+        AsyncTestCase.setUp(self)
         port = get_unused_port()
         sock = netutil.bind_sockets(port, 'localhost', family=socket.AF_INET)[0]
+        setattr(self, '_AsyncHTTPTestCase__port', port)
         self.__port = port
 
         self.http_client = self.get_http_client()
