@@ -18,6 +18,11 @@ from tests.base import TestCase
 from wight.models import UserData
 
 
+class FakeResponse():
+    def __init__(self, status_code):
+        self.status_code = status_code
+
+
 class TestCreateTeamController(TestCase):
     @patch.object(CreateTeamController, 'post')
     def test_create_team(self, post_mock):
@@ -29,6 +34,7 @@ class TestCreateTeamController(TestCase):
     @patch.object(CreateTeamController, 'post')
     @patch.object(CreateTeamController, 'write')
     def test_create_team_notify_user(self, write_mock, post_mock):
+        post_mock.return_value = FakeResponse(200)
         ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
         ctrl.default()
@@ -42,3 +48,21 @@ class TestCreateTeamController(TestCase):
         ctrl.app.user_data = UserData(target="Target")
         ctrl.default()
         write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
+
+    @patch.object(CreateTeamController, 'post')
+    @patch.object(CreateTeamController, 'write')
+    def test_try_to_create_a_team_already_existed(self, write_mock, post_mock):
+        post_mock.return_value = FakeResponse(409)
+        ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.default()
+        write_mock.assert_called_with("The team 'nameless' already exists in target 'Target'.")
+
+    @patch.object(CreateTeamController, 'post')
+    @patch.object(CreateTeamController, 'write')
+    def test_try_to_create_a_team_with_none_as_name(self, write_mock, post_mock):
+        post_mock.return_value = FakeResponse(400)
+        ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.default()
+        write_mock.assert_called_with("You should define a name for the team to be created.")

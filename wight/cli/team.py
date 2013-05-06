@@ -35,9 +35,14 @@ class CreateTeamController(WightBaseController):
         name = self.arguments.team_name
         log_message = "Created '%s' team in '%s' target." % (name, target)
         try:
-            self.post("/teams", {"name": name})
-            self.log.info(log_message)
-            self.write(log_message)
+            response = self.post("/teams", {"name": name})
+            if response.status_code == 200:
+                self.log.info(log_message)
+                self.write(log_message)
+            elif response.status_code == 409:
+                self.write("The team '%s' already exists in target '%s'." % (name, target))
+            elif response.status_code == 400:
+                self.write("You should define a name for the team to be created.")
         except requests.ConnectionError:
             ex = sys.exc_info()[1]
             self.log.error(ex)
