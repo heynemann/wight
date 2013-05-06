@@ -18,7 +18,7 @@ tests_require = [
     'preggy==0.3.12',
     'mock',
     'tox',
-    'ipdb'
+    'ipdb',
 ]
 
 setup(

@@ -17,7 +17,7 @@ except ImportError:
     from io import StringIO
 
 from wight.cli.auth import AuthController
-from wight.models import UserData
+from wight.models import UserData, User
 from tests.base import FullTestCase
 
 
@@ -50,7 +50,7 @@ class AuthControllerTestCase(FullTestCase):
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(AuthController, 'get_pass')
     @mock.patch.object(AuthController, 'ask_for')
-    def test_default_action_when_email_is_none(self, ask_for_mock, get_pass_mock, mock_stdout):
+    def test_default_action_when_pwd_is_none(self, ask_for_mock, get_pass_mock, mock_stdout):
         ask_for_mock.return_value = "test@test.com"
         get_pass_mock.return_value = None
 
@@ -62,3 +62,19 @@ class AuthControllerTestCase(FullTestCase):
         expect(mock_stdout.getvalue()).to_be_like("Aborting...")
         expect(ask_for_mock.called).to_be_true()
         expect(get_pass_mock.called).to_be_true()
+
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    @mock.patch.object(AuthController, 'api')
+    def test_default_action_when_invalid_password(self, api_mock, mock_stdout):
+        email = "test1231312@test.com"
+        User.create(email=email, password="12345")
+
+        response_mock = mock.Mock(status_code=403)
+        api_mock.return_value = response_mock
+
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="123")
+        ctrl.app.user_data = UserData(target=self.get_url('/'))
+        expect(ctrl.default()).to_be_false()
+
+        expect(mock_stdout.getvalue()).to_be_like("Authentication failed.")
+        expect(api_mock.called).to_be_true()
