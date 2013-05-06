@@ -134,3 +134,22 @@ class AuthControllerTestCase(FullTestCase):
         expect(api_mock.called).to_be_true()
 
         assert_token_is("test-token")
+
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    @mock.patch.object(AuthController, 'api')
+    def test_default_action_when_user_authenticated_properly(self, api_mock, mock_stdout):
+        email = "test1231312@test.com"
+        User.create(email=email, password="12345")
+
+        headers_mock = mock.Mock(get=lambda msg: "test-token-2")
+        response_mock = mock.Mock(status_code=200, headers=headers_mock)
+        api_mock.return_value = response_mock
+
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="12345")
+        ctrl.app.user_data = UserData(target=self.get_url('/'))
+        expect(ctrl.default()).to_be_true()
+
+        expect(mock_stdout.getvalue()).to_be_like("Authenticated.")
+        expect(api_mock.called).to_be_true()
+
+        assert_token_is("test-token-2")
