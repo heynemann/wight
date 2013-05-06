@@ -21,6 +21,7 @@ from tornado.web import url
 #from wight.api.utils.redis_session import RedisSessionStore
 #from wight.api.cache import RedisCache
 from wight.api.handlers.healthcheck import HealthCheckHandler
+from wight.api.handlers.authentication import AuthenticationHandler, AuthenticationWithTokenHandler, RegisterUserHandler
 
 #class FakeSentry(object):
     #def __init__(self, dsn):
@@ -38,6 +39,9 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
 
     handlers = [
         url(r'/healthcheck(?:/|\.html)?', HealthCheckHandler, name="healthcheck"),
+        url(r'/auth/user/?', AuthenticationHandler, name="auth_user"),
+        url(r'/auth/token/?', AuthenticationWithTokenHandler, name="auth_token"),
+        url(r'/auth/register/?', RegisterUserHandler, name="register_user"),
     ]
 
     logging.info("Connecting to redis on {0}:{1}/{2}".format(self.config.REDIS_HOST, self.config.REDIS_PORT, self.config.REDIS_DB_COUNT))
