@@ -42,7 +42,10 @@ class TestCase(test.CementTestCase):
 
 
 class ApiTestCase(AsyncHTTPTestCase):
-    def make_app(self, config=None):
+    def get_app(self):
+        return self.create_api_app()
+
+    def create_api_app(self, config=None):
         if not config:
             config = Config()
         return WightApp(config=config)
@@ -68,3 +71,7 @@ class ModelTestCase(PythonTestCase):
         )
 
         User.objects.delete()
+
+
+class FullTestCase(ApiTestCase, TestCase, ModelTestCase):
+    pass

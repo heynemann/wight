@@ -35,7 +35,7 @@ class AuthController(WightBaseController):
 
         if email is None:
             print("Aborting...")
-            return
+            return False
 
         password = self.arguments.password
         if password is None:
@@ -43,7 +43,7 @@ class AuthController(WightBaseController):
 
         if password is None:
             print("Aborting...")
-            return
+            return False
 
         response = self.api("/auth/user", headers={
             'email': email,
@@ -52,7 +52,7 @@ class AuthController(WightBaseController):
 
         if response.status_code == 403:
             print("Authentication failed.")
-            return
+            return False
         elif response.status_code == 200:
             print("Authenticated.")
 
@@ -60,7 +60,7 @@ class AuthController(WightBaseController):
             register = self.ask_for("User does not exist. Do you wish to register? [y/n]")
             if not register or register.lower() not in ("y", "n"):
                 print("Aborting...")
-                return
+                return False
 
             response = self.api("/auth/register", headers={
                 'email': email,
@@ -70,6 +70,7 @@ class AuthController(WightBaseController):
             print("User registered and authenticated.")
 
         self.__update_token(response)
+        return True
 
     def __update_token(self, response):
         token = response.headers.get('Token')

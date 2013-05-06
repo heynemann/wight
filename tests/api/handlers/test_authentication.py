@@ -15,9 +15,6 @@ from tests.base import ApiTestCase
 
 
 class UserAuthenticationTest(ApiTestCase):
-    def get_app(self):
-        return self.make_app()
-
     def test_authenticate_with_valid_user(self):
         user = User(email="test_auth1@gmail.com", password="12345")
         user.save()
@@ -52,9 +49,6 @@ class UserAuthenticationTest(ApiTestCase):
 
 
 class UserAuthenticationWithTokenTest(ApiTestCase):
-    def get_app(self):
-        return self.make_app()
-
     def test_authenticate_with_valid_user(self):
         email = "test_auth_token1@gmail.com"
         password = "12345"
@@ -86,9 +80,6 @@ class UserAuthenticationWithTokenTest(ApiTestCase):
 
 
 class UserRegisterTest(ApiTestCase):
-    def get_app(self):
-        return self.make_app()
-
     def test_registering_valid_user(self):
         email = "test_register_1@gmail.com"
         response = self.fetch_with_headers(self.reverse_url('register_user'), email=email, password="12345")
