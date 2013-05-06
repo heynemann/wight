@@ -11,6 +11,7 @@
 from os.path import dirname, abspath, join
 from unittest import TestCase as PythonTestCase
 import socket
+import urllib
 
 from mock import Mock
 from tornado.testing import AsyncHTTPTestCase, AsyncTestCase, get_unused_port
@@ -21,7 +22,7 @@ from mongoengine import connect
 
 from wight.api.app import WightApp
 from wight.api.config import Config
-from wight.models import User
+from wight.models import User, Team
 
 ROOT_PATH = abspath(join(dirname(__file__), '..'))
 
@@ -59,6 +60,20 @@ class ApiTestCase(AsyncHTTPTestCase):
         self.http_client.fetch(req, self.stop)
         return self.wait()
 
+    def post(self, path, **kw):
+        headers = {}
+        if 'headers' in kw:
+            headers = kw['headers']
+            del kw['headers']
+
+        body = ""
+        if kw:
+            body = urllib.urlencode(kw)
+
+        req = HTTPRequest(self.get_url(path), method='POST', headers=headers, body=body)
+        self.http_client.fetch(req, self.stop)
+        return self.wait()
+
     def reverse_url(self, url):
         return self._app.reverse_url(url)
 
@@ -85,6 +100,7 @@ class ModelTestCase(PythonTestCase):
         )
 
         User.objects.delete()
+        Team.objects.delete()
 
 
 class FullTestCase(ApiTestCase, TestCase, ModelTestCase):
