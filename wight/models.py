@@ -89,7 +89,7 @@ class User(Document):
 
     @classmethod
     def get_hash_for(cls, salt, password):
-        return str(hmac.new(str(salt), str(password), hashlib.sha1).hexdigest())
+        return (hmac.new(six.b(str(salt)), six.b(str(password)), hashlib.sha1).hexdigest())
 
     @classmethod
     def authenticate(cls, email, password, expiration=2 * 60 * 24):
