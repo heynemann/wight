@@ -10,10 +10,12 @@
 
 from os.path import dirname, abspath, join
 from unittest import TestCase as PythonTestCase
+import socket
 
 from mock import Mock
-from tornado.testing import AsyncHTTPTestCase
+from tornado.testing import AsyncHTTPTestCase, get_unused_port
 from tornado.httpclient import HTTPRequest
+from tornado import netutil
 from cement.utils import test
 from mongoengine import connect
 
@@ -59,6 +61,17 @@ class ApiTestCase(AsyncHTTPTestCase):
 
     def reverse_url(self, url):
         return self._app.reverse_url(url)
+
+    def setUp(self):
+        super(ApiTestCase, self).setUp()
+        port = get_unused_port()
+        sock = netutil.bind_sockets(port, 'localhost', family=socket.AF_INET)[0]
+        self.__port = port
+
+        self.http_client = self.get_http_client()
+        self._app = self.get_app()
+        self.http_server = self.get_http_server()
+        self.http_server.add_sockets([sock])
 
 
 class ModelTestCase(PythonTestCase):
