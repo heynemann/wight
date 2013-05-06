@@ -35,18 +35,18 @@ class UserAuthenticationTest(ApiTestCase):
         expect(response.headers).to_include('Token')
         expect(response.headers['Token']).to_equal(user.token)
 
-    def test_authenticate_with_invalid_user(self):
+    def test_authenticate_with_invalid_user_should_be_not_found(self):
         response = self.fetch_with_headers(self.reverse_url('auth_user'), email="test_auth99999@gmail.com", password="12345")
-        expect(response.code).to_equal(403)
+        expect(response.code).to_equal(404)
 
-    def test_authenticate_with_invalid_pass(self):
+    def test_authenticate_with_invalid_pass_should_be_access_denied(self):
         user = User(email="test_auth2@gmail.com", password="12345")
         user.save()
 
         response = self.fetch_with_headers(self.reverse_url('auth_user'), email="test_auth2@gmail.com", password="12346")
         expect(response.code).to_equal(403)
 
-    def test_authenticate_with_no_headers(self):
+    def test_authenticate_with_no_headers_should_be_bad_request(self):
         response = self.fetch('/auth/user/')
         expect(response.code).to_equal(400)
 
@@ -61,7 +61,7 @@ class UserAuthenticationWithTokenTest(ApiTestCase):
         user = User(email=email, password=password)
         user.save()
 
-        user = User.authenticate(email=email, password=password)
+        exists, user = User.authenticate(email=email, password=password)
 
         response = self.fetch_with_headers(self.reverse_url('auth_token'), token=user.token)
         expect(response.code).to_equal(200)

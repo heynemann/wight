@@ -31,7 +31,7 @@ class TestUserData(TestCase):
         directory = tempfile.mkdtemp()
         path = join(directory, '.wight-user-data')
 
-        ud.write(path)
+        ud.save(path)
 
         with open(path, 'r') as text:
             obj = loads(text.read())
@@ -44,7 +44,7 @@ class TestUserData(TestCase):
         directory = tempfile.mkdtemp()
         path = join(directory, '.wight-user-data')
 
-        ud.write(path)
+        ud.save(path)
 
         loaded = UserData.load(path)
         expect(loaded.target).to_equal("http://target2.wight.com")
@@ -58,7 +58,7 @@ class TestUserData(TestCase):
             os.remove(UserData.DEFAULT_PATH)
 
         ud = UserData(target="http://target3.wight.com")
-        ud.write()
+        ud.save()
 
         loaded = UserData.load()
         expect(loaded).not_to_be_null()
