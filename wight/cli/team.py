@@ -15,7 +15,7 @@ from cement.core import controller
 from prettytable import PrettyTable
 import requests
 
-from wight.cli.base import WightBaseController
+from wight.cli.base import WightBaseController, ConnectedController
 
 
 class CreateTeamController(WightBaseController):
@@ -37,7 +37,7 @@ class CreateTeamController(WightBaseController):
         target = self.app.user_data.target
         name = self.arguments.team_name
         log_message = "Created '%s' team in '%s' target." % (name, target)
-        try:
+        with ConnectedController(self):
             response = self.post("/teams", {"name": name})
             if response.status_code == 200:
                 self.log.info(log_message)
@@ -46,10 +46,6 @@ class CreateTeamController(WightBaseController):
                 self.write("The team '%s' already exists in target '%s'." % (name, target))
             elif response.status_code == 400:
                 self.write("You should define a name for the team to be created.")
-        except requests.ConnectionError:
-            ex = sys.exc_info()[1]
-            self.log.error(ex)
-            self.write("The server did not respond. Check your connection with the target '%s'." % target)
 
 
 class ShowTeamController(WightBaseController):
@@ -70,7 +66,7 @@ class ShowTeamController(WightBaseController):
         self.load_conf()
         target = self.app.user_data.target
         name = self.arguments.team_name
-        try:
+        with ConnectedController(self):
             response = self.api("/teams/%s" % name)
             if response.status_code == 200:
                 self.write("")
@@ -88,7 +84,3 @@ class ShowTeamController(WightBaseController):
                 self.write("")
             elif response.status_code == 404:
                 self.write("The team '%s' does not exists in target '%s'." % (name, target))
-        except requests.ConnectionError:
-            ex = sys.exc_info()[1]
-            self.log.error(ex)
-            self.write("The server did not respond. Check your connection with the target '%s'." % target)

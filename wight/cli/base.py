@@ -73,7 +73,15 @@ class WightBaseController(controller.CementBaseController):
         target = self.app.user_data.target.rstrip('/')
         data.update({"target": target})
         url = join(target, path.lstrip('/'))
-        return requests.post(url, data=data, headers=headers)
+        response = requests.post(url, data=data, headers=headers)
+
+        def __enter__(self):
+            return response
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            import ipdb; ipdb.set_trace()
+
+        return response
 
     @staticmethod
     def authenticated(fn):
@@ -114,3 +122,22 @@ class WightDefaultController(WightBaseController):
     @controller.expose(hide=True)
     def default(self):
         self.app.args.print_help()
+
+
+class ConnectedController():
+    def __init__(self, controller):
+        self.controller = controller
+
+    def __enter__(self):
+        if self.controller.app.user_data is None:
+            raise RuntimeError("Need to set target before trying to access api")
+        url = join(self.controller.app.user_data.target.rstrip('/'), 'healthcheck')
+        requests.get(url)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type and exc_type == requests.ConnectionError:
+            ex = exc_val
+            self.controller.log.error(ex)
+            target = self.controller.app.user_data.target
+            self.controller.write("The server did not respond. Check your connection with the target '%s'." % target)
+            return True
