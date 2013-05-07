@@ -70,3 +70,37 @@ class TeamHandlerTest(FullTestCase):
     def test_get_team_not_found(self):
         response = self.fetch_with_headers("/teams/team999999")
         expect(response.code).to_equal(404)
+
+    def test_update_team(self):
+        team = Team.create(name="team-4", owner=self.user)
+        expect(team).not_to_be_null()
+
+        response = self.put("/teams/team-4", name="new-name-4")
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+
+        team = Team.objects.filter(name="new-name-4").first()
+        expect(team).not_to_be_null()
+
+    def test_update_team_to_empty_name(self):
+        team = Team.create(name="team-empty", owner=self.user)
+        expect(team).not_to_be_null()
+
+        response = self.put("/teams/team-empty", name="")
+        expect(response.code).to_equal(400)
+
+        response = self.put("/teams/team-empty")
+        expect(response.code).to_equal(400)
+
+    def test_update_unknown_team(self):
+        response = self.put("/teams/team9999999")
+        expect(response.code).to_equal(404)
+
+    def test_update_team_with_wrong_owner(self):
+        u1 = User.create(email="team-wrong-owner-user", password="12345")
+        expect(u1).not_to_be_null()
+        team = Team.create(name="team-wrong-owner", owner=u1)
+        expect(team).not_to_be_null()
+
+        response = self.put("/teams/team-wrong-owner", name="new-name")
+        expect(response.code).to_equal(403)

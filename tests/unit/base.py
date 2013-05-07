@@ -72,6 +72,12 @@ class ApiTestCase(AsyncHTTPTestCase):
         return self.wait()
 
     def post(self, path, **kw):
+        return self.send_request("POST", path, **kw)
+
+    def put(self, path, **kw):
+        return self.send_request("PUT", path, **kw)
+
+    def send_request(self, method, path, **kw):
         headers = {}
 
         if hasattr(self, 'user') and self.user and self.user.token:
@@ -85,7 +91,7 @@ class ApiTestCase(AsyncHTTPTestCase):
         if kw:
             body = urlencode(kw)
 
-        req = HTTPRequest(self.get_url(path), method='POST', headers=headers, body=body)
+        req = HTTPRequest(self.get_url(path), method=method, headers=headers, body=body)
         self.http_client.fetch(req, self.stop)
         return self.wait()
 
