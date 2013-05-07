@@ -11,3 +11,7 @@
 
 class TargetNotSetError(RuntimeError):
     pass
+
+
+class UnauthenticatedError(RuntimeError):
+    pass

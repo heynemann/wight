@@ -20,10 +20,16 @@ from mock import patch
 
 from wight.cli.base import WightDefaultController, WightBaseController
 from wight.models import UserData
-from wight.errors import TargetNotSetError
+from wight.errors import TargetNotSetError, UnauthenticatedError
 import wight.cli.base as base
 
 from tests.base import TestCase
+
+
+class AuthenticatedControllerMock(WightBaseController):
+    @WightBaseController.authenticated
+    def default(self):
+        self.worked = True
 
 
 class TestBaseController(TestCase):
@@ -46,13 +52,8 @@ class TestBaseController(TestCase):
             headers={"X-Wight-Auth": "token-value"}
         )
 
-    def test_authenticated_decorator(self):
-        class TestAuthController(WightBaseController):
-            @WightBaseController.authenticated
-            def default(self):
-                pass
-
-        ctrl = self.make_controller(TestAuthController)
+    def test_authenticated_decorator_verifies_target(self):
+        ctrl = self.make_controller(AuthenticatedControllerMock)
         try:
             ctrl.default()
         except TargetNotSetError:
@@ -60,6 +61,27 @@ class TestBaseController(TestCase):
             return
 
         assert False, "Should not have gotten this far"
+
+    def test_authenticated_decorator_verifies_token_exists(self):
+        ctrl = self.make_controller(AuthenticatedControllerMock)
+        ctrl.app.user_data = UserData(target="Target")
+
+        try:
+            ctrl.default()
+        except UnauthenticatedError:
+            assert True
+            return
+
+        assert False, "Should not have gotten this far"
+
+    def test_authenticated_decorator_works_when_all_values_correct(self):
+        ctrl = self.make_controller(AuthenticatedControllerMock)
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
+
+        ctrl.default()
+
+        expect(ctrl.worked).to_be_true()
 
 
 class TestDefaultHandler(TestCase):

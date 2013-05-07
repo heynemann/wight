@@ -17,7 +17,7 @@ import requests
 
 from wight.models import UserData
 from wight.cli.config import Config
-from wight.errors import TargetNotSetError
+from wight.errors import TargetNotSetError, UnauthenticatedError
 
 
 class WightBaseController(controller.CementBaseController):
@@ -77,9 +77,16 @@ class WightBaseController(controller.CementBaseController):
     @staticmethod
     def authenticated(fn):
         def handle(decorated_self, *args, **kw):
-            user = UserData.load()
+            user = None
+            if hasattr(decorated_self, 'app') and hasattr(decorated_self.app, 'user_data'):
+                user = decorated_self.app.user_data
+
             if user is None or not user.target:
                 raise TargetNotSetError()
+
+            if not user.token:
+                raise UnauthenticatedError()
+
             fn(decorated_self, *args, **kw)
 
         handle.__name__ = fn.__name__
