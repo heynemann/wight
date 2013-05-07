@@ -112,15 +112,15 @@ class TestShowTeamController(TestCase):
 
         assert False, "Should not have gotten this far"
 
-    @patch.object(ShowTeamController, 'api')
-    def test_get_team(self, api_mock):
+    @patch.object(ShowTeamController, 'get')
+    def test_get_team(self, get_mock):
         self.ctrl.default()
-        api_mock.assert_called_with("/teams/nameless")
+        get_mock.assert_called_with("/teams/nameless")
 
-    @patch.object(ShowTeamController, 'api')
+    @patch.object(ShowTeamController, 'get')
     @patch('sys.stdout', new_callable=StringIO)
-    def test_create_team_notify_user(self, mock_stdout, api_mock):
-        api_mock.return_value = FakeResponse(200)
+    def test_create_team_notify_user(self, mock_stdout, get_mock):
+        get_mock.return_value = FakeResponse(200)
         self.ctrl.default()
         expected_stdout = """
             nameless
@@ -138,16 +138,16 @@ class TestShowTeamController(TestCase):
         """
         expect(mock_stdout.getvalue()).to_be_like(expected_stdout)
 
-    @patch.object(ShowTeamController, 'api')
+    @patch.object(ShowTeamController, 'get')
     @patch.object(ShowTeamController, 'write')
-    def test_try_to_create_a_team_already_existed(self, write_mock, api_mock):
-        api_mock.return_value = FakeResponse(404)
+    def test_try_to_create_a_team_already_existed(self, write_mock, get_mock):
+        get_mock.return_value = FakeResponse(404)
         self.ctrl.default()
         write_mock.assert_called_with("The team 'nameless' does not exists in target 'Target'.")
 
-    @patch.object(ShowTeamController, 'api')
+    @patch.object(ShowTeamController, 'get')
     @patch.object(ShowTeamController, 'write')
-    def test_create_gets_server_error_and_notify(self, write_mock, api_mock):
-        api_mock.side_effect = requests.ConnectionError
+    def test_create_gets_server_error_and_notify(self, write_mock, get_mock):
+        get_mock.side_effect = requests.ConnectionError
         self.ctrl.default()
         write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")

@@ -10,7 +10,7 @@
 
 from cement.core import controller
 
-from wight.cli.base import WightBaseController
+from wight.cli.base import WightBaseController, ConnectedController
 
 
 class AuthController(WightBaseController):
@@ -45,30 +45,31 @@ class AuthController(WightBaseController):
             print("Aborting...")
             return False
 
-        response = self.api("/auth/user", headers={
-            'email': email,
-            'password': password
-        })
-
-        if response.status_code == 403:
-            print("Authentication failed.")
-            return False
-        elif response.status_code == 404:
-            register = self.ask_for("User does not exist. Do you wish to register? [y/n]")
-            if not register or register.lower() not in ("y", "n") or register.lower() == "n":
-                print("Aborting...")
-                return False
-
-            response = self.api("/auth/register", headers={
+        with ConnectedController(self):
+            response = self.get("/auth/user", headers={
                 'email': email,
                 'password': password
             })
 
-            print("User registered and authenticated.")
-        elif response.status_code == 200:
-            print("Authenticated.")
+            if response.status_code == 403:
+                print("Authentication failed.")
+                return False
+            elif response.status_code == 404:
+                register = self.ask_for("User does not exist. Do you wish to register? [y/n]")
+                if not register or register.lower() not in ("y", "n") or register.lower() == "n":
+                    print("Aborting...")
+                    return False
 
-        self.__update_token(response)
+                response = self.get("/auth/register", headers={
+                    'email': email,
+                    'password': password
+                })
+
+                print("User registered and authenticated.")
+            elif response.status_code == 200:
+                print("Authenticated.")
+
+            self.__update_token(response)
         return True
 
     def __update_token(self, response):

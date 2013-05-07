@@ -66,7 +66,7 @@ class ShowTeamController(WightBaseController):
         target = self.app.user_data.target
         name = self.arguments.team_name
         with ConnectedController(self):
-            response = self.api("/teams/%s" % name)
+            response = self.get("/teams/%s" % name)
             if response.status_code == 200:
                 content = response.content
                 self.write("")

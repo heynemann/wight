@@ -38,6 +38,8 @@ class AuthControllerTestCase(FullTestCase):
     def setUp(self, *args, **kw):
         super(AuthControllerTestCase, self).setUp(*args, **kw)
         clear_token()
+        self.get_mock = mock.patch('requests.get')
+        self.get_mock.start()
 
     def test_meta(self):
         meta = AuthController.Meta
@@ -81,30 +83,30 @@ class AuthControllerTestCase(FullTestCase):
         expect(get_pass_mock.called).to_be_true()
 
     @mock.patch('sys.stdout', new_callable=StringIO)
-    @mock.patch.object(AuthController, 'api')
-    def test_default_action_when_invalid_password(self, api_mock, mock_stdout):
+    @mock.patch.object(AuthController, 'get')
+    def test_default_action_when_invalid_password(self, get_mock, mock_stdout):
         email = "test1231312@test.com"
         User.create(email=email, password="12345")
 
         response_mock = mock.Mock(status_code=403)
-        api_mock.return_value = response_mock
+        get_mock.return_value = response_mock
 
         ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="123")
         ctrl.app.user_data = UserData(target=self.get_url('/'))
         expect(ctrl.default()).to_be_false()
 
         expect(mock_stdout.getvalue()).to_be_like("Authentication failed.")
-        expect(api_mock.called).to_be_true()
+        expect(get_mock.called).to_be_true()
 
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(AuthController, 'ask_for')
-    @mock.patch.object(AuthController, 'api')
-    def test_default_action_when_user_not_found_but_dont_want_to_register(self, api_mock, ask_for_mock, mock_stdout):
+    @mock.patch.object(AuthController, 'get')
+    def test_default_action_when_user_not_found_but_dont_want_to_register(self, get_mock, ask_for_mock, mock_stdout):
         email = "test1231312@test.com"
         User.create(email=email, password="12345")
 
         response_mock = mock.Mock(status_code=404)
-        api_mock.return_value = response_mock
+        get_mock.return_value = response_mock
         ask_for_mock.return_value = "N"
 
         ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="123")
@@ -112,18 +114,18 @@ class AuthControllerTestCase(FullTestCase):
         expect(ctrl.default()).to_be_false()
 
         expect(mock_stdout.getvalue()).to_be_like("Aborting...")
-        expect(api_mock.called).to_be_true()
+        expect(get_mock.called).to_be_true()
 
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(AuthController, 'ask_for')
-    @mock.patch.object(AuthController, 'api')
-    def test_default_action_when_user_not_found_but_want_to_register(self, api_mock, ask_for_mock, mock_stdout):
+    @mock.patch.object(AuthController, 'get')
+    def test_default_action_when_user_not_found_but_want_to_register(self, get_mock, ask_for_mock, mock_stdout):
         email = "test1231312@test.com"
         User.create(email=email, password="12345")
 
         headers_mock = mock.Mock(get=lambda msg: "test-token")
         response_mock = mock.Mock(status_code=404, headers=headers_mock)
-        api_mock.return_value = response_mock
+        get_mock.return_value = response_mock
         ask_for_mock.return_value = "Y"
 
         ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="123")
@@ -131,25 +133,25 @@ class AuthControllerTestCase(FullTestCase):
         expect(ctrl.default()).to_be_true()
 
         expect(mock_stdout.getvalue()).to_be_like("User registered and authenticated.")
-        expect(api_mock.called).to_be_true()
+        expect(get_mock.called).to_be_true()
 
         assert_token_is("test-token")
 
     @mock.patch('sys.stdout', new_callable=StringIO)
-    @mock.patch.object(AuthController, 'api')
-    def test_default_action_when_user_authenticated_properly(self, api_mock, mock_stdout):
+    @mock.patch.object(AuthController, 'get')
+    def test_default_action_when_user_authenticated_properly(self, get_mock, mock_stdout):
         email = "test1231312@test.com"
         User.create(email=email, password="12345")
 
         headers_mock = mock.Mock(get=lambda msg: "test-token-2")
         response_mock = mock.Mock(status_code=200, headers=headers_mock)
-        api_mock.return_value = response_mock
+        get_mock.return_value = response_mock
 
         ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="12345")
         ctrl.app.user_data = UserData(target=self.get_url('/'))
         expect(ctrl.default()).to_be_true()
 
         expect(mock_stdout.getvalue()).to_be_like("Authenticated.")
-        expect(api_mock.called).to_be_true()
+        expect(get_mock.called).to_be_true()
 
         assert_token_is("test-token-2")
