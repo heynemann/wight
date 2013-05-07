@@ -10,7 +10,7 @@
 
 
 from preggy import expect
-
+import six
 from wight.models import User
 from json import loads
 from tests.unit.base import FullTestCase
@@ -33,6 +33,9 @@ class UserHandlerTest(FullTestCase):
 
     def test_create_team(self):
         response = self.fetch_with_headers("/user/info")
-        body = loads(response.body)
+        body = response.body
+        if isinstance(body, six.binary_type):
+            body = body.decode('utf-8')
+        body = loads(body)
         expect(response.code).to_equal(200)
         expect(body['user']['email']).to_equal(self.email)
