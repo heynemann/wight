@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+from os import environ
 from os.path import exists, expanduser
 import datetime
 from json import dumps, loads
@@ -21,7 +22,7 @@ from mongoengine.queryset import NotUniqueError
 
 
 class UserData(object):
-    DEFAULT_PATH = expanduser("~/.wight")
+    DEFAULT_PATH = expanduser(environ.get('WIGHT_USERDATA_PATH', None) or "~/.wight")
 
     def __init__(self, target, token=None):
         self.target = target
