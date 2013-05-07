@@ -16,14 +16,15 @@ from tests.acceptance.base import AcceptanceTest
 
 class TestRegisterUser(AcceptanceTest):
 
-    def handle_stdin(self, line, stdin):
-        import ipdb;ipdb.set_trace()
-
     def test_can_register_user(self):
+        # Set target to acc target
         self.execute("target-set", "http://localhost:2368")
-        result = self.execute("login", email="acc1@gmail.com", password="password", stdin=self.handle_stdin)
-        expect(result).to_equal('gahhh')
 
+        # authenticates
+        result = self.execute("login", email="acc1@gmail.com", password="password", stdin=['y'])
+        expect(result.endswith('User registered and authenticated.')).to_be_true()
+
+        # user is in mongodb?
         u = User.objects.filter(email="acc1@gmail.com").first()
         expect(u).not_to_be_null()
         expect(u.token).not_to_be_null()

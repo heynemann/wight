@@ -3,10 +3,10 @@ test ci-test: mongo_test redis
 	@rm -rf ~/.wighttest
 	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/unit/
 
-acceptance acc integration func functional: mongo mongo_test redis kill_app
+acceptance acc integration func functional: mongo_test redis kill_app
 	@sleep 3
 	@rm -rf ~/.wightacc
-	@python wight/api/server.py --port 2368 --bind 0.0.0.0 --conf ./wight/api/local.conf &
+	@python wight/api/server.py --port 2368 --bind 0.0.0.0 --conf ./tests/acceptance/acceptance.conf &
 	@WIGHT_USERDATA_PATH=~/.wightacc nosetests -vv --with-yanc -s tests/acceptance/
 
 tox:

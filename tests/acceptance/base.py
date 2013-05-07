@@ -39,7 +39,7 @@ class AcceptanceTest(PythonTestCase):
             stdin = kw['stdin']
             del kw['stdin']
 
-            result = python(ROOT_PATH, command, _out=stdin, *arguments, **kw)
+            result = python(ROOT_PATH, command, _in=stdin, *arguments, **kw)
         else:
             result = python(ROOT_PATH, command, *arguments, **kw)
 
