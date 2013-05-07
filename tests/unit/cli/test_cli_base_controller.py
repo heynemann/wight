@@ -118,17 +118,3 @@ class TestDefaultHandler(TestCase):
         ctrl.load_conf()
 
         expect(ctrl.config).not_to_be_null()
-
-    def test_default_path_load_conf(self):
-        ctrl = self.make_controller(WightDefaultController, conf=None)
-
-        with open(UserData.DEFAULT_PATH, 'w') as f:
-            f.write('')
-
-        try:
-            ctrl.load_conf()
-
-            expect(ctrl.config).not_to_be_null()
-            expect(ctrl.config.config_file).to_equal(UserData.DEFAULT_PATH)
-        finally:
-            os.remove(UserData.DEFAULT_PATH)
