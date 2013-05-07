@@ -59,7 +59,8 @@ class WightBaseController(controller.CementBaseController):
     def api(self, path, headers={}):
         if self.app.user_data is None:
             raise RuntimeError("Need to set target before trying to access api")
-
+        if self.app.user_data.token:
+            headers.update({"X-Wight-Auth": self.app.user_data.token})
         url = join(self.app.user_data.target.rstrip('/'), path.lstrip('/'))
         return requests.get(url, headers=headers)
 

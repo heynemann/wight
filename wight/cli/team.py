@@ -47,3 +47,32 @@ class CreateTeamController(WightBaseController):
             ex = sys.exc_info()[1]
             self.log.error(ex)
             self.write("The server did not respond. Check your connection with the target '%s'." % target)
+
+
+class ShowTeamController(WightBaseController):
+    class Meta:
+        label = 'show-team'
+        stack_on = 'base'
+        description = 'Show the registered team information.'
+        config_defaults = dict()
+
+        arguments = [
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            (['team_name'], dict(help='The name of the team to be showed')),
+        ]
+
+    @controller.expose(hide=False, aliases=["show-team"], help='Show the registered team information.')
+    def default(self):
+        self.load_conf()
+        target = self.app.user_data.target
+        name = self.arguments.team_name
+        try:
+            response = self.api("/teams/name=%s" % name)
+            if response.status_code == 200:
+                self.write("The team has been found...")
+            elif response.status_code == 404:
+                self.write("The team '%s' does not exists in target '%s'." % (name, target))
+        except requests.ConnectionError:
+            ex = sys.exc_info()[1]
+            self.log.error(ex)
+            self.write("The server did not respond. Check your connection with the target '%s'." % target)

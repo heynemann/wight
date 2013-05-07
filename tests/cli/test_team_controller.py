@@ -13,7 +13,7 @@ import requests
 
 from preggy import expect
 
-from wight.cli.team import CreateTeamController
+from wight.cli.team import CreateTeamController, ShowTeamController
 from tests.base import TestCase
 from wight.models import UserData
 
@@ -66,3 +66,29 @@ class TestCreateTeamController(TestCase):
         ctrl.app.user_data = UserData(target="Target")
         ctrl.default()
         write_mock.assert_called_with("You should define a name for the team to be created.")
+
+class TestShowTeamController(TestCase):
+    @patch.object(ShowTeamController, 'api')
+    def test_get_team(self, api_mock):
+        ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.default()
+        api_mock.assert_called_with("/teams/name=nameless")
+
+    @patch.object(ShowTeamController, 'api')
+    @patch.object(ShowTeamController, 'write')
+    def test_create_team_notify_user(self, write_mock, api_mock):
+        api_mock.return_value = FakeResponse(200)
+        ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.default()
+        write_mock.assert_called_with("The team has been found...")
+
+    @patch.object(ShowTeamController, 'api')
+    @patch.object(ShowTeamController, 'write')
+    def test_try_to_create_a_team_already_existed(self, write_mock, api_mock):
+        api_mock.return_value = FakeResponse(404)
+        ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.default()
+        write_mock.assert_called_with("The team 'nameless' does not exists in target 'Target'.")
