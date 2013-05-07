@@ -8,6 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 from mock import patch
 import requests
 
@@ -21,6 +26,16 @@ from wight.models import UserData
 class FakeResponse():
     def __init__(self, status_code):
         self.status_code = status_code
+        self.content = """
+            {
+                "owner": "nameless@owner.com", "name": "nameless",
+                "members": [
+                    {"name": "User 0", "role": "owner"},
+                    {"name": "User 1", "role": "member"},
+                    {"name": "User 2", "role": "member"}
+                ]
+            }
+        """
 
 
 class TestCreateTeamController(TestCase):
@@ -67,22 +82,36 @@ class TestCreateTeamController(TestCase):
         ctrl.default()
         write_mock.assert_called_with("You should define a name for the team to be created.")
 
+
 class TestShowTeamController(TestCase):
     @patch.object(ShowTeamController, 'api')
     def test_get_team(self, api_mock):
         ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
         ctrl.default()
-        api_mock.assert_called_with("/teams/name=nameless")
+        api_mock.assert_called_with("/teams/nameless")
 
     @patch.object(ShowTeamController, 'api')
-    @patch.object(ShowTeamController, 'write')
-    def test_create_team_notify_user(self, write_mock, api_mock):
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_create_team_notify_user(self, mock_stdout, api_mock):
         api_mock.return_value = FakeResponse(200)
         ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
         ctrl.default()
-        write_mock.assert_called_with("The team has been found...")
+        expected_stdout = """
+            nameless
+            ========
+
+            Team members:
+            +--------+--------+
+            | user   |   role |
+            +--------+--------+
+            | User 0 | owner  |
+            | User 1 | member |
+            | User 2 | member |
+            +--------+--------+
+        """
+        expect(mock_stdout.getvalue()).to_be_like(expected_stdout)
 
     @patch.object(ShowTeamController, 'api')
     @patch.object(ShowTeamController, 'write')

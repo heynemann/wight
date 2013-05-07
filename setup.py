@@ -54,7 +54,8 @@ wight is a load testing scheduling and tracking tool.
         'tornado',
         'redis',
         'mongoengine',
-        'requests'
+        'requests',
+        'prettytable',
     ],
     extras_require={
         'tests': tests_require,

@@ -7,10 +7,12 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from json import loads
 
 import sys
 
 from cement.core import controller
+from prettytable import PrettyTable
 import requests
 
 from wight.cli.base import WightBaseController
@@ -67,9 +69,19 @@ class ShowTeamController(WightBaseController):
         target = self.app.user_data.target
         name = self.arguments.team_name
         try:
-            response = self.api("/teams/name=%s" % name)
+            response = self.api("/teams/%s" % name)
             if response.status_code == 200:
-                self.write("The team has been found...")
+                self.write("")
+                self.write(name)
+                self.write("=" * len(name))
+                self.write("")
+                self.write("Team members:")
+                team_data = loads(response.content)
+                members_table = PrettyTable(["user", "role"])
+                for member in team_data["members"]:
+                    members_table.add_row([member["name"], member["role"]])
+                self.write(members_table)
+                self.write("")
             elif response.status_code == 404:
                 self.write("The team '%s' does not exists in target '%s'." % (name, target))
         except requests.ConnectionError:
