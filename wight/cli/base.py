@@ -66,15 +66,7 @@ class WightBaseController(controller.CementBaseController):
         target = self.app.user_data.target.rstrip('/')
         data.update({"target": target})
         url = join(target, path.lstrip('/'))
-        response = requests.post(url, data=data, headers=headers)
-
-        def __enter__(self):
-            return response
-
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            import ipdb; ipdb.set_trace()
-
-        return response
+        return requests.post(url, data=data, headers=headers)
 
     @staticmethod
     def authenticated(fn):

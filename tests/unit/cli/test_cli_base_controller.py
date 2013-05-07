@@ -40,6 +40,21 @@ class TestBaseController(TestCase):
         ctrl.post("/post-url", data={"some": "data"})
         expect(post_mock.called).to_be_true()
 
+    @patch.object(base.requests, 'get')
+    def test_make_a_get(self, get_mock):
+        ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.get("/post-url")
+        expect(get_mock.called).to_be_true()
+
+    @patch.object(base.requests, 'get')
+    def test_make_a_get_with_auth(self, get_mock):
+        ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "Token"
+        ctrl.get("/post-url")
+        get_mock.assert_called_with("Target/post-url", headers={"X-Wight-Auth": "Token"})
+
     @patch.object(base.requests, 'post')
     def test_make_a_post_with_correct_values(self, post_mock):
         ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'))

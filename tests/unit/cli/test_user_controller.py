@@ -38,18 +38,18 @@ class TestShowUserController(TestCase):
     def tearDown(self):
         self.get_mock.stop()
 
-    @patch.object(ShowUserController, 'api')
+    @patch.object(ShowUserController, 'get')
     @patch.object(ShowUserController, 'write')
-    def test_user_info_shows_not_logged_in_message(self, write_mock, api_mock):
-        api_mock.return_value = FakeResponse(401)
+    def test_user_info_shows_not_logged_in_message(self, write_mock, get_mock):
+        get_mock.return_value = FakeResponse(401)
 
         self.ctrl.default()
         write_mock.assert_called_with("User not logged in. Run wight authenticate")
 
-    @patch.object(ShowUserController, 'api')
+    @patch.object(ShowUserController, 'get')
     @patch.object(ShowUserController, 'write')
-    def test_user_info_shows_user_email(self, write_mock, api_mock):
-        api_mock.return_value = FakeResponse(200)
+    def test_user_info_shows_user_email(self, write_mock, get_mock):
+        get_mock.return_value = FakeResponse(200)
 
         self.ctrl.default()
         write_mock.assert_called_with("User: awesome@gmail.com")

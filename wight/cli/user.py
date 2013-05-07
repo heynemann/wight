@@ -30,7 +30,7 @@ class ShowUserController(WightBaseController):
     def default(self):
         self.load_conf()
         with ConnectedController(self):
-            response = self.api("/user/info")
+            response = self.get("/user/info")
             if response.status_code == 200:
                 content = response.content
                 if isinstance(content, six.binary_type):
