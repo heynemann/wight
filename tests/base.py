@@ -59,15 +59,25 @@ class ApiTestCase(AsyncHTTPTestCase):
 
     def fetch_with_headers(self, path, **kw):
         url = self.get_url(path)
-        req = HTTPRequest(url=url, headers=kw)
+
+        headers = kw
+
+        if hasattr(self, 'user') and self.user and self.user.token:
+            headers['X-Wight-Auth'] = self.user.token
+
+        req = HTTPRequest(url=url, headers=headers)
 
         self.http_client.fetch(req, self.stop)
         return self.wait()
 
     def post(self, path, **kw):
         headers = {}
+
+        if hasattr(self, 'user') and self.user and self.user.token:
+            headers['X-Wight-Auth'] = self.user.token
+
         if 'headers' in kw:
-            headers = kw['headers']
+            headers.update(kw['headers'])
             del kw['headers']
 
         body = ""

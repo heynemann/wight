@@ -13,11 +13,25 @@ from json import loads
 from preggy import expect
 import six
 
-from wight.models import Team
-from tests.base import ApiTestCase
+from wight.models import Team, User
+from tests.base import FullTestCase
 
 
-class TeamHandlerTest(ApiTestCase):
+class TeamHandlerTest(FullTestCase):
+    def setUp(self):
+        super(TeamHandlerTest, self).setUp()
+
+        email = "team-handler-test@gmail.com"
+        self.user = User.objects.filter(email=email).first()
+
+        if not self.user:
+            self.user = User.create(email=email, password="12345")
+
+    def test_create_team_without_auth(self):
+        self.user = None
+        response = self.post("/teams")
+        expect(response.code).to_equal(401)
+
     def test_create_team(self):
         team_name = "test_team_creation"
         response = self.post("/teams", name=team_name)
@@ -40,7 +54,7 @@ class TeamHandlerTest(ApiTestCase):
 
     def test_get_team(self):
         Team.create(name="team3")
-        response = self.fetch("/teams/team3")
+        response = self.fetch_with_headers("/teams/team3")
         expect(response.code).to_equal(200)
 
         obj = response.body
@@ -53,5 +67,5 @@ class TeamHandlerTest(ApiTestCase):
         })
 
     def test_get_team_not_found(self):
-        response = self.fetch("/teams/team999999")
+        response = self.fetch_with_headers("/teams/team999999")
         expect(response.code).to_equal(404)

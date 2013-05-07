@@ -18,6 +18,7 @@ from wight.models import Team
 class TeamHandler(BaseHandler):
 
     @tornado.web.asynchronous
+    @BaseHandler.authenticated
     def get(self, name):
         team = Team.objects.filter(name=name).first()
 
@@ -33,6 +34,7 @@ class TeamHandler(BaseHandler):
         self.finish()
 
     @tornado.web.asynchronous
+    @BaseHandler.authenticated
     def post(self, _):
         name = self.get_argument("name")
 
