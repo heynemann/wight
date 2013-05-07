@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from wight.errors import UnauthenticatedError
 
 try:
     from StringIO import StringIO
@@ -29,20 +30,28 @@ class FakeResponse():
         self.content = """
             {
                 "owner": "nameless@owner.com", "name": "nameless",
-                "members": [
-                    {"name": "User 0", "role": "owner"},
-                    {"name": "User 1", "role": "member"},
-                    {"name": "User 2", "role": "member"}
-                ]
+                "members": ["User 0", "User 1", "User 2"]
             }
         """
 
 
 class TestCreateTeamController(TestCase):
+    def test_create_not_work_if_not_authenticated(self):
+        ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
+        try:
+            ctrl.default()
+        except UnauthenticatedError:
+            assert True
+            return
+
+        assert False, "Should not have gotten this far"
+
     @patch.object(CreateTeamController, 'post')
     def test_create_team(self, post_mock):
         ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
         ctrl.default()
         post_mock.assert_called_with("/teams", {"name": "nameless"})
 
@@ -52,6 +61,7 @@ class TestCreateTeamController(TestCase):
         post_mock.return_value = FakeResponse(200)
         ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
         ctrl.default()
         write_mock.assert_called_with("Created 'nameless' team in 'Target' target.")
 
@@ -61,6 +71,7 @@ class TestCreateTeamController(TestCase):
         post_mock.side_effect = requests.ConnectionError
         ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
         ctrl.default()
         write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
 
@@ -70,6 +81,7 @@ class TestCreateTeamController(TestCase):
         post_mock.return_value = FakeResponse(409)
         ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
         ctrl.default()
         write_mock.assert_called_with("The team 'nameless' already exists in target 'Target'.")
 
@@ -79,15 +91,28 @@ class TestCreateTeamController(TestCase):
         post_mock.return_value = FakeResponse(400)
         ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
         ctrl.default()
         write_mock.assert_called_with("You should define a name for the team to be created.")
 
 
 class TestShowTeamController(TestCase):
+    def test_show_not_work_if_not_authenticated(self):
+        ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        ctrl.app.user_data = UserData(target="Target")
+        try:
+            ctrl.default()
+        except UnauthenticatedError:
+            assert True
+            return
+
+        assert False, "Should not have gotten this far"
+
     @patch.object(ShowTeamController, 'api')
     def test_get_team(self, api_mock):
         ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
         ctrl.default()
         api_mock.assert_called_with("/teams/nameless")
 
@@ -97,19 +122,21 @@ class TestShowTeamController(TestCase):
         api_mock.return_value = FakeResponse(200)
         ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
         ctrl.default()
         expected_stdout = """
             nameless
             ========
 
             Team members:
-            +--------+--------+
-            | user   |   role |
-            +--------+--------+
-            | User 0 | owner  |
-            | User 1 | member |
-            | User 2 | member |
-            +--------+--------+
+            +--------------------+--------+
+            |        user        |  role  |
+            +--------------------+--------+
+            | nameless@owner.com | owner  |
+            | User 0             | member |
+            | User 1             | member |
+            | User 2             | member |
+            +--------------------+--------+
         """
         expect(mock_stdout.getvalue()).to_be_like(expected_stdout)
 
@@ -119,5 +146,6 @@ class TestShowTeamController(TestCase):
         api_mock.return_value = FakeResponse(404)
         ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
         ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
         ctrl.default()
         write_mock.assert_called_with("The team 'nameless' does not exists in target 'Target'.")

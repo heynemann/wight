@@ -31,6 +31,7 @@ class CreateTeamController(WightBaseController):
         ]
 
     @controller.expose(hide=False, aliases=["create-team"], help='Create a team.')
+    @WightBaseController.authenticated
     def default(self):
         self.load_conf()
         target = self.app.user_data.target
@@ -64,6 +65,7 @@ class ShowTeamController(WightBaseController):
         ]
 
     @controller.expose(hide=False, aliases=["show-team"], help='Show the registered team information.')
+    @WightBaseController.authenticated
     def default(self):
         self.load_conf()
         target = self.app.user_data.target
@@ -78,8 +80,10 @@ class ShowTeamController(WightBaseController):
                 self.write("Team members:")
                 team_data = loads(response.content)
                 members_table = PrettyTable(["user", "role"])
+                members_table.align["user"] = "l"
+                members_table.add_row([team_data["owner"], "owner"])
                 for member in team_data["members"]:
-                    members_table.add_row([member["name"], member["role"]])
+                    members_table.add_row([member, "member"])
                 self.write(members_table)
                 self.write("")
             elif response.status_code == 404:
