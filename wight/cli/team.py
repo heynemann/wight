@@ -88,3 +88,38 @@ class ShowTeamController(WightBaseController):
                 self.write("")
             elif response.status_code == 404:
                 self.write("The team '%s' does not exists in target '%s'." % (name, target))
+
+
+class UpdateTeamController(WightBaseController):
+    class Meta:
+        label = 'update-team'
+        stack_on = 'base'
+        description = 'Updates a team.'
+        config_defaults = dict()
+
+        arguments = [
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            (['team_name'], dict(help='The name of the team', required=True)),
+            (['new_name'], dict(help='The new name for the team', required=True)),
+        ]
+
+    @controller.expose(hide=False, aliases=["update-team"], help='Updates a team.')
+    @WightBaseController.authenticated
+    def default(self):
+        self.load_conf()
+        target = self.app.user_data.target
+        name = self.arguments.team_name
+        new_name = self.arguments.new_name
+        log_message = "Updated '%s' team in '%s' target." % (name, target)
+
+        with ConnectedController(self):
+            response = self.put("/teams/%s" % name, {"name": new_name})
+            if response.status_code == 200:
+                self.log.info(log_message)
+                self.write(log_message)
+            elif response.status_code == 403:
+                self.write("You are not the owner of team '%s' in target '%s' (which means you can't update it)." % (name, target))
+            elif response.status_code == 404:
+                self.write("Team '%s' does not exist in target '%s'." % (name, target))
+            elif response.status_code == 400:
+                self.write("The team's new name can't be null or empty.")

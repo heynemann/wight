@@ -18,7 +18,7 @@ from mock import patch
 
 from preggy import expect
 
-from wight.cli.team import CreateTeamController, ShowTeamController
+from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController
 from wight.models import UserData
 from wight.cli.base import requests
 from tests.unit.base import TestCase
@@ -149,5 +149,29 @@ class TestShowTeamController(TestCase):
     @patch.object(ShowTeamController, 'write')
     def test_show_gets_server_error_and_notify(self, write_mock, get_mock):
         get_mock.side_effect = requests.ConnectionError
+        self.ctrl.default()
+        write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
+
+
+class TestUpdateTeamController(TestCase):
+    def setUp(self):
+        self.ctrl = self.make_controller(
+            UpdateTeamController,
+            conf=self.fixture_for('test.conf'),
+            team_name='new-team',
+            new_name="new-name")
+
+        self.ctrl.app.user_data = UserData(target="Target")
+        self.ctrl.app.user_data.token = "token-value"
+        self.put_mock = patch('requests.put')
+        self.put_mock.start()
+
+    def tearDown(self):
+        self.put_mock.stop()
+
+    @patch.object(UpdateTeamController, 'put')
+    @patch.object(UpdateTeamController, 'write')
+    def test_handles_connection_errors_nicely(self, write_mock, put_mock):
+        put_mock.side_effect = requests.ConnectionError
         self.ctrl.default()
         write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")

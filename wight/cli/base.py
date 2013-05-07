@@ -62,11 +62,19 @@ class WightBaseController(controller.CementBaseController):
         return requests.get(url, headers=headers)
 
     def post(self, path, data={}, headers={}):
+        return self.send_request("POST", path, data, headers)
+
+    def put(self, path, data={}, headers={}):
+        return self.send_request("PUT", path, data, headers)
+
+    def send_request(self, method, path, data={}, headers={}):
         headers.update({"X-Wight-Auth": self.app.user_data.token})
         target = self.app.user_data.target.rstrip('/')
         data.update({"target": target})
         url = join(target, path.lstrip('/'))
-        return requests.post(url, data=data, headers=headers)
+
+        func = getattr(requests, method.lower())
+        return func(url, data=data, headers=headers)
 
     @staticmethod
     def authenticated(fn):
