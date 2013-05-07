@@ -21,7 +21,7 @@ import mock
 
 from wight.cli.auth import AuthController
 from wight.models import UserData, User
-from tests.base import FullTestCase
+from tests.unit.base import FullTestCase
 
 
 def clear_token():

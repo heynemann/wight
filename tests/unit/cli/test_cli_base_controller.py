@@ -23,7 +23,7 @@ from wight.models import UserData
 from wight.errors import TargetNotSetError, UnauthenticatedError
 import wight.cli.base as base
 
-from tests.base import TestCase
+from tests.unit.base import TestCase
 
 
 class AuthenticatedControllerMock(WightBaseController):

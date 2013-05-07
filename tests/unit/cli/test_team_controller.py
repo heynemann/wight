@@ -20,8 +20,8 @@ import requests
 from preggy import expect
 
 from wight.cli.team import CreateTeamController, ShowTeamController
-from tests.base import TestCase
 from wight.models import UserData
+from tests.unit.base import TestCase
 
 
 class FakeResponse():

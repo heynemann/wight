@@ -14,7 +14,7 @@ from preggy import expect
 import six
 
 from wight.models import Team, User
-from tests.base import FullTestCase
+from tests.unit.base import FullTestCase
 
 
 class TeamHandlerTest(FullTestCase):

@@ -14,8 +14,8 @@ from wight.cli.app import WightApp
 from wight.cli.schedule import ScheduleController
 from wight.cli.target import TargetSetController, TargetGetController
 from wight.cli.auth import AuthController
-from tests.base import TestCase
 from wight.cli.team import CreateTeamController, ShowTeamController
+from tests.unit.base import TestCase
 
 
 class TestWightApp(TestCase):

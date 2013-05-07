@@ -14,7 +14,7 @@ from preggy import expect
 from mongoengine.base.document import ValidationError
 
 from wight.models import User, Team
-from tests.base import ModelTestCase
+from tests.unit.base import ModelTestCase
 
 
 class TestTeamModel(ModelTestCase):

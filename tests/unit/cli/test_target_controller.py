@@ -8,13 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-from os.path import expanduser
-
 from preggy import expect
 
 from wight.models import UserData
 from wight.cli.target import TargetSetController
-from tests.base import TestCase
+from tests.unit.base import TestCase
 
 
 class TestTargetSetController(TestCase):

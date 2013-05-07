@@ -15,7 +15,7 @@ from preggy import expect
 import six
 
 from wight.models import User
-from tests.base import ModelTestCase
+from tests.unit.base import ModelTestCase
 
 
 class TestUserModel(ModelTestCase):

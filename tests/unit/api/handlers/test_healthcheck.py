@@ -11,7 +11,7 @@
 from preggy import expect
 
 from wight.api.config import Config
-from tests.base import ApiTestCase
+from tests.unit.base import ApiTestCase
 
 
 class HealthcheckHandlerTest(ApiTestCase):

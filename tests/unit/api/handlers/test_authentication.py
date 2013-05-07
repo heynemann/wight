@@ -11,7 +11,7 @@
 from preggy import expect
 
 from wight.models import User
-from tests.base import ApiTestCase
+from tests.unit.base import ApiTestCase
 
 
 class UserAuthenticationTest(ApiTestCase):
