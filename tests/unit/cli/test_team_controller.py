@@ -65,7 +65,8 @@ class TestCreateTeamController(TestCase):
     @patch.object(CreateTeamController, 'post')
     @patch.object(CreateTeamController, 'write')
     def test_create_team_notify_user(self, write_mock, post_mock):
-        post_mock.return_value = FakeResponse(200)
+        response = Mock(status_code=200)
+        post_mock.return_value = response
         self.ctrl.default()
         write_mock.assert_called_with("Created 'nameless' team in 'Target' target.")
 
@@ -78,15 +79,17 @@ class TestCreateTeamController(TestCase):
 
     @patch.object(CreateTeamController, 'post')
     @patch.object(CreateTeamController, 'write')
-    def test_try_to_create_a_team_already_existed(self, write_mock, post_mock):
-        post_mock.return_value = FakeResponse(409)
+    def test_try_to_create_a_team_that_already_exists(self, write_mock, post_mock):
+        response = Mock(status_code=409)
+        post_mock.return_value = response
         self.ctrl.default()
         write_mock.assert_called_with("The team 'nameless' already exists in target 'Target'.")
 
     @patch.object(CreateTeamController, 'post')
     @patch.object(CreateTeamController, 'write')
     def test_try_to_create_a_team_with_none_as_name(self, write_mock, post_mock):
-        post_mock.return_value = FakeResponse(400)
+        response = Mock(status_code=400)
+        post_mock.return_value = response
         self.ctrl.default()
         write_mock.assert_called_with("You should define a name for the team to be created.")
 
@@ -120,7 +123,12 @@ class TestShowTeamController(TestCase):
     @patch.object(ShowTeamController, 'get')
     @patch('sys.stdout', new_callable=StringIO)
     def test_show_team_notify_user(self, mock_stdout, get_mock):
-        get_mock.return_value = FakeResponse(200)
+        get_mock.return_value = Mock(status_code=200, content="""
+            {
+                "owner": "nameless@owner.com", "name": "nameless",
+                "members": ["User 0", "User 1", "User 2"]
+            }
+        """)
         self.ctrl.default()
         expected_stdout = """
             nameless
@@ -141,7 +149,7 @@ class TestShowTeamController(TestCase):
     @patch.object(ShowTeamController, 'get')
     @patch.object(ShowTeamController, 'write')
     def test_try_to_show_a_team_dows_not_exist(self, write_mock, get_mock):
-        get_mock.return_value = FakeResponse(404)
+        get_mock.return_value = Mock(status_code=404)
         self.ctrl.default()
         write_mock.assert_called_with("The team 'nameless' does not exists in target 'Target'.")
 
