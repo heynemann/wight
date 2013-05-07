@@ -9,13 +9,14 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 import sys
-from os.path import abspath, dirname, join
+import os
+from os.path import abspath, dirname, join, exists
 from unittest import TestCase as PythonTestCase
 
 from mongoengine import connect
 import sh
 
-from wight.models import User, Team
+from wight.models import User, Team, UserData
 
 ROOT_PATH = abspath(join(dirname(__file__), '../../wight/cli/__init__.py'))
 
@@ -31,6 +32,22 @@ class AcceptanceTest(PythonTestCase):
 
         User.objects.delete()
         Team.objects.delete()
+
+    def clear_user_data(self):
+        if exists(UserData.DEFAULT_PATH):
+            os.remove(UserData.DEFAULT_PATH)
+
+    def setUp(self):
+        self.clear_user_data()
+
+        self.target = "http://localhost:2368"
+        self.execute("target-set", self.target)
+
+        self.username = "acc-test-user@gmail.com"
+        self.password = "123456"
+        self.user = User.create(email=self.username, password=self.password)
+
+        self.execute("login", email=self.username, password=self.password)
 
     def execute(self, command, *arguments, **kw):
         python = sh.Command(sys.executable)

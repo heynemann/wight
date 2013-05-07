@@ -16,7 +16,6 @@ from cement.core import controller
 import requests
 from six.moves import input
 
-from wight.models import UserData
 from wight.cli.config import Config
 from wight.errors import TargetNotSetError, UnauthenticatedError
 
@@ -40,11 +39,9 @@ class WightBaseController(controller.CementBaseController):
 
     def load_conf(self):
         conf_path = self.arguments and self.arguments.conf or None
-        if conf_path is None:
-            conf_path = UserData.DEFAULT_PATH
 
         self.log.info('Using configuration file in %s.' % conf_path)
-        if exists(conf_path):
+        if conf_path and exists(conf_path):
             self.config = Config.load(conf_path)
         else:
             self.config = Config()

@@ -59,7 +59,7 @@ class TargetGetController(WightBaseController):
     def default(self):
         self.load_conf()
 
-        user_data = UserData.load(expanduser("~/.wight"))
+        user_data = UserData.load()
 
         if user_data is None:
             self.write("No target set.")
