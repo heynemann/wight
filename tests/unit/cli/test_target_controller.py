@@ -8,9 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-from StringIO import StringIO
-import mock
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
+import mock
 from preggy import expect
 
 from wight.models import UserData
