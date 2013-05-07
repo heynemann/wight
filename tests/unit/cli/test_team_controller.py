@@ -14,7 +14,7 @@ try:
 except ImportError:
     from io import StringIO
 
-from mock import patch
+from mock import patch, Mock
 
 from preggy import expect
 
@@ -175,3 +175,12 @@ class TestUpdateTeamController(TestCase):
         put_mock.side_effect = requests.ConnectionError
         self.ctrl.default()
         write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
+
+    @patch.object(UpdateTeamController, 'put')
+    @patch.object(UpdateTeamController, 'write')
+    def test_handles_not_the_owner(self, write_mock, put_mock):
+        response_mock = Mock(status_code=403)
+        put_mock.return_value = response_mock
+        self.ctrl.default()
+        msg = "You are not the owner of team 'new-team' in target 'Target' (which means you can't update it)."
+        write_mock.assert_called_with(msg)
