@@ -43,7 +43,7 @@ class TestBaseController(TestCase):
         post_mock.assert_called_with(
             "Target/post-url",
             data={"some": "data", "target": "Target"},
-            headers={"Token": "token-value"}
+            headers={"X-Wight-Auth": "token-value"}
         )
 
 

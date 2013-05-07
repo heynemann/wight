@@ -15,6 +15,7 @@ from wight.cli.schedule import ScheduleController
 from wight.cli.target import TargetSetController, TargetGetController
 from wight.cli.auth import AuthController
 from tests.base import TestCase
+from wight.cli.team import CreateTeamController
 
 
 class TestWightApp(TestCase):
@@ -35,8 +36,9 @@ class TestWightApp(TestCase):
 
         self.app.register_controllers()
 
-        expect(self.app.controllers).to_length(4)
+        expect(self.app.controllers).to_length(5)
         expect(self.app.controllers).to_include(ScheduleController)
         expect(self.app.controllers).to_include(TargetSetController)
         expect(self.app.controllers).to_include(TargetGetController)
         expect(self.app.controllers).to_include(AuthController)
+        expect(self.app.controllers).to_include(CreateTeamController)
