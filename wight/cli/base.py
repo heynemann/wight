@@ -17,6 +17,7 @@ import requests
 
 from wight.models import UserData
 from wight.cli.config import Config
+from wight.errors import TargetNotSetError
 
 
 class WightBaseController(controller.CementBaseController):
@@ -72,6 +73,19 @@ class WightBaseController(controller.CementBaseController):
         data.update({"target": target})
         url = join(target, path.lstrip('/'))
         return requests.post(url, data=data, headers=headers)
+
+    @staticmethod
+    def authenticated(fn):
+        def handle(decorated_self, *args, **kw):
+            user = UserData.load()
+            if user is None or not user.target:
+                raise TargetNotSetError()
+            fn(decorated_self, *args, **kw)
+
+        handle.__name__ = fn.__name__
+        handle.__doc__ = fn.__doc__
+
+        return handle
 
 
 class WightDefaultController(WightBaseController):

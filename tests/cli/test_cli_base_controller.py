@@ -20,7 +20,7 @@ from mock import patch
 
 from wight.cli.base import WightDefaultController, WightBaseController
 from wight.models import UserData
-from wight.cli import WightApp
+from wight.errors import TargetNotSetError
 import wight.cli.base as base
 
 from tests.base import TestCase
@@ -46,6 +46,21 @@ class TestBaseController(TestCase):
             headers={"X-Wight-Auth": "token-value"}
         )
 
+    def test_authenticated_decorator(self):
+        class TestAuthController(WightBaseController):
+            @WightBaseController.authenticated
+            def default(self):
+                pass
+
+        ctrl = self.make_controller(TestAuthController)
+        try:
+            ctrl.default()
+        except TargetNotSetError:
+            assert True
+            return
+
+        assert False, "Should not have gotten this far"
+
 
 class TestDefaultHandler(TestCase):
 
@@ -54,7 +69,6 @@ class TestDefaultHandler(TestCase):
 
     def test_meta_desc(self):
         expect(WightDefaultController.Meta.description).to_equal('wight load testing scheduler and tracker.')
-
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_default_action(self, mock_stdout):
