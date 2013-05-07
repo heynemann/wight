@@ -38,7 +38,7 @@ class TeamHandler(BaseHandler):
     def post(self, _):
         name = self.get_argument("name")
 
-        team = Team.create(name)
+        team = Team.create(name, owner=self.current_user)
 
         if team is None:
             self.set_status(409)

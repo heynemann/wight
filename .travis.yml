@@ -17,7 +17,6 @@ install:
   - sudo apt-get install -y redis-server
 
   # install python requirements
-  - pip install git+git://github.com/heynemann/slumber.git
   - pip install -e .[tests]
 
 script:

@@ -53,7 +53,7 @@ class TeamHandlerTest(FullTestCase):
         expect(response.code).to_equal(409)
 
     def test_get_team(self):
-        Team.create(name="team3")
+        Team.create(name="team3", owner=self.user)
         response = self.fetch_with_headers("/teams/team3")
         expect(response.code).to_equal(200)
 
@@ -63,6 +63,7 @@ class TeamHandlerTest(FullTestCase):
 
         expect(loads(obj)).to_be_like({
             "name": "team3",
+            "owner": self.user.email,
             "members": []
         })
 

@@ -140,6 +140,7 @@ class User(Document):
 
 class Team(Document):
     name = StringField(max_length=2000, unique=True, required=True)
+    owner = ReferenceField(User, required=True)
     members = ListField(ReferenceField(User))
     date_modified = DateTimeField(default=datetime.datetime.now)
     date_created = DateTimeField(default=datetime.datetime.now)
@@ -151,12 +152,13 @@ class Team(Document):
     def to_dict(self):
         return {
             "name": self.name,
+            "owner": self.owner.email,
             "members": [member.to_dict() for member in self.members]
         }
 
     @classmethod
-    def create(cls, name, members=None):
-        team = Team(name=name)
+    def create(cls, name, owner, members=None):
+        team = Team(name=name, owner=owner, members=[])
         if members:
             for member in members:
                 team.members.append(member)

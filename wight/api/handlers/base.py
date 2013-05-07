@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from datetime import datetime
 
 import tornado.web
+
+from wight.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -24,3 +27,20 @@ class BaseHandler(tornado.web.RequestHandler):
         handle.__doc__ = fn.__doc__
 
         return handle
+
+    @property
+    def current_user(self):
+        if not 'X-Wight-Auth' in self.request.headers:
+            return None
+
+        token = self.request.headers['X-Wight-Auth']
+
+        user = User.objects.filter(token=token).first()
+
+        if user is None:
+            return None
+
+        if user.token_expiration < datetime.now():
+            return None
+
+        return user
