@@ -19,6 +19,7 @@ tests_require = [
     'mock',
     'tox',
     'ipdb',
+    'sh',
 ]
 
 setup(

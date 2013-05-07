@@ -27,7 +27,7 @@ class WightApp(foundation.CementApp):
 
     def __init__(self, label=None, **kw):
         super(WightApp, self).__init__(**kw)
-        self.user_data = UserData.load(expanduser("~/.wight"))
+        self.user_data = UserData.load()
 
     def register_controllers(self):
         self.controllers = [

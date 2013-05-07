@@ -1,5 +1,13 @@
 test ci-test: mongo_test redis
+	@sleep 3
+	@rm -rf ~/.wighttest
 	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/
+
+acceptance acc integration func functional: mongo mongo_test redis kill_app
+	@sleep 3
+	@rm -rf ~/.wightacc
+	@python wight/api/server.py --port 2368 --bind 0.0.0.0 --conf ./wight/api/local.conf &
+	@WIGHT_USERDATA_PATH=~/.wightacc nosetests -vv --with-yanc -s tests/acceptance/
 
 tox:
 	@PATH=$$PATH:~/.pythonbrew/pythons/Python-2.6.*/bin/:~/.pythonbrew/pythons/Python-2.7.*/bin/:~/.pythonbrew/pythons/Python-3.0.*/bin/:~/.pythonbrew/pythons/Python-3.1.*/bin/:~/.pythonbrew/pythons/Python-3.2.3/bin/:~/.pythonbrew/pythons/Python-3.3.0/bin/ tox
@@ -42,7 +50,9 @@ kill_mongo_test:
 mongo_test: kill_mongo_test
 	@rm -rf /tmp/wight/mongotestdata && mkdir -p /tmp/wight/mongotestdata
 	@mongod --dbpath /tmp/wight/mongotestdata --logpath /tmp/wight/mongotestlog --port 7778 --quiet &
-	@sleep 3
 
 run: mongo redis
 	@python wight/api/server.py --port 2367 --bind 0.0.0.0 --conf ./wight/api/local.conf -vvv --debug
+
+kill_app:
+	@-ps aux | egrep server.py | egrep -v egrep | awk ' { print $$2 } ' | xargs kill -9
