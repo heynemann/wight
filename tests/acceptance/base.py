@@ -12,9 +12,11 @@ import sys
 import os
 from os.path import abspath, dirname, join, exists
 from unittest import TestCase as PythonTestCase
+from random import randint
 
 from mongoengine import connect
 import sh
+from preggy import expect
 
 from wight.models import User, Team, UserData
 
@@ -43,9 +45,10 @@ class AcceptanceTest(PythonTestCase):
         self.target = "http://localhost:2368"
         self.execute("target-set", self.target)
 
-        self.username = "acc-test-user@gmail.com"
+        self.username = "acc-test-user-%06d@gmail.com" % randint(1, 1000000)
         self.password = "123456"
         self.user = User.create(email=self.username, password=self.password)
+        expect(self.user).not_to_be_null()
 
         self.execute("login", email=self.username, password=self.password)
 

@@ -24,3 +24,21 @@ class TestTeam(AcceptanceTest):
 
         team = Team.objects.filter(name=team_name).first()
         expect(team).not_to_be_null()
+
+    def test_can_show_team(self):
+        team_name = "test-create-team-2"
+        team = Team.create(name=team_name, owner=self.user)
+        expect(team).not_to_be_null()
+
+        result = self.execute("show-team", team_name)
+        expect(result).to_be_like("""
+        %s
+        ==================
+
+        Team members:
+        +--------------------------------+-------+
+        | user                           |  role |
+        +--------------------------------+-------+
+        | %s                             | owner |
+        +--------------------------------+-------+
+        """ % (team_name, self.username))
