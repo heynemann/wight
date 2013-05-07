@@ -35,13 +35,18 @@ class AcceptanceTest(PythonTestCase):
     def execute(self, command, *arguments, **kw):
         python = sh.Command(sys.executable)
 
-        if 'stdin' in kw:
-            stdin = kw['stdin']
-            del kw['stdin']
+        try:
+            if 'stdin' in kw:
+                stdin = kw['stdin']
+                del kw['stdin']
 
-            result = python(ROOT_PATH, command, _in=stdin, *arguments, **kw)
-        else:
-            result = python(ROOT_PATH, command, *arguments, **kw)
+                result = python(ROOT_PATH, command, _in=stdin, *arguments, **kw)
+            else:
+                result = python(ROOT_PATH, command, *arguments, **kw)
+        except sh.ErrorReturnCode_1:
+            error = sys.exc_info()[1]
+            assert False, "Running %s returned status code 1. The error was: %s" % (command, error.stderr)
 
         result.wait()
+
         return result.strip()

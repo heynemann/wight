@@ -14,6 +14,7 @@ import getpass
 
 from cement.core import controller
 import requests
+from six.moves import input
 
 from wight.models import UserData
 from wight.cli.config import Config
@@ -55,7 +56,7 @@ class WightBaseController(controller.CementBaseController):
         return getpass.getpass(prompt="%s " % msg)
 
     def ask_for(self, msg):
-        return raw_input("%s " % msg)
+        return input("%s " % msg)
 
     def api(self, path, headers={}):
         if self.app.user_data is None:

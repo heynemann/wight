@@ -35,7 +35,7 @@ kill_redis:
 
 redis: kill_redis
 	redis-server ./redis.conf; sleep 1
-	redis-cli -p 7780 info
+	redis-cli -p 7780 info > /dev/null
 
 kill_mongo:
 	@ps aux | awk '(/mongod/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'

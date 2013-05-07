@@ -22,3 +22,8 @@ install:
 script:
     # finally run tests
     - make ci-test
+    - make acc
+
+matrix:
+  allow_failures:
+    - python: pypy
