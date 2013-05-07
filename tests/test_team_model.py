@@ -8,7 +8,10 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+import sys
+
 from preggy import expect
+from mongoengine.base.document import ValidationError
 
 from wight.models import User, Team
 from tests.base import ModelTestCase
@@ -66,10 +69,35 @@ class TestTeamModel(ModelTestCase):
         })
 
     def test_cant_have_null_owner(self):
-        pass
+        try:
+            Team.create(name="test-team-5", owner=None)
+        except ValidationError:
+            return
+        assert False, "Should not have gotten this far"
 
     def test_cant_have_same_member_twice(self):
-        pass
+        u1 = User.create(email="team-user9@gmail.com", password="12345")
+        u2 = User.create(email="team-user10@gmail.com", password="12345")
+        expect(u1).not_to_be_null()
+        expect(u2).not_to_be_null()
+
+        try:
+            Team.create(name="test-team-5", owner=u1, members=[u2, u2])
+        except ValueError:
+            ex = sys.exc_info()[1]
+            expect(ex).to_have_an_error_message_of("Can't have the same user twice in the members collection.")
+            return
+        assert False, "Should not have gotten this far"
 
     def test_cant_have_owner_in_members(self):
-        pass
+        u1 = User.create(email="team-user11@gmail.com", password="12345")
+        expect(u1).not_to_be_null()
+
+        try:
+            Team.create(name="test-team-5", owner=u1, members=[u1])
+        except ValueError:
+            ex = sys.exc_info()[1]
+            expect(ex).to_have_an_error_message_of("Can't have a team owner in the members collection.")
+            return
+
+        assert False, "Should not have gotten this far"

@@ -146,6 +146,13 @@ class Team(Document):
     date_created = DateTimeField(default=datetime.datetime.now)
 
     def clean(self):
+        if self.owner in self.members:
+            raise ValueError("Can't have a team owner in the members collection.")
+
+        member_ids = [member.id for member in self.members]
+        if len(member_ids) != len(set(member_ids)):
+            raise ValueError("Can't have the same user twice in the members collection.")
+
         # Updates date_modified field
         self.date_modified = datetime.datetime.now()
 

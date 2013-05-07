@@ -55,6 +55,7 @@ class ApiTestCase(AsyncHTTPTestCase):
     def create_api_app(self, config=None):
         if not config:
             config = Config()
+        config.MONGO_PORT = 7778
         return WightApp(config=config)
 
     def fetch_with_headers(self, path, **kw):
@@ -110,7 +111,7 @@ class ModelTestCase(PythonTestCase):
         connect(
             "mongo-test",
             host="localhost",
-            port=7777
+            port=7778
         )
 
         User.objects.delete()

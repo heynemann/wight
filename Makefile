@@ -1,4 +1,4 @@
-test ci-test: mongo redis
+test ci-test: mongo_test redis
 	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/
 
 tox:
@@ -35,6 +35,13 @@ kill_mongo:
 mongo: kill_mongo
 	@rm -rf /tmp/wight/mongodata && mkdir -p /tmp/wight/mongodata
 	@mongod --dbpath /tmp/wight/mongodata --logpath /tmp/wight/mongolog --port 7777 --quiet &
+
+kill_mongo_test:
+	@ps aux | awk '(/mongod.+test/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
+
+mongo_test: kill_mongo_test
+	@rm -rf /tmp/wight/mongotestdata && mkdir -p /tmp/wight/mongotestdata
+	@mongod --dbpath /tmp/wight/mongotestdata --logpath /tmp/wight/mongotestlog --port 7778 --quiet &
 	@sleep 3
 
 run: mongo redis
