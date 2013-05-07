@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+import six
 from json import loads
 from cement.core import controller
 
@@ -31,7 +32,10 @@ class ShowUserController(WightBaseController):
         with ConnectedController(self):
             response = self.api("/user/info")
             if response.status_code == 200:
-                content = loads(response.content)
+                content = response.content
+                if isinstance(content, six.binary_type):
+                    content = content.decode('utf-8')
+                content = loads(content)
                 self.write("User: %s" % content['user']['email'])
             elif response.status_code == 401:
                 self.write("User not logged in. Run wight authenticate")

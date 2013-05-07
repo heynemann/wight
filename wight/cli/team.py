@@ -9,11 +9,10 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 from json import loads
 
-import sys
+import six
 
 from cement.core import controller
 from prettytable import PrettyTable
-import requests
 
 from wight.cli.base import WightBaseController, ConnectedController
 
@@ -69,12 +68,17 @@ class ShowTeamController(WightBaseController):
         with ConnectedController(self):
             response = self.api("/teams/%s" % name)
             if response.status_code == 200:
+                content = response.content
                 self.write("")
                 self.write(name)
                 self.write("=" * len(name))
                 self.write("")
                 self.write("Team members:")
-                team_data = loads(response.content)
+
+                if isinstance(content, six.binary_type):
+                    content = content.decode('utf-8')
+                team_data = loads(content)
+
                 members_table = PrettyTable(["user", "role"])
                 members_table.align["user"] = "l"
                 members_table.add_row([team_data["owner"], "owner"])
