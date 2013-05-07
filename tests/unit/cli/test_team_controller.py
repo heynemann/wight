@@ -184,3 +184,30 @@ class TestUpdateTeamController(TestCase):
         self.ctrl.default()
         msg = "You are not the owner of team 'new-team' in target 'Target' (which means you can't update it)."
         write_mock.assert_called_with(msg)
+
+    @patch.object(UpdateTeamController, 'put')
+    @patch.object(UpdateTeamController, 'write')
+    def test_handles_not_found(self, write_mock, put_mock):
+        response_mock = Mock(status_code=404)
+        put_mock.return_value = response_mock
+        self.ctrl.default()
+        msg = "Team 'new-team' does not exist in target 'Target'."
+        write_mock.assert_called_with(msg)
+
+    @patch.object(UpdateTeamController, 'put')
+    @patch.object(UpdateTeamController, 'write')
+    def test_handles_empty_name(self, write_mock, put_mock):
+        response_mock = Mock(status_code=400)
+        put_mock.return_value = response_mock
+        self.ctrl.default()
+        msg = "The team's new name can't be null or empty."
+        write_mock.assert_called_with(msg)
+
+    @patch.object(UpdateTeamController, 'put')
+    @patch.object(UpdateTeamController, 'write')
+    def test_handles_proper_update(self, write_mock, put_mock):
+        response_mock = Mock(status_code=200)
+        put_mock.return_value = response_mock
+        self.ctrl.default()
+        msg = "Updated 'new-team' team in 'Target' target."
+        write_mock.assert_called_with(msg)
