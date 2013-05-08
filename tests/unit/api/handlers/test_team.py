@@ -22,7 +22,7 @@ class TeamHandlerTest(FullTestCase):
     def setUp(self):
         super(TeamHandlerTest, self).setUp()
 
-        self.user = UserFactory.create()
+        self.user = UserFactory.create(with_token=True)
 
     def test_create_team_without_auth(self):
         self.user = None
@@ -75,7 +75,7 @@ class TeamHandlerTest(FullTestCase):
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("OK")
 
-        team = Team.objects.filter(name=team.name).first()
+        team = Team.objects.filter(name='new-name-4').first()
         expect(team).not_to_be_null()
 
     def test_update_team_to_empty_name(self):
@@ -93,15 +93,14 @@ class TeamHandlerTest(FullTestCase):
 
     def test_update_team_with_wrong_owner(self):
         u1 = UserFactory.create()
-        TeamFactory.create(owner=u1)
+        team = TeamFactory.create(owner=u1)
 
-        response = self.put("/teams/team-wrong-owner", name="new-name")
+        response = self.put("/teams/%s" % team.name, name="new-name")
         expect(response.code).to_equal(403)
 
     def test_add_user(self):
         user = UserFactory.create()
         team = TeamFactory.create(owner=self.user)
-        expect(team).not_to_be_null()
 
         response = self.patch("/teams/%s/members" % team.name, user=user.email)
         expect(response.code).to_equal(200)
@@ -109,11 +108,11 @@ class TeamHandlerTest(FullTestCase):
 
         team = Team.objects.filter(name=team.name).first()
         expect(team).not_to_be_null()
+        expect(team.members).to_length(1)
         expect(team.members).to_include(user)
 
     def test_add_non_existent_user(self):
         team = TeamFactory.create(owner=self.user)
-        expect(team).not_to_be_null()
 
         response = self.patch("/teams/%s/members" % team.name, user="Wrong@email.com")
         expect(response.code).to_equal(400)

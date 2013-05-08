@@ -21,18 +21,20 @@ class UserHandlerTest(FullTestCase):
     def setUp(self):
         super(UserHandlerTest, self).setUp()
 
-        self.user = UserFactory.create()
+        self.user = UserFactory.create(with_token=True)
 
     def test_when_user_doesnt_exist(self):
         self.user = None
         response = self.fetch_with_headers("/user/info")
         expect(response.code).to_equal(401)
 
-    def test_create_team(self):
+    def test_get_user_info(self):
         response = self.fetch_with_headers("/user/info")
+
+        expect(response.code).to_equal(200)
+
         body = response.body
         if isinstance(body, six.binary_type):
             body = body.decode('utf-8')
         body = loads(body)
-        expect(response.code).to_equal(200)
-        expect(body['user']['email']).to_equal(self.email)
+        expect(body['user']['email']).to_equal(self.user.email)

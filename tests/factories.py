@@ -25,10 +25,16 @@ class UserFactory(factory.Factory):
     token_expiration = None
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())
+    with_token = False
 
     @classmethod
     def _prepare(cls, create, **kwargs):
+        with_token = kwargs.pop('with_token', None)
         user = super(UserFactory, cls)._prepare(create, **kwargs)
+
+        if with_token:
+            user.validate_token()
+
         if create:
             user.save()
         return user
