@@ -99,8 +99,8 @@ class UpdateTeamController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['team_name'], dict(help='The name of the team', required=True)),
-            (['new_name'], dict(help='The new name for the team', required=True)),
+            (['team_name'], dict(help='The name of the team')),
+            (['new_name'], dict(help='The new name for the team')),
         ]
 
     @controller.expose(hide=False, aliases=["update-team"], help='Updates a team.')
@@ -110,7 +110,7 @@ class UpdateTeamController(WightBaseController):
         target = self.app.user_data.target
         name = self.arguments.team_name
         new_name = self.arguments.new_name
-        log_message = "Updated '%s' team in '%s' target." % (name, target)
+        log_message = "Updated '%s' team to '%s' in '%s' target." % (name, new_name, target)
 
         with ConnectedController(self):
             response = self.put("/teams/%s" % name, {"name": new_name})

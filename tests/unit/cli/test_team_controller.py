@@ -217,5 +217,5 @@ class TestUpdateTeamController(TestCase):
         response_mock = Mock(status_code=200)
         put_mock.return_value = response_mock
         self.ctrl.default()
-        msg = "Updated 'new-team' team in 'Target' target."
+        msg = "Updated 'new-team' team to 'new-name' in 'Target' target."
         write_mock.assert_called_with(msg)

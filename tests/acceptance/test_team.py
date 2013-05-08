@@ -42,3 +42,13 @@ class TestTeam(AcceptanceTest):
         | %s                             | owner |
         +--------------------------------+-------+
         """ % (team_name, self.username))
+
+    def test_can_update_team(self):
+        team_name = "test-update-team"
+        Team.create(name=team_name, owner=self.user)
+
+        result = self.execute("update-team", team_name, "new-team-name")
+        expect(result).to_equal("Updated 'test-update-team' team to 'new-team-name' in '%s' target." % self.target)
+
+        team = Team.objects.filter(name="new-team-name").first()
+        expect(team).not_to_be_null()

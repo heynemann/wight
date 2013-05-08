@@ -16,7 +16,7 @@ from wight.cli.base import WightDefaultController
 from wight.cli.schedule import ScheduleController
 from wight.cli.auth import AuthController
 from wight.cli.target import TargetSetController, TargetGetController
-from wight.cli.team import CreateTeamController, ShowTeamController
+from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController
 from wight.cli.user import ShowUserController
 from wight.models import UserData
 
@@ -37,6 +37,7 @@ class WightApp(foundation.CementApp):
             TargetSetController,
             TargetGetController,
             CreateTeamController,
+            UpdateTeamController,
             ShowTeamController,
             ShowUserController,
         ]
