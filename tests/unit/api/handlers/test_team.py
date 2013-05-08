@@ -125,5 +125,6 @@ class TeamHandlerTest(FullTestCase):
         expect(response.body).to_equal("Team not found")
 
     def test_add_user_to_team_without_user(self):
-        response = self.patch("/teams/team-10/members")
+        team = Team.create(name="team-11", owner=self.user)
+        response = self.patch("/teams/team-11/members")
         expect(response.code).to_equal(400)
