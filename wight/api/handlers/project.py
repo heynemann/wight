@@ -8,17 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-from json import dumps
-try:
-    from urlparse import parse_qs
-except ImportError:
-    from urllib.parse import parse_qs
-
 import tornado.web
-import six
 
 from wight.api.handlers.base import BaseHandler
-from wight.models import Team, User
 
 
 class ProjectHandler(BaseHandler):

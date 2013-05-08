@@ -21,9 +21,25 @@ class TeamProjectTest(FullTestCase):
 
         self.user = UserFactory.create(with_token=True)
         self.team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_members(self.team, 2)
 
-    def test_create_project(self):
-        project_name = "project_test"
+    def test_create_project_being_owner(self):
+        project_name = "project_test_being_owner"
+        response = self.post("/teams/%s/projects/" % self.team.name, name=project_name)
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team).not_to_be_null()
+        expect(team.projects).to_length(1)
+        expect(team.projects[0].name).to_equal(project_name)
+
+    def test_create_project_being_team_member(self):
+        self.user = self.team.members[0]
+        self.user.validate_token()
+        self.user.save()
+
+        project_name = "project_test_being_member"
         response = self.post("/teams/%s/projects/" % self.team.name, name=project_name)
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("OK")
@@ -44,6 +60,17 @@ class TeamProjectTest(FullTestCase):
 
         response = self.post("/teams/%s/projects/" % self.team.name)
         expect(response.code).to_equal(400)
+
+    def test_cant_create_project_for_invalid_team(self):
+        response = self.post("/teams/invalid-team/projects/", name="valid-name")
+        expect(response.code).to_equal(404)
+
+    def test_cant_create_project_without_being_in_the_team(self):
+        self.user = UserFactory.create(with_token=True)
+
+        project_name = "project_test"
+        response = self.post("/teams/%s/projects/" % self.team.name, name=project_name)
+        expect(response.code).to_equal(403)
 
     #def test_create_team_with_no_name_returns_bad_request(self):
         #response = self.post("/teams")
