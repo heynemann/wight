@@ -8,11 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+from json import loads
 
 from preggy import expect
 import six
-from wight.models import User
-from json import loads
+
+from tests.factories import UserFactory
 from tests.unit.base import FullTestCase
 
 
@@ -20,11 +21,7 @@ class UserHandlerTest(FullTestCase):
     def setUp(self):
         super(UserHandlerTest, self).setUp()
 
-        self.email = "user-handler-test@gmail.com"
-        self.user = User.objects.filter(email=self.email).first()
-
-        if not self.user:
-            self.user = User.create(email=self.email, password="12345")
+        self.user = UserFactory.create()
 
     def test_when_user_doesnt_exist(self):
         self.user = None

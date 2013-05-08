@@ -13,19 +13,16 @@ from json import loads
 from preggy import expect
 import six
 
-from wight.models import Team, User
+from wight.models import Team
 from tests.unit.base import FullTestCase
+from tests.factories import UserFactory, TeamFactory
 
 
 class TeamHandlerTest(FullTestCase):
     def setUp(self):
         super(TeamHandlerTest, self).setUp()
 
-        email = "team-handler-test@gmail.com"
-        self.user = User.objects.filter(email=email).first()
-
-        if not self.user:
-            self.user = User.create(email=email, password="12345")
+        self.user = UserFactory.create()
 
     def test_create_team_without_auth(self):
         self.user = None
@@ -53,8 +50,8 @@ class TeamHandlerTest(FullTestCase):
         expect(response.code).to_equal(409)
 
     def test_get_team(self):
-        Team.create(name="team3", owner=self.user)
-        response = self.fetch_with_headers("/teams/team3")
+        team = TeamFactory.create(owner=self.user)
+        response = self.fetch_with_headers("/teams/%s" % team.name)
         expect(response.code).to_equal(200)
 
         obj = response.body
@@ -62,7 +59,7 @@ class TeamHandlerTest(FullTestCase):
             obj = obj.decode('utf-8')
 
         expect(loads(obj)).to_be_like({
-            "name": "team3",
+            "name": team.name,
             "owner": self.user.email,
             "members": []
         })
@@ -72,24 +69,22 @@ class TeamHandlerTest(FullTestCase):
         expect(response.code).to_equal(404)
 
     def test_update_team(self):
-        team = Team.create(name="team-4", owner=self.user)
-        expect(team).not_to_be_null()
+        team = TeamFactory.create(owner=self.user)
 
-        response = self.put("/teams/team-4", name="new-name-4")
+        response = self.put("/teams/%s" % team.name, name="new-name-4")
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("OK")
 
-        team = Team.objects.filter(name="new-name-4").first()
+        team = Team.objects.filter(name=team.name).first()
         expect(team).not_to_be_null()
 
     def test_update_team_to_empty_name(self):
-        team = Team.create(name="team-empty", owner=self.user)
-        expect(team).not_to_be_null()
+        team = TeamFactory.create(owner=self.user)
 
-        response = self.put("/teams/team-empty", name="")
+        response = self.put("/teams/%s" % team.name, name="")
         expect(response.code).to_equal(400)
 
-        response = self.put("/teams/team-empty")
+        response = self.put("/teams/%s" % team.name)
         expect(response.code).to_equal(400)
 
     def test_update_unknown_team(self):
@@ -97,10 +92,8 @@ class TeamHandlerTest(FullTestCase):
         expect(response.code).to_equal(404)
 
     def test_update_team_with_wrong_owner(self):
-        u1 = User.create(email="team-wrong-owner-user", password="12345")
-        expect(u1).not_to_be_null()
-        team = Team.create(name="team-wrong-owner", owner=u1)
-        expect(team).not_to_be_null()
+        u1 = UserFactory.create()
+        TeamFactory.create(owner=u1)
 
         response = self.put("/teams/team-wrong-owner", name="new-name")
         expect(response.code).to_equal(403)
