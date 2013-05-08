@@ -25,8 +25,8 @@ class TeamHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated
-    def get(self, name):
-        team = Team.objects.filter(name=name).first()
+    def get(self, team_name):
+        team = Team.objects.filter(name=team_name).first()
 
         if team is None:
             self.set_status(404)
@@ -41,7 +41,7 @@ class TeamHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated
-    def post(self, _):
+    def post(self, team_name):
         name = self.get_argument("name")
 
         team = Team.create(name, owner=self.current_user)
@@ -57,19 +57,8 @@ class TeamHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated
-    def put(self, team_name):
-        team = Team.objects.filter(name=team_name).first()
-
-        if team is None:
-            self.set_status(404)
-            self.finish()
-            return
-
-        if self.current_user.id != team.owner.id:
-            self.set_status(403)
-            self.finish()
-            return
-
+    @BaseHandler.team_owner
+    def put(self, team):
         put_arguments = parse_qs(self.request.body)
         name = put_arguments.get(six.b("name"), None)
         if not name:
@@ -93,19 +82,8 @@ class TeamMembersHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated
-    def patch(self, team_name):
-        team = Team.objects.filter(name=team_name).first()
-
-        if team is None:
-            self.set_status(404)
-            self.finish()
-            return
-
-        if self.current_user.id != team.owner.id:
-            self.set_status(403)
-            self.finish()
-            return
-
+    @BaseHandler.team_owner
+    def patch(self, team):
         put_arguments = parse_qs(self.request.body)
         user_email = put_arguments.get(six.b("user"), None)
 

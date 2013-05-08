@@ -44,8 +44,8 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/auth/user/?', AuthenticationHandler, name="auth_user"),
         url(r'/auth/token/?', AuthenticationWithTokenHandler, name="auth_token"),
         url(r'/auth/register/?', RegisterUserHandler, name="register_user"),
-        url(r'/teams/?(.+)/members?', TeamMembersHandler, name='team_members'),
-        url(r'/teams/?(.+)?', TeamHandler, name='team'),
+        url(r'/teams/(?P<team_name>.+)/members', TeamMembersHandler, name='team_members'),
+        url(r'/teams/?(?P<team_name>.+)?', TeamHandler, name='team'),
         url(r'/user/info/?(.+)?', UserHandler, name='user_info'),
     ]
 

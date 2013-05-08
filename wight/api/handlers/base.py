@@ -6,7 +6,7 @@ from datetime import datetime
 
 import tornado.web
 
-from wight.models import User
+from wight.models import User, Team
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,32 @@ class BaseHandler(tornado.web.RequestHandler):
         handle.__doc__ = fn.__doc__
 
         return handle
+
+    @staticmethod
+    def team_owner(fn):
+        def handle(decorated_self, *args, **kw):
+            team = Team.objects.filter(name=kw['team_name']).first()
+
+            if team is None:
+                decorated_self.set_status(404)
+                decorated_self.write('Team not found')
+                decorated_self.finish()
+                return
+
+            if decorated_self.current_user.id != team.owner.id:
+                decorated_self.set_status(403)
+                decorated_self.finish()
+                return
+
+            kw['team'] = team
+            del kw['team_name']
+            fn(decorated_self, *args, **kw)
+
+        handle.__name__ = fn.__name__
+        handle.__doc__ = fn.__doc__
+
+        return handle
+
 
     @property
     def current_user(self):
