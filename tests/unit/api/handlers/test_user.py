@@ -13,7 +13,7 @@ from json import loads
 from preggy import expect
 import six
 
-from tests.factories import UserFactory
+from tests.factories import UserFactory, TeamFactory
 from tests.unit.base import FullTestCase
 
 
@@ -29,6 +29,8 @@ class UserHandlerTest(FullTestCase):
         expect(response.code).to_equal(401)
 
     def test_get_user_info(self):
+        team_owner = TeamFactory(owner=self.user)
+        team_member = TeamFactory(members=[self.user])
         response = self.fetch_with_headers("/user/info")
 
         expect(response.code).to_equal(200)
@@ -38,3 +40,7 @@ class UserHandlerTest(FullTestCase):
             body = body.decode('utf-8')
         body = loads(body)
         expect(body['user']['email']).to_equal(self.user.email)
+        expect(body['user']['teams'][0]['name']).to_equal(team_owner.name)
+        expect(body['user']['teams'][0]['role']).to_equal('owner')
+        expect(body['user']['teams'][1]['name']).to_equal(team_member.name)
+        expect(body['user']['teams'][1]['role']).to_equal('member')

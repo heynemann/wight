@@ -11,14 +11,29 @@
 from preggy import expect
 
 from tests.acceptance.base import AcceptanceTest
+from tests.factories import TeamFactory
 
 
 class TestUser(AcceptanceTest):
 
     def test_can_get_user_email(self):
         result = self.execute("user-info")
-        expect(result).to_equal("User: %s" % self.user.email)
+        expect(result).to_be_like("""User: %s
+          +------+------+
+          | team | role |
+          +------+------+
+          +------+------+
+        """ % self.user.email)
 
     def test_show_memberships(self):
-        # if user is member of a team, show it here
-        assert False, "Should be implemented"
+        t1 = TeamFactory.create(owner=self.user)
+        t2 = TeamFactory.create(members=[self.user])
+        result = self.execute("user-info")
+        expect(result).to_be_like("""User: %s
+          +--------+--------+
+          | team   | role   |
+          +--------+--------+
+          | %s     | owner  |
+          | %s     | member |
+          +--------+--------+
+        """ % (self.user.email, t1.name, t2.name))

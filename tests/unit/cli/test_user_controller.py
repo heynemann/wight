@@ -8,23 +8,17 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
-from mock import patch
+from mock import patch, Mock
 
 from wight.models import UserData
 from wight.cli.user import ShowUserController
 from tests.unit.base import TestCase
-
-
-class FakeResponse():
-    def __init__(self, status_code, send_connection_error=False):
-        self.send_connection_error = send_connection_error
-        self.status_code = status_code
-        self.content = """
-            {
-                "user": {"email": "awesome@gmail.com"}
-            }
-        """
+from preggy import expect
 
 
 class TestShowUserController(TestCase):
@@ -41,15 +35,32 @@ class TestShowUserController(TestCase):
     @patch.object(ShowUserController, 'get')
     @patch.object(ShowUserController, 'write')
     def test_user_info_shows_not_logged_in_message(self, write_mock, get_mock):
-        get_mock.return_value = FakeResponse(401)
+        get_mock.return_value = Mock(status_code=401, content="""
+            {
+                "user": {"email": "awesome@gmail.com", "teams": []}
+            }
+        """)
 
         self.ctrl.default()
         write_mock.assert_called_with("User not logged in. Run wight authenticate")
 
     @patch.object(ShowUserController, 'get')
-    @patch.object(ShowUserController, 'write')
-    def test_user_info_shows_user_email(self, write_mock, get_mock):
-        get_mock.return_value = FakeResponse(200)
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_user_info_shows_user_email(self, mock_stdout, get_mock):
+        get_mock.return_value = Mock(status_code=200, content="""
+            {
+                "user": {"email": "awesome@gmail.com", "teams": [{"name": "team1", "role": "owner"}]}
+            }
+        """)
 
         self.ctrl.default()
-        write_mock.assert_called_with("User: awesome@gmail.com")
+        expected_stdout = """
+            User: awesome@gmail.com
+
+            +-------+-------+
+            | team  | role  |
+            +-------+-------+
+            | team1 | owner |
+            +-------+-------+
+        """
+        expect(mock_stdout.getvalue()).to_be_like(expected_stdout)

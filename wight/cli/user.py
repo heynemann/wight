@@ -10,6 +10,7 @@
 import six
 from json import loads
 from cement.core import controller
+from prettytable import PrettyTable
 
 from wight.cli.base import WightBaseController, ConnectedController
 
@@ -37,5 +38,11 @@ class ShowUserController(WightBaseController):
                     content = content.decode('utf-8')
                 content = loads(content)
                 self.write("User: %s" % content['user']['email'])
+                members_table = PrettyTable(["team", "role"])
+                members_table.align["team"] = "l"
+                members_table.align["role"] = "l"
+                for team in content['user']['teams']:
+                    members_table.add_row([team['name'], team['role']])
+                self.write(members_table)
             elif response.status_code == 401:
                 self.write("User not logged in. Run wight authenticate")
