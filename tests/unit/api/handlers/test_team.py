@@ -127,3 +127,18 @@ class TeamHandlerTest(FullTestCase):
         team = TeamFactory.create(owner=self.user)
         response = self.patch("/teams/%s/members" % team.name)
         expect(response.code).to_equal(400)
+
+    def test_delete_team(self):
+        team = TeamFactory.create(owner=self.user)
+
+        response = self.delete("/teams/%s" % team.name)
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+
+        team = Team.objects.filter(name=team.name).first()
+        expect(team).to_be_null()
+
+    def test_try_delete_team_without_auth(self):
+        self.user = None
+        response = self.delete("/teams/anything")
+        expect(response.code).to_equal(401)

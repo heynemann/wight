@@ -77,6 +77,9 @@ class ApiTestCase(AsyncHTTPTestCase):
     def put(self, path, **kw):
         return self.send_request("PUT", path, **kw)
 
+    def delete(self, path, **kw):
+        return self.send_request("DELETE", path, **kw)
+
     def patch(self, path, **kw):
         return self.send_request("PATCH", path, **kw)
 
@@ -94,7 +97,7 @@ class ApiTestCase(AsyncHTTPTestCase):
         if kw:
             body = urlencode(kw)
 
-        req = HTTPRequest(self.get_url(path), method=method, headers=headers, body=body)
+        req = HTTPRequest(self.get_url(path), method=method, headers=headers, body=body, allow_nonstandard_methods=True)
         self.http_client.fetch(req, self.stop)
         return self.wait()
 

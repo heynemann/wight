@@ -77,6 +77,15 @@ class TeamHandler(BaseHandler):
         self.write("OK")
         self.finish()
 
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    @BaseHandler.team_owner
+    def delete(self, team):
+        team.delete()
+        self.set_status(200)
+        self.write("OK")
+        self.finish()
+
 
 class TeamMembersHandler(BaseHandler):
 
