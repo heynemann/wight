@@ -27,6 +27,10 @@ class AuthController(WightBaseController):
 
     @controller.expose(hide=True, help='Log-in to wight (or register if user not found).')
     def default(self):
+        if not self.app.user_data or not self.app.user_data.target:
+            print("Wight target not set. Please use 'wight target-set <url of target>' to specify the wight api target to be used.")
+            return False
+
         self.log.info("Authenticating with %s." % self.app.user_data.target)
 
         email = self.arguments.email

@@ -19,6 +19,7 @@ except ImportError:
 from preggy import expect
 import mock
 
+from wight.cli.app import WightApp
 from wight.cli.auth import AuthController
 from wight.models import UserData, User
 from tests.unit.base import FullTestCase
@@ -52,6 +53,15 @@ class AuthControllerTestCase(FullTestCase):
             (['--password'], dict(help='Password to authenticate with.', required=False)),
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
         ])
+
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_default_action_when_target_not_set(self, mock_stdout):
+        wightApp = WightApp()
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), app=wightApp)
+
+        expect(ctrl.default()).to_be_false()
+
+        expect(mock_stdout.getvalue()).to_be_like("Wight target not set. Please use 'wight target-set <url of target>' to specify the wight api target to be used.")
 
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(AuthController, 'ask_for')
