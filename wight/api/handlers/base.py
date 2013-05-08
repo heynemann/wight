@@ -29,7 +29,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return handle
 
     @staticmethod
-    def team_owner(fn):
+    def in_team(fn, owner_only):
         def handle(decorated_self, *args, **kw):
             team = Team.objects.filter(name=kw['team_name']).first()
 
@@ -40,19 +40,30 @@ class BaseHandler(tornado.web.RequestHandler):
                 return
 
             if decorated_self.current_user.id != team.owner.id:
-                decorated_self.set_status(403)
-                decorated_self.finish()
-                return
+                if owner_only:
+                    decorated_self.set_status(403)
+                    decorated_self.finish()
+                    return
+
+                member_ids = [member.id for member in team.members]
+                if decorated_self.current_user.id not in member_ids:
+                    decorated_self.set_status(403)
+                    decorated_self.finish()
+                    return
 
             kw['team'] = team
             del kw['team_name']
             fn(decorated_self, *args, **kw)
 
-        handle.__name__ = fn.__name__
-        handle.__doc__ = fn.__doc__
-
         return handle
 
+    @staticmethod
+    def team_member(fn):
+        return BaseHandler.in_team(fn, owner_only=False)
+
+    @staticmethod
+    def team_owner(fn):
+        return BaseHandler.in_team(fn, owner_only=True)
 
     @property
     def current_user(self):
