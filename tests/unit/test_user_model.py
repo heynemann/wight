@@ -16,41 +16,42 @@ import six
 
 from wight.models import User
 from tests.unit.base import ModelTestCase
+from tests.factories import UserFactory
 
 
 class TestUserModel(ModelTestCase):
     def test_can_create_user(self):
-        user = User.create(email="user@gmail.com", password="12345")
+        user = UserFactory.create()
 
-        password = hmac.new(six.b(user.salt), six.b("12345"), hashlib.sha1).hexdigest()
+        password = UserFactory.get_default_password()
+        password = hmac.new(six.b(str(user.salt)), six.b(password), hashlib.sha1).hexdigest()
 
         retrieved = User.objects(id=user.id)
         expect(retrieved.count()).to_equal(1)
         expect(retrieved.first().password).to_equal(password)
-        expect(retrieved.first().email).to_equal("user@gmail.com")
+        expect(retrieved.first().email).to_equal(user.email)
         expect(retrieved.first().token).to_equal(user.token)
 
     def test_cant_create_user_with_same_email_twice(self):
-        User.create(email="repeated@gmail.com", password="12345")
-        user = User.create(email="repeated@gmail.com", password="12345")
+        user = UserFactory.create()
+        user = User.create(email=user.email, password="12345")
         expect(user).to_be_null()
 
     def test_authenticating_with_wrong_pass_returns_none(self):
-        user = User(email="user2@gmail.com", password="12345")
-        user.save()
+        created_user = UserFactory.create()
 
-        exists, user = User.authenticate(email="user3@gmail.com", password="12345")
+        exists, user = User.authenticate(email="invalidemail@gmail.com", password="12345")
         expect(exists).to_be_false()
         expect(user).to_be_null()
-        exists, user = User.authenticate(email="user2@gmail.com", password="54312")
+
+        exists, user = User.authenticate(email=created_user.email, password="54312")
         expect(exists).to_be_true()
         expect(user).to_be_null()
 
     def test_authenticating(self):
-        user = User(email="user4@gmail.com", password="12345")
-        user.save()
+        user = UserFactory.create()
 
-        exists, auth_user = User.authenticate(email="user4@gmail.com", password="12345")
+        exists, auth_user = User.authenticate(email=user.email, password="12345")
         expect(exists).to_be_true()
         expect(auth_user).not_to_be_null()
 
@@ -62,20 +63,18 @@ class TestUserModel(ModelTestCase):
         expect(auth_user).to_be_null()
 
     def test_authenticate_using_expired_token(self):
-        user = User(email="user6@gmail.com", password="12345")
-        user.save()
+        user = UserFactory.create()
 
-        exists, auth_user = User.authenticate(email="user6@gmail.com", password="12345", expiration=0)
+        exists, auth_user = User.authenticate(email=user.email, password=UserFactory.get_default_password(), expiration=0)
         expect(auth_user).not_to_be_null()
 
         auth_user = User.authenticate_with_token(token=auth_user.token)
         expect(auth_user).to_be_null()
 
     def test_authenticate_using_token(self):
-        user = User(email="user5@gmail.com", password="12345")
-        user.save()
+        user = UserFactory.create()
 
-        exists, auth_user = User.authenticate(email="user5@gmail.com", password="12345")
+        exists, auth_user = User.authenticate(email=user.email, password=UserFactory.get_default_password())
         expect(auth_user).not_to_be_null()
 
         auth_user = User.authenticate_with_token(token=auth_user.token)

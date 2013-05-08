@@ -20,6 +20,7 @@ tests_require = [
     'tox',
     'ipdb',
     'sh',
+    'factory_boy',
 ]
 
 setup(

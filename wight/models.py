@@ -17,7 +17,10 @@ import hmac
 from uuid import uuid4
 
 import six
-from mongoengine import Document, StringField, DateTimeField, ListField, ReferenceField
+from mongoengine import (
+    Document, EmbeddedDocument,  # documents
+    UUIDField, StringField, DateTimeField, ListField, ReferenceField, EmbeddedDocumentField  # fields
+)
 from mongoengine.queryset import NotUniqueError
 
 
@@ -68,7 +71,7 @@ def get_uuid():
 class User(Document):
     email = StringField(max_length=2000, unique=True, required=True)
     password = StringField(max_length=2000, required=True)
-    salt = StringField(required=False)
+    salt = UUIDField(required=False)
     token = StringField(required=False)
     token_expiration = DateTimeField(required=False)
     date_modified = DateTimeField(default=datetime.datetime.now)
@@ -138,12 +141,18 @@ class User(Document):
         return user
 
 
+class Project(EmbeddedDocument):
+    pass
+
+
 class Team(Document):
     name = StringField(max_length=2000, unique=True, required=True)
     owner = ReferenceField(User, required=True)
     members = ListField(ReferenceField(User))
     date_modified = DateTimeField(default=datetime.datetime.now)
     date_created = DateTimeField(default=datetime.datetime.now)
+
+    projects = ListField(EmbeddedDocumentField)
 
     def clean(self):
         if self.owner in self.members:
