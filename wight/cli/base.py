@@ -67,6 +67,9 @@ class WightBaseController(controller.CementBaseController):
     def put(self, path, data={}, headers={}):
         return self.send_request("PUT", path, data, headers)
 
+    def delete(self, path, data={}, headers={}):
+        return self.send_request("DELETE", path, data, headers)
+
     def send_request(self, method, path, data={}, headers={}):
         headers.update({"X-Wight-Auth": self.app.user_data.token})
         target = self.app.user_data.target.rstrip('/')
@@ -101,16 +104,6 @@ class WightDefaultController(WightBaseController):
     class Meta:
         label = 'base'
         description = 'wight load testing scheduler and tracker.'
-
-        #config_defaults = dict(
-            #foo='bar',
-            #some_other_option='my default value',
-        #)
-
-        #arguments = [
-            #(['-f', '--foo'], dict(action='store', help='the notorious foo option')),
-            #(['-C'], dict(action='store_true', help='the big C option'))
-        #]
 
     @controller.expose(hide=True)
     def default(self):

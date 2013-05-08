@@ -44,8 +44,22 @@ class TestBaseController(TestCase):
     def test_make_a_get(self, get_mock):
         ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'))
         ctrl.app.user_data = UserData(target="Target")
-        ctrl.get("/post-url")
+        ctrl.get("/get-url")
         expect(get_mock.called).to_be_true()
+
+    @patch.object(base.requests, 'put')
+    def test_make_a_put(self, put_mock):
+        ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.put("/put-url", data={"some": "data"})
+        expect(put_mock.called).to_be_true()
+
+    @patch.object(base.requests, 'delete')
+    def test_make_a_delete(self, delete_mock):
+        ctrl = self.make_controller(WightBaseController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.delete("/delete-url/data")
+        expect(delete_mock.called).to_be_true()
 
     @patch.object(base.requests, 'get')
     def test_make_a_get_with_auth(self, get_mock):
