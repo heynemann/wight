@@ -21,28 +21,30 @@ from tests.factories import TeamFactory, UserFactory
 class TestProjectModel(ModelTestCase):
     def test_can_create_project(self):
         team = TeamFactory.create()
-        team.add_project(name="test-can-create-project", created_by=team.owner)
+        team.add_project(name="test-can-create-project", repository="repo", created_by=team.owner)
 
         retrieved = Team.objects.filter(name=team.name).first()
         expect(retrieved).not_to_be_null()
         expect(retrieved.projects).to_length(1)
         expect(retrieved.projects[0].name).to_equal(team.projects[0].name)
+        expect(retrieved.projects[0].repository).to_equal(team.projects[0].repository)
 
     def test_can_create_project_being_a_member(self):
         team = TeamFactory.create()
         TeamFactory.add_members(team, 2)
-        team.add_project(name="test-can-create-project-being-a-member", created_by=team.members[0])
+        team.add_project(name="test-can-create-project-being-a-member", repository="repo", created_by=team.members[0])
 
         retrieved = Team.objects.filter(name=team.name).first()
         expect(retrieved).not_to_be_null()
         expect(retrieved.projects).to_length(1)
         expect(retrieved.projects[0].name).to_equal(team.projects[0].name)
+        expect(retrieved.projects[0].repository).to_equal(team.projects[0].repository)
 
     def test_created_by_invalid_user(self):
         user = UserFactory.create()
         team = TeamFactory.create()
         try:
-            team.add_project(name="test-can-create-project", created_by=user)
+            team.add_project(name="test-can-create-project", repository="repo", created_by=user)
         except ValidationError:
             exc = sys.exc_info()[1]
             expect(str(exc)).to_include("Only the owner or members of team %s can create projects for it." % team.name)
@@ -54,8 +56,8 @@ class TestProjectModel(ModelTestCase):
         team = TeamFactory.create()
 
         try:
-            team.add_project(name="test-can-create-project", created_by=team.owner)
-            team.add_project(name="test-can-create-project", created_by=team.owner)
+            team.add_project(name="test-can-create-project", repository="repo", created_by=team.owner)
+            team.add_project(name="test-can-create-project", repository="repo", created_by=team.owner)
         except ValueError:
             exc = sys.exc_info()[1]
             expect(exc).to_have_an_error_message_of("Can't have the same project twice in the projects collection.")
@@ -67,8 +69,8 @@ class TestProjectModel(ModelTestCase):
         team = TeamFactory.create()
         team2 = TeamFactory.create()
 
-        team.add_project(name="test-can-create-project", created_by=team.owner)
-        team2.add_project(name="test-can-create-project", created_by=team2.owner)
+        team.add_project(name="test-can-create-project", repository="repo", created_by=team.owner)
+        team2.add_project(name="test-can-create-project", repository="repo", created_by=team2.owner)
 
         retrieved = Team.objects.filter(name=team.name).first()
         expect(retrieved).not_to_be_null()

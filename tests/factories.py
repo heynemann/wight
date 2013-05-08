@@ -80,6 +80,7 @@ class ProjectFactory(factory.Factory):
     FACTORY_FOR = Project
 
     name = factory.LazyAttributeSequence(lambda user, index: 'project-%d' % index)
+    repository = "git://github.com/heynemann/wight.git"
     created_by = factory.SubFactory(UserFactory)
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())

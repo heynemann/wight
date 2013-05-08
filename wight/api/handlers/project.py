@@ -20,12 +20,13 @@ class ProjectHandler(BaseHandler):
     @BaseHandler.team_member
     def post(self, team):
         name = self.get_argument("name", None)
-        if not name:
+        repository = self.get_argument("repository", None)
+        if not name or not repository:
             self.set_status(400)
             self.finish()
             return
 
-        team.add_project(name=name, created_by=self.current_user)
+        team.add_project(name=name, repository=repository, created_by=self.current_user)
 
         self.set_status(200)
         self.write("OK")

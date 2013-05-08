@@ -185,14 +185,15 @@ class Team(Document):
 
         return team
 
-    def add_project(self, name, created_by):
-        prj = Project(name=name, created_by=created_by, team=self)
+    def add_project(self, name, repository, created_by):
+        prj = Project(name=name, created_by=created_by, repository=repository, team=self)
         self.projects.append(prj)
         self.save()
 
 
 class Project(EmbeddedDocument):
     name = StringField(max_length=2000, required=True)
+    repository = StringField(max_length=3000, required=True)
     created_by = ReferenceField(User, required=True)
     date_modified = DateTimeField(default=datetime.datetime.now)
     date_created = DateTimeField(default=datetime.datetime.now)
