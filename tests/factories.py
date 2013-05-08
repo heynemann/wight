@@ -12,7 +12,7 @@ from datetime import datetime
 
 import factory
 
-from wight.models import User
+from wight.models import User, Team
 
 
 class UserFactory(factory.Factory):
@@ -36,3 +36,27 @@ class UserFactory(factory.Factory):
     @classmethod
     def get_default_password(cls):
         return cls.attributes()['password']
+
+
+class TeamFactory(factory.Factory):
+    FACTORY_FOR = Team
+
+    name = factory.LazyAttributeSequence(lambda user, index: 'team-%d' % index)
+    owner = factory.SubFactory(UserFactory)
+    members = []
+    date_modified = factory.LazyAttribute(lambda user: datetime.now())
+    date_created = factory.LazyAttribute(lambda user: datetime.now())
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        team = super(TeamFactory, cls)._prepare(create, **kwargs)
+        if create:
+            team.save()
+        return team
+
+    @classmethod
+    def add_members(cls, team, number_of_members):
+        for i in range(number_of_members):
+            team.members.append(UserFactory.create())
+
+        team.save()

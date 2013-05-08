@@ -13,73 +13,59 @@ import sys
 from preggy import expect
 from mongoengine.base.document import ValidationError
 
-from wight.models import User, Team
+from wight.models import Team
 from tests.unit.base import ModelTestCase
+from tests.factories import TeamFactory, UserFactory
 
 
 class TestTeamModel(ModelTestCase):
     def test_can_create_empty_team(self):
-        u1 = User.create(email="team-user0@gmail.com", password="12345")
-        expect(u1).not_to_be_null()
-        team = Team.create(name="test-team", owner=u1)
+        team = TeamFactory.create()
 
         retrieved = Team.objects(id=team.id)
         expect(retrieved.count()).to_equal(1)
-        expect(retrieved.first().name).to_equal("test-team")
+        expect(retrieved.first().name).to_equal(team.name)
 
-        expect(retrieved.first().owner.id).to_equal(u1.id)
+        expect(retrieved.first().owner.id).to_equal(team.owner.id)
 
     def test_can_create_team_with_members(self):
-        u1 = User.create(email="team-user1@gmail.com", password="12345")
-        u2 = User.create(email="team-user2@gmail.com", password="12345")
-        expect(u1).not_to_be_null()
-        expect(u2).not_to_be_null()
-        team = Team.create(name="test-team-2", owner=u1, members=[u2])
+        team = TeamFactory.create()
+        TeamFactory.add_members(team, 1)
 
         retrieved = Team.objects(id=team.id)
         expect(retrieved.count()).to_equal(1)
-        expect(retrieved.first().name).to_equal("test-team-2")
+        expect(retrieved.first().name).to_equal(team.name)
         expect(retrieved.first().members).to_length(1)
-        expect(retrieved.first().members[0].email).to_equal(u2.email)
+        expect(retrieved.first().members[0].email).to_equal(team.members[0].email)
 
     def test_cant_create_team_with_same_name(self):
-        u1 = User.create(email="team-user8@gmail.com", password="12345")
-        expect(u1).not_to_be_null()
-        Team.create(name="test-team-3", owner=u1)
-        team = Team.create(name="test-team-3", owner=u1)
+        team = TeamFactory.create()
+        team = Team.create(name=team.name, owner=team.owner)
         expect(team).to_be_null()
 
     def test_to_dict(self):
-        u1 = User.create(email="team-user3@gmail.com", password="12345")
-        u2 = User.create(email="team-user4@gmail.com", password="12345")
-        u3 = User.create(email="team-user5@gmail.com", password="12345")
-        expect(u1).not_to_be_null()
-        expect(u2).not_to_be_null()
-        expect(u3).not_to_be_null()
-
-        team = Team.create(name="test-team-to-dict-4", owner=u1, members=[u2, u3])
+        team = TeamFactory.create()
+        TeamFactory.add_members(team, 2)
 
         expect(team.to_dict()).to_be_like({
-            "name": "test-team-to-dict-4",
-            "owner": "team-user3@gmail.com",
+            "name": team.name,
+            "owner": team.owner.email,
             "members": [
-                "team-user4@gmail.com",
-                "team-user5@gmail.com"
+                team.members[0].email,
+                team.members[1].email,
             ]
         })
 
     def test_cant_have_null_owner(self):
         try:
-            Team.create(name="test-team-5", owner=None)
+            Team.create(name="null-owner-5", owner=None)
         except ValidationError:
             return
         assert False, "Should not have gotten this far"
 
     def test_cant_have_same_member_twice(self):
-        u1 = User.create(email="team-user9@gmail.com", password="12345")
-        u2 = User.create(email="team-user10@gmail.com", password="12345")
-        expect(u1).not_to_be_null()
-        expect(u2).not_to_be_null()
+        u1 = UserFactory.create()
+        u2 = UserFactory.create()
 
         try:
             Team.create(name="test-team-5", owner=u1, members=[u2, u2])
@@ -90,8 +76,7 @@ class TestTeamModel(ModelTestCase):
         assert False, "Should not have gotten this far"
 
     def test_cant_have_owner_in_members(self):
-        u1 = User.create(email="team-user11@gmail.com", password="12345")
-        expect(u1).not_to_be_null()
+        u1 = UserFactory.create()
 
         try:
             Team.create(name="test-team-5", owner=u1, members=[u1])
