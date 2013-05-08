@@ -18,7 +18,7 @@ from mock import patch, Mock
 
 from preggy import expect
 
-from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, RemoveTeamController, TeamAddUserController
+from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, DeleteTeamController, TeamAddUserController
 from wight.models import UserData
 from wight.cli.base import requests
 from tests.unit.base import TestCase
@@ -201,29 +201,29 @@ class TestUpdateTeamController(TeamControllerTestBase):
         write_mock.assert_called_with(msg)
 
 
-class TestRemoveTeamController(TeamControllerTestBase):
+class TestDeleteTeamController(TeamControllerTestBase):
     def setUp(self):
         self.controller_kwargs = {"team_name": "nameless"}
-        self.controller_class = RemoveTeamController
-        super(TestRemoveTeamController, self).setUp()
+        self.controller_class = DeleteTeamController
+        super(TestDeleteTeamController, self).setUp()
 
     @patch('sys.stdout', new_callable=StringIO)
-    @patch.object(RemoveTeamController, 'ask_for')
-    @patch.object(RemoveTeamController, 'delete')
+    @patch.object(DeleteTeamController, 'ask_for')
+    @patch.object(DeleteTeamController, 'delete')
     def test_should_show_confirm_deletion_message(self, delete_mock, ask_mock, stdout_mock):
         ask_mock.return_value = "nameless"
         self.ctrl.default()
-        expect(stdout_mock.getvalue()).to_be_like("This operation will remove all projects and all tests of team 'nameless'. You have to retype the team name to confirm deletion.")
+        expect(stdout_mock.getvalue()).to_be_like("This operation will delete all projects and all tests of team 'nameless'. You have to retype the team name to confirm deletion.")
         ask_mock.called_with("Tem name: ")
 
     @patch('sys.stdout', new_callable=StringIO)
-    @patch.object(RemoveTeamController, 'ask_for')
+    @patch.object(DeleteTeamController, 'ask_for')
     def test_should_return_if_name_not_type_correctly(self, ask_mock, stdout_mock):
         ask_mock.return_value = "namel"
         self.ctrl.default()
         expect(stdout_mock.getvalue()).to_be_like(
             """
-                This operation will remove all projects and all tests of team 'nameless'.
+                This operation will delete all projects and all tests of team 'nameless'.
                 You have to retype the team name to confirm deletion.
 
                 The team name you type ('nameless') is not the same you pass ('namel').
@@ -232,8 +232,8 @@ class TestRemoveTeamController(TeamControllerTestBase):
         )
 
     @patch('sys.stdout', new_callable=StringIO)
-    @patch.object(RemoveTeamController, 'ask_for')
-    @patch.object(RemoveTeamController, 'delete')
+    @patch.object(DeleteTeamController, 'ask_for')
+    @patch.object(DeleteTeamController, 'delete')
     def test_should_make_the_delete_in_api(self, delete_mock, ask_mock, stdout_mock):
         ask_mock.return_value = "nameless"
         delete_mock.return_value = Mock(status_code=200)
@@ -241,7 +241,7 @@ class TestRemoveTeamController(TeamControllerTestBase):
         delete_mock.assert_called_with("/teams/nameless")
         expect(stdout_mock.getvalue()).to_be_like(
             """
-                This operation will remove all projects and all tests of team 'nameless'.
+                This operation will delete all projects and all tests of team 'nameless'.
                 You have to retype the team name to confirm deletion.
 
                 Deleted 'nameless' team, all its projects and tests in 'Target' target.
@@ -249,8 +249,8 @@ class TestRemoveTeamController(TeamControllerTestBase):
         )
 
     @patch('sys.stdout', new_callable=StringIO)
-    @patch.object(RemoveTeamController, 'ask_for')
-    @patch.object(RemoveTeamController, 'delete')
+    @patch.object(DeleteTeamController, 'ask_for')
+    @patch.object(DeleteTeamController, 'delete')
     def test_should_notify_user_if_status_code_was_forbidden(self, delete_mock, ask_mock, stdout_mock):
         ask_mock.return_value = "nameless"
         delete_mock.return_value = Mock(status_code=403)
@@ -258,7 +258,7 @@ class TestRemoveTeamController(TeamControllerTestBase):
         delete_mock.assert_called_with("/teams/nameless")
         expect(stdout_mock.getvalue()).to_be_like(
             """
-                This operation will remove all projects and all tests of team 'nameless'.
+                This operation will delete all projects and all tests of team 'nameless'.
                 You have to retype the team name to confirm deletion.
 
                 You are not the owner of team 'nameless' in target 'Target' (which means you can't delete it).
@@ -266,8 +266,8 @@ class TestRemoveTeamController(TeamControllerTestBase):
         )
 
     @patch('sys.stdout', new_callable=StringIO)
-    @patch.object(RemoveTeamController, 'ask_for')
-    @patch.object(RemoveTeamController, 'delete')
+    @patch.object(DeleteTeamController, 'ask_for')
+    @patch.object(DeleteTeamController, 'delete')
     def test_should_notify_user_if_status_code_was_not_found(self, delete_mock, ask_mock, stdout_mock):
         ask_mock.return_value = "nameless"
         delete_mock.return_value = Mock(status_code=404)
@@ -275,7 +275,7 @@ class TestRemoveTeamController(TeamControllerTestBase):
         delete_mock.assert_called_with("/teams/nameless")
         expect(stdout_mock.getvalue()).to_be_like(
             """
-                This operation will remove all projects and all tests of team 'nameless'.
+                This operation will delete all projects and all tests of team 'nameless'.
                 You have to retype the team name to confirm deletion.
 
                 Team 'nameless' does not exist in target 'Target'.

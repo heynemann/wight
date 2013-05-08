@@ -60,3 +60,18 @@ class TestTeam(AcceptanceTest):
 
         team = Team.objects.filter(name=team.name).first()
         expect(team.members).to_include(user)
+
+    def test_can_delete_team(self):
+        team = TeamFactory.create(owner=self.user)
+
+        result = self.execute("delete-team", team.name, stdin=[team.name])
+        expect(result).to_be_like(
+            """
+                This operation will delete all projects and all tests of team '%s'.
+                You have to retype the team name to confirm deletion.
+
+                Team name:  Deleted '%s' team, all its projects and tests in '%s' target.
+            """ % (team.name, team.name, self.target))
+
+        team = Team.objects.filter(name=team.name).first()
+        expect(team).to_be_null()

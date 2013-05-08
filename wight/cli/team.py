@@ -125,26 +125,26 @@ class UpdateTeamController(WightBaseController):
                 self.write("The team's new name can't be null or empty.")
 
 
-class RemoveTeamController(WightBaseController):
+class DeleteTeamController(WightBaseController):
     class Meta:
-        label = 'remove-team'
+        label = 'delete-team'
         stack_on = 'base'
-        description = 'Remove a team.'
+        description = 'Delete a team.'
         config_defaults = dict()
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['team_name'], dict(help='The name of the team to be removed')),
+            (['team_name'], dict(help='The name of the team to be deleted')),
         ]
 
-    @controller.expose(hide=False, aliases=["remove-team"], help='Remove a team.')
+    @controller.expose(hide=False, aliases=["delete-team"], help='Delete a team.')
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
         target = self.app.user_data.target
         name = self.arguments.team_name
         self.write("")
-        self.write("This operation will remove all projects and all tests of team '%s'." % name)
+        self.write("This operation will delete all projects and all tests of team '%s'." % name)
         self.write("You have to retype the team name to confirm deletion.")
         self.write("")
         name_confirmation = self.ask_for("Team name: ")
