@@ -104,3 +104,24 @@ class TeamHandlerTest(FullTestCase):
 
         response = self.put("/teams/team-wrong-owner", name="new-name")
         expect(response.code).to_equal(403)
+
+    def test_add_user(self):
+        user = User.create(email="new@user.com", password="12345")
+        team = Team.create(name="team-5", owner=self.user)
+        expect(team).not_to_be_null()
+
+        response = self.patch("/teams/team-5/members", user=user.email)
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+
+        team = Team.objects.filter(name="team-5").first()
+        expect(team).not_to_be_null()
+        expect(team.members).to_include(user)
+
+    def test_add_non_existent_user(self):
+        team = Team.create(name="team-6", owner=self.user)
+        expect(team).not_to_be_null()
+
+        response = self.patch("/teams/team-6/members", user="Wrong@email.com")
+        expect(response.code).to_equal(400)
+        expect(response.body).to_equal("User not found")

@@ -22,7 +22,7 @@ from tornado.web import url
 #from wight.api.cache import RedisCache
 from wight.api.handlers.healthcheck import HealthCheckHandler
 from wight.api.handlers.authentication import AuthenticationHandler, AuthenticationWithTokenHandler, RegisterUserHandler
-from wight.api.handlers.team import TeamHandler
+from wight.api.handlers.team import TeamHandler, TeamMembersHandler
 from wight.api.handlers.user import UserHandler
 
 #class FakeSentry(object):
@@ -44,6 +44,7 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/auth/user/?', AuthenticationHandler, name="auth_user"),
         url(r'/auth/token/?', AuthenticationWithTokenHandler, name="auth_token"),
         url(r'/auth/register/?', RegisterUserHandler, name="register_user"),
+        url(r'/teams/?(.+)/members?', TeamMembersHandler, name='team_members'),
         url(r'/teams/?(.+)?', TeamHandler, name='team'),
         url(r'/user/info/?(.+)?', UserHandler, name='user_info'),
     ]

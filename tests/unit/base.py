@@ -77,6 +77,9 @@ class ApiTestCase(AsyncHTTPTestCase):
     def put(self, path, **kw):
         return self.send_request("PUT", path, **kw)
 
+    def patch(self, path, **kw):
+        return self.send_request("PATCH", path, **kw)
+
     def send_request(self, method, path, **kw):
         headers = {}
 
