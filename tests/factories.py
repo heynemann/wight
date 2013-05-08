@@ -12,7 +12,7 @@ from datetime import datetime
 
 import factory
 
-from wight.models import User, Team
+from wight.models import User, Team, Project
 
 
 class UserFactory(factory.Factory):
@@ -50,6 +50,7 @@ class TeamFactory(factory.Factory):
     name = factory.LazyAttributeSequence(lambda user, index: 'team-%d' % index)
     owner = factory.SubFactory(UserFactory)
     members = []
+    projects = []
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())
 
@@ -66,3 +67,12 @@ class TeamFactory(factory.Factory):
             team.members.append(UserFactory.create())
 
         team.save()
+
+class ProjectFactory(factory.Factory):
+    FACTORY_FOR = Project
+
+    name = factory.LazyAttributeSequence(lambda user, index: 'project-%d' % index)
+    created_by = factory.SubFactory(UserFactory)
+    date_modified = factory.LazyAttribute(lambda user: datetime.now())
+    date_created = factory.LazyAttribute(lambda user: datetime.now())
+    team = factory.SubFactory(UserFactory)

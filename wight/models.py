@@ -141,10 +141,6 @@ class User(Document):
         return user
 
 
-class Project(EmbeddedDocument):
-    pass
-
-
 class Team(Document):
     name = StringField(max_length=2000, unique=True, required=True)
     owner = ReferenceField(User, required=True)
@@ -152,7 +148,7 @@ class Team(Document):
     date_modified = DateTimeField(default=datetime.datetime.now)
     date_created = DateTimeField(default=datetime.datetime.now)
 
-    projects = ListField(EmbeddedDocumentField)
+    projects = ListField(EmbeddedDocumentField("Project"))
 
     def clean(self):
         if self.owner in self.members:
@@ -161,6 +157,10 @@ class Team(Document):
         member_ids = [member.id for member in self.members]
         if len(member_ids) != len(set(member_ids)):
             raise ValueError("Can't have the same user twice in the members collection.")
+
+        project_names = [project.name for project in self.projects]
+        if len(project_names) != len(set(project_names)):
+            raise ValueError("Can't have the same project twice in the projects collection.")
 
         # Updates date_modified field
         self.date_modified = datetime.datetime.now()
@@ -184,3 +184,25 @@ class Team(Document):
             return None
 
         return team
+
+    def add_project(self, name, created_by):
+        prj = Project(name=name, created_by=created_by, team=self)
+        self.projects.append(prj)
+        self.save()
+
+
+class Project(EmbeddedDocument):
+    name = StringField(max_length=2000, required=True)
+    created_by = ReferenceField(User, required=True)
+    date_modified = DateTimeField(default=datetime.datetime.now)
+    date_created = DateTimeField(default=datetime.datetime.now)
+    team = ReferenceField(Team, required=True)
+
+    def clean(self):
+        if self.created_by.id != self.team.owner.id:
+            team_member_ids = [member.id for member in self.team.members]
+            if self.created_by.id not in team_member_ids:
+                raise ValueError("Only the owner or members of team %s can create projects for it." % self.team.name)
+
+        # Updates date_modified field
+        self.date_modified = datetime.datetime.now()
