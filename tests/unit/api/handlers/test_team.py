@@ -99,23 +99,23 @@ class TeamHandlerTest(FullTestCase):
         expect(response.code).to_equal(403)
 
     def test_add_user(self):
-        user = User.create(email="new@user.com", password="12345")
-        team = Team.create(name="team-5", owner=self.user)
+        user = UserFactory.create()
+        team = TeamFactory.create(owner=self.user)
         expect(team).not_to_be_null()
 
-        response = self.patch("/teams/team-5/members", user=user.email)
+        response = self.patch("/teams/%s/members" % team.name, user=user.email)
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("OK")
 
-        team = Team.objects.filter(name="team-5").first()
+        team = Team.objects.filter(name=team.name).first()
         expect(team).not_to_be_null()
         expect(team.members).to_include(user)
 
     def test_add_non_existent_user(self):
-        team = Team.create(name="team-6", owner=self.user)
+        team = TeamFactory.create(owner=self.user)
         expect(team).not_to_be_null()
 
-        response = self.patch("/teams/team-6/members", user="Wrong@email.com")
+        response = self.patch("/teams/%s/members" % team.name, user="Wrong@email.com")
         expect(response.code).to_equal(400)
         expect(response.body).to_equal("User not found")
 
@@ -125,6 +125,6 @@ class TeamHandlerTest(FullTestCase):
         expect(response.body).to_equal("Team not found")
 
     def test_add_user_to_team_without_user(self):
-        team = Team.create(name="team-11", owner=self.user)
-        response = self.patch("/teams/team-11/members")
+        team = TeamFactory.create(owner=self.user)
+        response = self.patch("/teams/%s/members" % team.name)
         expect(response.code).to_equal(400)
