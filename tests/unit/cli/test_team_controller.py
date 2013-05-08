@@ -18,7 +18,7 @@ from mock import patch, Mock
 
 from preggy import expect
 
-from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController
+from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, RemoveTeamController
 from wight.models import UserData
 from wight.cli.base import requests
 from tests.unit.base import TestCase
@@ -157,21 +157,6 @@ class TestUpdateTeamController(TeamControllerTestBase):
         self.controller_kwargs = {"team_name": 'new-team', "new_name": "new-name"}
         super(TestUpdateTeamController, self).setUp()
 
-    # def setUp(self):
-    #     self.ctrl = self.make_controller(
-    #         UpdateTeamController,
-    #         conf=self.fixture_for('test.conf'),
-    #         team_name='new-team',
-    #         new_name="new-name")
-    #
-    #     self.ctrl.app.user_data = UserData(target="Target")
-    #     self.ctrl.app.user_data.token = "token-value"
-    #     self.get_mock = patch('requests.get')
-    #     self.get_mock.start()
-    #
-    # def tearDown(self):
-    #     self.get_mock.stop()
-
     @patch.object(UpdateTeamController, 'put')
     @patch.object(UpdateTeamController, 'write')
     def test_handles_connection_errors_nicely(self, write_mock, put_mock):
@@ -219,8 +204,28 @@ class TestUpdateTeamController(TeamControllerTestBase):
 class TestRemoveTeamController(TeamControllerTestBase):
     def setUp(self):
         self.controller_kwargs = {"team_name": "nameless"}
-        self.controller_class = ShowTeamController
+        self.controller_class = RemoveTeamController
         super(TestRemoveTeamController, self).setUp()
 
-    def test_should_confirm_deletion(self):
-        pass
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(RemoveTeamController, 'ask_for')
+    def test_should_show_confirm_deletion_message(self, ask_mock, stdout_mock):
+        ask_mock.return_value = "nameless"
+        self.ctrl.default()
+        expect(stdout_mock.getvalue()).to_be_like("This operation will remove all projects and all tests of team 'nameless'. You have to retype the team name to confirm deletion.")
+        ask_mock.called_with("Tem name: ")
+
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(RemoveTeamController, 'ask_for')
+    def test_should_return_if_name_not_type_correctly(self, ask_mock, stdout_mock):
+        ask_mock.return_value = "namel"
+        self.ctrl.default()
+        expect(stdout_mock.getvalue()).to_be_like(
+            """
+                This operation will remove all projects and all tests of team 'nameless'.
+                You have to retype the team name to confirm deletion.
+
+                The team name you type ('nameless') is not the same you pass ('namel').
+                Operation aborted...
+            """
+        )
