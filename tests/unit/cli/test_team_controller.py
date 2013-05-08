@@ -251,7 +251,7 @@ class TestRemoveTeamController(TeamControllerTestBase):
     @patch('sys.stdout', new_callable=StringIO)
     @patch.object(RemoveTeamController, 'ask_for')
     @patch.object(RemoveTeamController, 'delete')
-    def test_should_make_the_delete_in_api(self, delete_mock, ask_mock, stdout_mock):
+    def test_should_notify_user_if_status_code_was_forbidden(self, delete_mock, ask_mock, stdout_mock):
         ask_mock.return_value = "nameless"
         delete_mock.return_value = Mock(status_code=403)
         self.ctrl.default()
@@ -262,5 +262,22 @@ class TestRemoveTeamController(TeamControllerTestBase):
                 You have to retype the team name to confirm deletion.
 
                 You are not the owner of team 'nameless' in target 'Target' (which means you can't delete it).
+            """
+        )
+
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(RemoveTeamController, 'ask_for')
+    @patch.object(RemoveTeamController, 'delete')
+    def test_should_notify_user_if_status_code_was_not_found(self, delete_mock, ask_mock, stdout_mock):
+        ask_mock.return_value = "nameless"
+        delete_mock.return_value = Mock(status_code=404)
+        self.ctrl.default()
+        delete_mock.assert_called_with("/teams/nameless")
+        expect(stdout_mock.getvalue()).to_be_like(
+            """
+                This operation will remove all projects and all tests of team 'nameless'.
+                You have to retype the team name to confirm deletion.
+
+                Team 'nameless' does not exist in target 'Target'.
             """
         )
