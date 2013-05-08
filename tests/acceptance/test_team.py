@@ -12,7 +12,7 @@ from preggy import expect
 
 from wight.models import Team
 from tests.acceptance.base import AcceptanceTest
-from tests.factories import TeamFactory
+from tests.factories import TeamFactory, UserFactory
 
 
 class TestTeam(AcceptanceTest):
@@ -50,3 +50,13 @@ class TestTeam(AcceptanceTest):
 
         team = Team.objects.filter(name="new-team-name").first()
         expect(team).not_to_be_null()
+
+    def test_can_add_user(self):
+        team = TeamFactory.create(owner=self.user)
+        user = UserFactory.create()
+
+        result = self.execute("team-adduser", team.name, user.email)
+        expect(result).to_equal("User '%s' added to Team '%s'." % (user.email, team.name))
+
+        team = Team.objects.filter(name=team.name).first()
+        expect(team.members).to_include(user)

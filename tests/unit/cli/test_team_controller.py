@@ -18,7 +18,7 @@ from mock import patch, Mock
 
 from preggy import expect
 
-from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, RemoveTeamController
+from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, RemoveTeamController, TeamAddUserController
 from wight.models import UserData
 from wight.cli.base import requests
 from tests.unit.base import TestCase
@@ -281,3 +281,42 @@ class TestRemoveTeamController(TeamControllerTestBase):
                 Team 'nameless' does not exist in target 'Target'.
             """
         )
+
+
+class TestAddUserTeamController(TeamControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team_name": "awesome", "user_email": "Ryu"}
+        self.controller_class = TeamAddUserController
+        super(TestAddUserTeamController, self).setUp()
+
+    @patch.object(TeamAddUserController, 'patch')
+    @patch.object(TeamAddUserController, 'write')
+    def test_add_user_without_user_parameter(self, write_mock, patch_mock):
+        response_mock = Mock(status_code=403)
+        patch_mock.return_value = response_mock
+        self.ctrl.default()
+        write_mock.assert_called_with("Missing parameter user")
+
+    @patch.object(TeamAddUserController, 'patch')
+    @patch.object(TeamAddUserController, 'write')
+    def test_add_user_to_a_non_existing_team(self, write_mock, patch_mock):
+        response_mock = Mock(status_code=404)
+        patch_mock.return_value = response_mock
+        self.ctrl.default()
+        write_mock.assert_called_with("Team 'awesome' does not exist in target 'Target'.")
+
+    @patch.object(TeamAddUserController, 'patch')
+    @patch.object(TeamAddUserController, 'write')
+    def test_add_user_when_not_owner(self, write_mock, patch_mock):
+        response_mock = Mock(status_code=401)
+        patch_mock.return_value = response_mock
+        self.ctrl.default()
+        write_mock.assert_called_with("You need to be the team owner to add users")
+
+    @patch.object(TeamAddUserController, 'patch')
+    @patch.object(TeamAddUserController, 'write')
+    def test_add_user(self, write_mock, patch_mock):
+        response_mock = Mock(status_code=200)
+        patch_mock.return_value = response_mock
+        self.ctrl.default()
+        write_mock.assert_called_with("User 'Ryu' added to Team 'awesome'.")

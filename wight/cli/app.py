@@ -8,15 +8,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-from os.path import expanduser
-
 from cement.core import foundation, handler
 
 from wight.cli.base import WightDefaultController
 from wight.cli.schedule import ScheduleController
 from wight.cli.auth import AuthController
 from wight.cli.target import TargetSetController, TargetGetController
-from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController
+from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, TeamAddUserController
 from wight.cli.user import ShowUserController
 from wight.models import UserData
 
@@ -40,6 +38,7 @@ class WightApp(foundation.CementApp):
             UpdateTeamController,
             ShowTeamController,
             ShowUserController,
+            TeamAddUserController,
         ]
 
         for controller in self.controllers:

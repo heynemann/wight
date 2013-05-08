@@ -70,6 +70,9 @@ class WightBaseController(controller.CementBaseController):
     def delete(self, path, data={}, headers={}):
         return self.send_request("DELETE", path, data, headers)
 
+    def patch(self, path, data={}, headers={}):
+        return self.send_request("PATCH", path, data, headers)
+
     def send_request(self, method, path, data={}, headers={}):
         headers.update({"X-Wight-Auth": self.app.user_data.token})
         target = self.app.user_data.target.rstrip('/')
