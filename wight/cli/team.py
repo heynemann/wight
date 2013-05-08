@@ -158,7 +158,7 @@ class RemoveTeamController(WightBaseController):
             if response.status_code == 200:
                 self.log.info(log_message)
                 self.write(log_message)
-        #     elif response.status_code == 403:
-        #         self.write("You are not the owner of team '%s' in target '%s' (which means you can't delete it)." % (name, target))
+            elif response.status_code == 403:
+                self.write("You are not the owner of team '%s' in target '%s' (which means you can't delete it)." % (name, target))
         #     elif response.status_code == 404:
         #         self.write("Team '%s' does not exist in target '%s'." % (name, target))
