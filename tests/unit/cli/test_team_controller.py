@@ -24,21 +24,9 @@ from wight.cli.base import requests
 from tests.unit.base import TestCase
 
 
-class FakeResponse():
-    def __init__(self, status_code, send_connection_error=False):
-        self.send_connection_error = send_connection_error
-        self.status_code = status_code
-        self.content = """
-            {
-                "owner": "nameless@owner.com", "name": "nameless",
-                "members": ["User 0", "User 1", "User 2"]
-            }
-        """
-
-
-class TestCreateTeamController(TestCase):
+class TeamControllerTestBase(TestCase):
     def setUp(self):
-        self.ctrl = self.make_controller(CreateTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
+        self.ctrl = self.make_controller(self.controller_class, conf=self.fixture_for('test.conf'), **self.controller_kwargs)
         self.ctrl.app.user_data = UserData(target="Target")
         self.ctrl.app.user_data.token = "token-value"
         self.get_mock = patch('requests.get')
@@ -46,6 +34,13 @@ class TestCreateTeamController(TestCase):
 
     def tearDown(self):
         self.get_mock.stop()
+
+
+class TestCreateTeamController(TeamControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team_name": "nameless"}
+        self.controller_class = CreateTeamController
+        super(TestCreateTeamController, self).setUp()
 
     def test_create_not_work_if_not_authenticated(self):
         self.ctrl.app.user_data.token = None
@@ -94,16 +89,11 @@ class TestCreateTeamController(TestCase):
         write_mock.assert_called_with("You should define a name for the team to be created.")
 
 
-class TestShowTeamController(TestCase):
+class TestShowTeamController(TeamControllerTestBase):
     def setUp(self):
-        self.ctrl = self.make_controller(ShowTeamController, conf=self.fixture_for('test.conf'), team_name='nameless')
-        self.ctrl.app.user_data = UserData(target="Target")
-        self.ctrl.app.user_data.token = "token-value"
-        self.get_mock = patch('requests.get')
-        self.get_mock.start()
-
-    def tearDown(self):
-        self.get_mock.stop()
+        self.controller_kwargs = {"team_name": "nameless"}
+        self.controller_class = ShowTeamController
+        super(TestShowTeamController, self).setUp()
 
     def test_show_not_work_if_not_authenticated(self):
         self.ctrl.app.user_data.token = None
@@ -161,21 +151,26 @@ class TestShowTeamController(TestCase):
         write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
 
 
-class TestUpdateTeamController(TestCase):
+class TestUpdateTeamController(TeamControllerTestBase):
     def setUp(self):
-        self.ctrl = self.make_controller(
-            UpdateTeamController,
-            conf=self.fixture_for('test.conf'),
-            team_name='new-team',
-            new_name="new-name")
+        self.controller_class = UpdateTeamController
+        self.controller_kwargs = {"team_name": 'new-team', "new_name": "new-name"}
+        super(TestUpdateTeamController, self).setUp()
 
-        self.ctrl.app.user_data = UserData(target="Target")
-        self.ctrl.app.user_data.token = "token-value"
-        self.put_mock = patch('requests.put')
-        self.put_mock.start()
-
-    def tearDown(self):
-        self.put_mock.stop()
+    # def setUp(self):
+    #     self.ctrl = self.make_controller(
+    #         UpdateTeamController,
+    #         conf=self.fixture_for('test.conf'),
+    #         team_name='new-team',
+    #         new_name="new-name")
+    #
+    #     self.ctrl.app.user_data = UserData(target="Target")
+    #     self.ctrl.app.user_data.token = "token-value"
+    #     self.get_mock = patch('requests.get')
+    #     self.get_mock.start()
+    #
+    # def tearDown(self):
+    #     self.get_mock.stop()
 
     @patch.object(UpdateTeamController, 'put')
     @patch.object(UpdateTeamController, 'write')
@@ -219,3 +214,13 @@ class TestUpdateTeamController(TestCase):
         self.ctrl.default()
         msg = "Updated 'new-team' team to 'new-name' in 'Target' target."
         write_mock.assert_called_with(msg)
+
+
+class TestRemoveTeamController(TeamControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team_name": "nameless"}
+        self.controller_class = ShowTeamController
+        super(TestRemoveTeamController, self).setUp()
+
+    def test_should_confirm_deletion(self):
+        pass
