@@ -38,6 +38,13 @@ class TeamProjectTest(FullTestCase):
         response = self.post("/teams/%s/projects/" % self.team.name, name="new-name")
         expect(response.code).to_equal(401)
 
+    def test_cant_create_project_without_name(self):
+        response = self.post("/teams/%s/projects/" % self.team.name, name="")
+        expect(response.code).to_equal(400)
+
+        response = self.post("/teams/%s/projects/" % self.team.name)
+        expect(response.code).to_equal(400)
+
     #def test_create_team_with_no_name_returns_bad_request(self):
         #response = self.post("/teams")
         #expect(response.code).to_equal(400)

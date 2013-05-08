@@ -27,7 +27,11 @@ class ProjectHandler(BaseHandler):
     @BaseHandler.authenticated
     @BaseHandler.team_member
     def post(self, team):
-        name = self.get_argument("name")
+        name = self.get_argument("name", None)
+        if not name:
+            self.set_status(400)
+            self.finish()
+            return
 
         team.add_project(name=name, created_by=self.current_user)
 
