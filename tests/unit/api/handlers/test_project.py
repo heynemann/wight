@@ -33,6 +33,11 @@ class TeamProjectTest(FullTestCase):
         expect(team.projects).to_length(1)
         expect(team.projects[0].name).to_equal(project_name)
 
+    def test_cant_create_project_without_being_auth(self):
+        self.user = None
+        response = self.post("/teams/%s/projects/" % self.team.name, name="new-name")
+        expect(response.code).to_equal(401)
+
     #def test_create_team_with_no_name_returns_bad_request(self):
         #response = self.post("/teams")
         #expect(response.code).to_equal(400)
