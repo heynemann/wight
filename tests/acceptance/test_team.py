@@ -12,6 +12,7 @@ from preggy import expect
 
 from wight.models import Team
 from tests.acceptance.base import AcceptanceTest
+from tests.factories import TeamFactory
 
 
 class TestTeam(AcceptanceTest):
@@ -26,14 +27,12 @@ class TestTeam(AcceptanceTest):
         expect(team).not_to_be_null()
 
     def test_can_show_team(self):
-        team_name = "test-create-team-2"
-        team = Team.create(name=team_name, owner=self.user)
-        expect(team).not_to_be_null()
+        team = TeamFactory.create(owner=self.user)
 
-        result = self.execute("show-team", team_name)
+        result = self.execute("show-team", team.name)
         expect(result).to_be_like("""
         %s
-        ==================
+        %s
 
         Team members:
         +--------------------------------+-------+
@@ -41,14 +40,13 @@ class TestTeam(AcceptanceTest):
         +--------------------------------+-------+
         | %s                             | owner |
         +--------------------------------+-------+
-        """ % (team_name, self.username))
+        """ % (team.name, "=" * len(team.name), self.username))
 
     def test_can_update_team(self):
-        team_name = "test-update-team"
-        Team.create(name=team_name, owner=self.user)
+        team = TeamFactory.create(owner=self.user)
 
-        result = self.execute("update-team", team_name, "new-team-name")
-        expect(result).to_equal("Updated 'test-update-team' team to 'new-team-name' in '%s' target." % self.target)
+        result = self.execute("update-team", team.name, "new-team-name")
+        expect(result).to_equal("Updated '%s' team to 'new-team-name' in '%s' target." % (team.name, self.target))
 
         team = Team.objects.filter(name="new-team-name").first()
         expect(team).not_to_be_null()

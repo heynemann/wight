@@ -68,7 +68,7 @@ class TestTeamModel(ModelTestCase):
         u2 = UserFactory.create()
 
         try:
-            Team.create(name="test-team-5", owner=u1, members=[u2, u2])
+            Team.create(name="test-team-same-member-twice", owner=u1, members=[u2, u2])
         except ValueError:
             ex = sys.exc_info()[1]
             expect(ex).to_have_an_error_message_of("Can't have the same user twice in the members collection.")
@@ -79,7 +79,7 @@ class TestTeamModel(ModelTestCase):
         u1 = UserFactory.create()
 
         try:
-            Team.create(name="test-team-5", owner=u1, members=[u1])
+            Team.create(name="test-team-owner-in-members", owner=u1, members=[u1])
         except ValueError:
             ex = sys.exc_info()[1]
             expect(ex).to_have_an_error_message_of("Can't have a team owner in the members collection.")

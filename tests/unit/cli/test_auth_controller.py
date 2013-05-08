@@ -21,8 +21,9 @@ import mock
 
 from wight.cli.app import WightApp
 from wight.cli.auth import AuthController
-from wight.models import UserData, User
+from wight.models import UserData
 from tests.unit.base import FullTestCase
+from tests.factories import UserFactory
 
 
 def clear_token():
@@ -95,13 +96,12 @@ class AuthControllerTestCase(FullTestCase):
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(AuthController, 'get')
     def test_default_action_when_invalid_password(self, get_mock, mock_stdout):
-        email = "test1231312@test.com"
-        User.create(email=email, password="12345")
+        user = UserFactory.create()
 
         response_mock = mock.Mock(status_code=403)
         get_mock.return_value = response_mock
 
-        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="123")
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=user.email, password="123")
         ctrl.app.user_data = UserData(target=self.get_url('/'))
         expect(ctrl.default()).to_be_false()
 
@@ -112,14 +112,13 @@ class AuthControllerTestCase(FullTestCase):
     @mock.patch.object(AuthController, 'ask_for')
     @mock.patch.object(AuthController, 'get')
     def test_default_action_when_user_not_found_but_dont_want_to_register(self, get_mock, ask_for_mock, mock_stdout):
-        email = "test1231312@test.com"
-        User.create(email=email, password="12345")
+        user = UserFactory.create()
 
         response_mock = mock.Mock(status_code=404)
         get_mock.return_value = response_mock
         ask_for_mock.return_value = "N"
 
-        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="123")
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=user.email, password="123")
         ctrl.app.user_data = UserData(target=self.get_url('/'))
         expect(ctrl.default()).to_be_false()
 
@@ -130,15 +129,14 @@ class AuthControllerTestCase(FullTestCase):
     @mock.patch.object(AuthController, 'ask_for')
     @mock.patch.object(AuthController, 'get')
     def test_default_action_when_user_not_found_but_want_to_register(self, get_mock, ask_for_mock, mock_stdout):
-        email = "test1231312@test.com"
-        User.create(email=email, password="12345")
+        user = UserFactory.create()
 
         headers_mock = mock.Mock(get=lambda msg: "test-token")
         response_mock = mock.Mock(status_code=404, headers=headers_mock)
         get_mock.return_value = response_mock
         ask_for_mock.return_value = "Y"
 
-        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="123")
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=user.email, password="123")
         ctrl.app.user_data = UserData(target=self.get_url('/'))
         expect(ctrl.default()).to_be_true()
 
@@ -150,14 +148,13 @@ class AuthControllerTestCase(FullTestCase):
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(AuthController, 'get')
     def test_default_action_when_user_authenticated_properly(self, get_mock, mock_stdout):
-        email = "test1231312@test.com"
-        User.create(email=email, password="12345")
+        user = UserFactory.create()
 
         headers_mock = mock.Mock(get=lambda msg: "test-token-2")
         response_mock = mock.Mock(status_code=200, headers=headers_mock)
         get_mock.return_value = response_mock
 
-        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=email, password="12345")
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=user.email, password=UserFactory.get_default_password())
         ctrl.app.user_data = UserData(target=self.get_url('/'))
         expect(ctrl.default()).to_be_true()
 
