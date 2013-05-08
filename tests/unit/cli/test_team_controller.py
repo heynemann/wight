@@ -209,7 +209,8 @@ class TestRemoveTeamController(TeamControllerTestBase):
 
     @patch('sys.stdout', new_callable=StringIO)
     @patch.object(RemoveTeamController, 'ask_for')
-    def test_should_show_confirm_deletion_message(self, ask_mock, stdout_mock):
+    @patch.object(RemoveTeamController, 'delete')
+    def test_should_show_confirm_deletion_message(self, delete_mock, ask_mock, stdout_mock):
         ask_mock.return_value = "nameless"
         self.ctrl.default()
         expect(stdout_mock.getvalue()).to_be_like("This operation will remove all projects and all tests of team 'nameless'. You have to retype the team name to confirm deletion.")
@@ -227,5 +228,22 @@ class TestRemoveTeamController(TeamControllerTestBase):
 
                 The team name you type ('nameless') is not the same you pass ('namel').
                 Operation aborted...
+            """
+        )
+
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(RemoveTeamController, 'ask_for')
+    @patch.object(RemoveTeamController, 'delete')
+    def test_should_make_the_delete_in_api(self, delete_mock, ask_mock, stdout_mock):
+        ask_mock.return_value = "nameless"
+        delete_mock.return_value = Mock(status_code=200)
+        self.ctrl.default()
+        delete_mock.assert_called_with("/teams/nameless")
+        expect(stdout_mock.getvalue()).to_be_like(
+            """
+                This operation will remove all projects and all tests of team 'nameless'.
+                You have to retype the team name to confirm deletion.
+
+                Deleted 'nameless' team, all its projects and tests in 'Target' target.
             """
         )
