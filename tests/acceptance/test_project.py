@@ -22,7 +22,7 @@ class TestProject(AcceptanceTest):
         project_name = "test-create-project"
         repo = "repo"
 
-        result = self.execute("create-project", team=team.name, project_name=project_name, repo=repo)
+        result = self.execute("project-create", team=team.name, project_name=project_name, repo=repo)
         expect(result).to_equal("Created '%s' project in '%s' team at '%s'." % (project_name, team.name, self.target))
 
         team = Team.objects.filter(name=team.name).first()

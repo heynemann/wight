@@ -141,7 +141,7 @@ Project Management
 ------------------
 
 To schedule a test you need a project. Creating one is simple, once you have a team.
-Just use 'wight create-project --team=<team-name> --project_name=<project name> --repo=<git repository>'.
+Just use 'wight project-create --team=<team-name> --project_name=<project name> --repo=<git repository>'.
 
 Wight uses the git repository for the given project to clone it and run your tests.
 You can find more information on creating your tests in wight docs at http://wight.io/docs.

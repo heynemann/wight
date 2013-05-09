@@ -15,7 +15,7 @@ from wight.cli.base import WightBaseController, ConnectedController
 
 class CreateProjectController(WightBaseController):
     class Meta:
-        label = 'create-project'
+        label = 'project-create'
         stack_on = 'base'
         description = 'Creates a project.'
         config_defaults = dict()
@@ -27,7 +27,7 @@ class CreateProjectController(WightBaseController):
             (['--repo'], dict(help='Git repository for this project.', required=True)),
         ]
 
-    @controller.expose(hide=False, aliases=["create-project"], help='Creates a project.')
+    @controller.expose(hide=False, aliases=["project-create"], help='Creates a project.')
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
