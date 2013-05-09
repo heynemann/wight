@@ -21,7 +21,7 @@ class TestTeam(AcceptanceTest):
         team_name = "test-create-team"
 
         result = self.execute("team-create", team_name)
-        expect(result).to_equal("Created 'test-create-team' team in '%s' target." % self.target)
+        expect(result).to_be_like("Created 'test-create-team' team in '%s' target." % self.target)
 
         team = Team.objects.filter(name=team_name).first()
         expect(team).not_to_be_null()
@@ -46,7 +46,7 @@ class TestTeam(AcceptanceTest):
         team = TeamFactory.create(owner=self.user)
 
         result = self.execute("team-update", team.name, "new-team-name")
-        expect(result).to_equal("Updated '%s' team to 'new-team-name' in '%s' target." % (team.name, self.target))
+        expect(result).to_be_like("Updated '%s' team to 'new-team-name' in '%s' target." % (team.name, self.target))
 
         team = Team.objects.filter(name="new-team-name").first()
         expect(team).not_to_be_null()
@@ -56,7 +56,7 @@ class TestTeam(AcceptanceTest):
         user = UserFactory.create()
 
         result = self.execute("team-adduser", team.name, user.email)
-        expect(result).to_equal("User '%s' added to Team '%s'." % (user.email, team.name))
+        expect(result).to_be_like("User '%s' added to Team '%s'." % (user.email, team.name))
 
         team = Team.objects.filter(name=team.name).first()
         expect(team.members).to_include(user)
@@ -66,7 +66,7 @@ class TestTeam(AcceptanceTest):
         team = TeamFactory.create(owner=self.user, members=[user])
 
         result = self.execute("team-removeuser", team.name, user.email)
-        expect(result).to_equal("User '%s' removed from Team '%s'." % (user.email, team.name))
+        expect(result).to_be_like("User '%s' removed from Team '%s'." % (user.email, team.name))
 
         team = Team.objects.filter(name=team.name).first()
         expect(team.members).not_to_include(user)

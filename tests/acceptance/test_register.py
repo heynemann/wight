@@ -22,7 +22,7 @@ class TestRegisterUser(AcceptanceTest):
 
         # authenticates
         result = self.execute("login", email="acc1@gmail.com", password="password", stdin=['y'])
-        expect(result.endswith('User registered and authenticated.')).to_be_true()
+        expect(result).to_be_like('User does not exist. Do you wish to register? [y/n] User registered and authenticated.')
 
         # user is in mongodb?
         u = User.objects.filter(email="acc1@gmail.com").first()

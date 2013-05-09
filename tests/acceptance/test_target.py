@@ -21,19 +21,20 @@ class TestTarget(AcceptanceTest):
 
         # Set target to acc target
         result = self.execute("target-set", target)
-        expect(result).to_equal("Setting target to '%s'." % target)
+        expected = "Wight target set to '%s'. In order to login with wight, use 'wight login'."
+        expect(result).to_be_like(expected % target)
 
         ud = UserData.load()
-        expect(ud.target).to_equal(target)
+        expect(ud.target).to_be_like(target)
 
     def test_can_get_empty_target(self):
         self.clear_user_data()
 
         # Get target
         result = self.execute("target-get")
-        expect(result).to_equal("No target set.")
+        expect(result).to_be_like("No target set.")
 
     def test_can_get_target(self):
         # Get target
         result = self.execute("target-get")
-        expect(result).to_equal("Current target set to '%s'." % self.target)
+        expect(result).to_be_like("Current target set to '%s'." % self.target)
