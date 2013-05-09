@@ -26,7 +26,11 @@ class ProjectHandler(BaseHandler):
             self.finish()
             return
 
-        team.add_project(name=name, repository=repository, created_by=self.current_user)
+        try:
+            team.add_project(name=name, repository=repository, created_by=self.current_user)
+        except ValueError:
+            self.set_status(409)
+            self.finish()
 
         self.set_status(200)
         self.write("OK")

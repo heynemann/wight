@@ -80,3 +80,10 @@ class TeamProjectTest(FullTestCase):
         project_name = "project_test"
         response = self.post("/teams/%s/projects/" % self.team.name, name=project_name, repository="repo")
         expect(response.code).to_equal(403)
+
+    def test_create_project_twice_in_the_same_team(self):
+        project_name = "same-project-twice"
+        self.team.add_project(project_name, "repo", self.team.owner)
+
+        response = self.post("/teams/%s/projects/" % self.team.name, name=project_name, repository="repo")
+        expect(response.code).to_equal(409)
