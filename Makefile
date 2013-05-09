@@ -3,6 +3,11 @@ test ci-test: mongo_test redis
 	@rm -rf ~/.wighttest
 	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/unit/
 
+focus: mongo_test redis
+	@sleep 1
+	@rm -rf ~/.wighttest
+	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -a 'focus' -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/unit/ 
+
 acceptance acc integration func functional: mongo_test redis kill_app
 	@sleep 3
 	@rm -rf ~/.wightacc

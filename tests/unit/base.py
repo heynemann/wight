@@ -31,6 +31,13 @@ from wight.models import User, Team
 ROOT_PATH = abspath(join(dirname(__file__), '..'))
 
 
+def focus(*args, **kwargs):
+    def wrap_ob(ob):
+        setattr(ob, 'focus', 1)
+        return ob
+    return wrap_ob
+
+
 class TestCase(test.CementTestCase):
     def make_controller(self, cls, app=None, *args, **kw):
         if app is None:

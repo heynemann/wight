@@ -55,14 +55,22 @@ class AuthControllerTestCase(FullTestCase):
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
         ])
 
-    @mock.patch('sys.stdout', new_callable=StringIO)
-    def test_default_action_when_target_not_set(self, mock_stdout):
+    @mock.patch.object(AuthController, 'write')
+    def test_default_action_when_target_not_set(self, write_mock):
+        self.expected = ""
+
+        def assert_written(message):
+            if message.strip() != "":
+                self.expected = message
+
+        write_mock.side_effect = assert_written
         wightApp = WightApp()
         ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), app=wightApp)
 
         expect(ctrl.default()).to_be_false()
 
-        expect(mock_stdout.getvalue()).to_be_like("Wight target not set. Please use 'wight target-set <url of target>' to specify the wight api target to be used.")
+        expected = "Wight target not set. Please use 'wight target-set <url of target>' to specify the api target to be used."
+        expect(self.expected).to_be_like(expected)
 
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(AuthController, 'ask_for')
