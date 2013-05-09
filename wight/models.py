@@ -191,6 +191,15 @@ class Team(Document):
         self.projects.append(prj)
         self.save()
 
+    def update_project(self, project_name, new_name, new_repository):
+        for project in self.projects:
+            if project.name == project_name:
+                if new_name:
+                    project.name = new_name
+                if new_repository:
+                    project.repository = new_repository
+        self.save()
+
 
 class Project(EmbeddedDocument):
     name = StringField(max_length=2000, required=True)

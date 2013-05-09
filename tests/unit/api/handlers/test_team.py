@@ -135,7 +135,7 @@ class TeamHandlerTest(FullTestCase):
         expect(response.body).to_equal("User already team member")
 
     def test_add_to_non_existent_team(self):
-        response = self.patch("/teams/team-not-existent/members", user="Wrong@email.com")
+        response = self.patch("/teams/team-non-eczistes/members", user="Wrong@email.com")
         expect(response.code).to_equal(404)
         expect(response.body).to_equal("Team not found")
 
