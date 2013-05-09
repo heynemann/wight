@@ -119,8 +119,23 @@ class TeamHandlerTest(FullTestCase):
         expect(response.code).to_equal(400)
         expect(response.body).to_equal("User not found")
 
+    def test_add_owner_as_a_member(self):
+        team = TeamFactory.create(owner=self.user)
+
+        response = self.patch("/teams/%s/members" % team.name, user=self.user.email)
+        expect(response.code).to_equal(409)
+        expect(response.body).to_equal("User already team owner")
+
+    def test_add_team_member_twice(self):
+        user = UserFactory.create()
+        team = TeamFactory.create(owner=self.user, members=[user])
+
+        response = self.patch("/teams/%s/members" % team.name, user=user.email)
+        expect(response.code).to_equal(409)
+        expect(response.body).to_equal("User already team member")
+
     def test_add_to_non_existent_team(self):
-        response = self.patch("/teams/team-10/members", user="Wrong@email.com")
+        response = self.patch("/teams/team-not-existent/members", user="Wrong@email.com")
         expect(response.code).to_equal(404)
         expect(response.body).to_equal("Team not found")
 

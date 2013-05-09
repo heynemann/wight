@@ -364,6 +364,14 @@ class TestAddUserTeamController(TeamControllerTestBase):
         msg = "User 'Ryu@streetFighter.com' added to Team 'awesome'."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
+    @patch.object(TeamAddUserController, 'patch')
+    @patch.object(TeamAddUserController, 'write')
+    def test_add_user_twice(self, write_mock, patch_mock):
+        response_mock = Mock(status_code=409, content='My amazing response')
+        patch_mock.return_value = response_mock
+        self.ctrl.default()
+        expect(write_mock.call_args_list[1][0][0]).to_be_like("My amazing response")
+
 
 class TestRemoveUserTeamController(TeamControllerTestBase):
     def setUp(self):

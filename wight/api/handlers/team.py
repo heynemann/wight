@@ -114,6 +114,18 @@ class TeamMembersHandler(BaseHandler):
                 self.finish()
                 return
 
+            if user == team.owner:
+                self.set_status(409)
+                self.write("User already team owner")
+                self.finish()
+                return
+
+            if user in team.members:
+                self.set_status(409)
+                self.write("User already team member")
+                self.finish()
+                return
+
             team.members.append(user)
         else:
             self.set_status(400)

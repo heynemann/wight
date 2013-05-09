@@ -127,7 +127,7 @@ class ShowTeamController(WightBaseController):
                 if 'projects' in team_data and team_data['projects']:
                     self.__print_projects(team_data['projects'])
                 else:
-                    self.puterror("This team has not projects. To create a project use '%swight project-create%s'." % (
+                    self.puterror("This team has no projects. To create a project use '%swight project-create%s'." % (
                         self.commands_color, self.reset_error
                     ))
 
@@ -269,6 +269,8 @@ class TeamAddUserController(WightBaseController):
                 ))
             elif response.status_code == 401:
                 self.puterror("You need to be the team owner or member to add users.")
+            elif response.status_code == 409:
+                self.puterror(response.content)
 
             self.line_break()
 
