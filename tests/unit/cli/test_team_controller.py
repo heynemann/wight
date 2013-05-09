@@ -18,7 +18,10 @@ from mock import patch, Mock
 
 from preggy import expect
 
-from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, DeleteTeamController, TeamAddUserController
+from wight.cli.team import CreateTeamController, ShowTeamController,\
+    UpdateTeamController, DeleteTeamController,\
+    TeamAddUserController, TeamRemoveUserController
+
 from wight.models import UserData
 from wight.cli.base import requests
 from tests.unit.base import TestCase
@@ -285,7 +288,7 @@ class TestDeleteTeamController(TeamControllerTestBase):
 
 class TestAddUserTeamController(TeamControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team_name": "awesome", "user_email": "Ryu"}
+        self.controller_kwargs = {"team_name": "awesome", "user_email": "Ryu@streetFighter.com"}
         self.controller_class = TeamAddUserController
         super(TestAddUserTeamController, self).setUp()
 
@@ -311,7 +314,7 @@ class TestAddUserTeamController(TeamControllerTestBase):
         response_mock = Mock(status_code=401)
         patch_mock.return_value = response_mock
         self.ctrl.default()
-        write_mock.assert_called_with("You need to be the team owner to add users")
+        write_mock.assert_called_with("You need to be the team owner or member to add users")
 
     @patch.object(TeamAddUserController, 'patch')
     @patch.object(TeamAddUserController, 'write')
@@ -319,4 +322,43 @@ class TestAddUserTeamController(TeamControllerTestBase):
         response_mock = Mock(status_code=200)
         patch_mock.return_value = response_mock
         self.ctrl.default()
-        write_mock.assert_called_with("User 'Ryu' added to Team 'awesome'.")
+        write_mock.assert_called_with("User 'Ryu@streetFighter.com' added to Team 'awesome'.")
+
+
+class TestRemoveUserTeamController(TeamControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team_name": "awesome", "user_email": "Ryu@streetFighter.com"}
+        self.controller_class = TeamRemoveUserController
+        super(TestRemoveUserTeamController, self).setUp()
+
+    @patch.object(TeamRemoveUserController, 'delete')
+    @patch.object(TeamRemoveUserController, 'write')
+    def test_remove_user_without_user_parameter(self, write_mock, delete_mock):
+        response_mock = Mock(status_code=403)
+        delete_mock.return_value = response_mock
+        self.ctrl.default()
+        write_mock.assert_called_with("Missing parameter user")
+
+    @patch.object(TeamRemoveUserController, 'delete')
+    @patch.object(TeamRemoveUserController, 'write')
+    def test_remove_user_from_a_non_existing_team(self, write_mock, delete_mock):
+        response_mock = Mock(status_code=404)
+        delete_mock.return_value = response_mock
+        self.ctrl.default()
+        write_mock.assert_called_with("Team 'awesome' does not exist in target 'Target'.")
+
+    @patch.object(TeamRemoveUserController, 'delete')
+    @patch.object(TeamRemoveUserController, 'write')
+    def test_remove_user_when_not_owner(self, write_mock, delete_mock):
+        response_mock = Mock(status_code=401)
+        delete_mock.return_value = response_mock
+        self.ctrl.default()
+        write_mock.assert_called_with("You need to be the team owner or member to remove users")
+
+    @patch.object(TeamRemoveUserController, 'delete')
+    @patch.object(TeamRemoveUserController, 'write')
+    def test_remove_user(self, write_mock, delete_mock):
+        response_mock = Mock(status_code=200)
+        delete_mock.return_value = response_mock
+        self.ctrl.default()
+        write_mock.assert_called_with("User 'Ryu@streetFighter.com' removed from Team 'awesome'.")

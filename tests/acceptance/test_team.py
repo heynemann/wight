@@ -61,6 +61,16 @@ class TestTeam(AcceptanceTest):
         team = Team.objects.filter(name=team.name).first()
         expect(team.members).to_include(user)
 
+    def test_can_remove_user(self):
+        user = UserFactory.create()
+        team = TeamFactory.create(owner=self.user, members=[user])
+
+        result = self.execute("team-removeuser", team.name, user.email)
+        expect(result).to_equal("User '%s' removed from Team '%s'." % (user.email, team.name))
+
+        team = Team.objects.filter(name=team.name).first()
+        expect(team.members).not_to_include(user)
+
     def test_can_delete_team(self):
         team = TeamFactory.create(owner=self.user)
 

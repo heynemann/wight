@@ -180,3 +180,9 @@ class TeamHandlerTest(FullTestCase):
         team = Team.objects.filter(name=team.name).first()
         expect(team).not_to_be_null()
         expect(team.members).to_length(0)
+
+    def test_remove_user_without_user_parameter(self):
+        team = TeamFactory.create(owner=self.user)
+
+        response = self.delete("/teams/%s/members" % team.name)
+        expect(response.code).to_equal(400)

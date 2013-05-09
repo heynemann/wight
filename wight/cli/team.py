@@ -195,4 +195,37 @@ class TeamAddUserController(WightBaseController):
             elif response.status_code == 404:
                 self.write("Team '%s' does not exist in target '%s'." % (name, target))
             elif response.status_code == 401:
-                self.write("You need to be the team owner to add users")
+                self.write("You need to be the team owner or member to add users")
+
+
+class TeamRemoveUserController(WightBaseController):
+    class Meta:
+        label = 'team-removeuser'
+        stack_on = 'base'
+        description = 'Removess user from a team'
+        config_defaults = dict()
+
+        arguments = [
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            (['team_name'], dict(help='The name of the team')),
+            (['user_email'], dict(help='User to be removed')),
+        ]
+
+    @controller.expose(hide=False, aliases=["team-removeuser"], help='Removess user from a team.')
+    @WightBaseController.authenticated
+    def default(self):
+        self.load_conf()
+        target = self.app.user_data.target
+        name = self.arguments.team_name
+        user_email = self.arguments.user_email
+
+        with ConnectedController(self):
+            response = self.delete("/teams/%s/members" % name, {"user": user_email})
+            if response.status_code == 200:
+                self.write("User '%s' removed from Team '%s'." % (user_email, name))
+            elif response.status_code == 403:
+                self.write("Missing parameter user")
+            elif response.status_code == 404:
+                self.write("Team '%s' does not exist in target '%s'." % (name, target))
+            elif response.status_code == 401:
+                self.write("You need to be the team owner or member to remove users")
