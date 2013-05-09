@@ -8,7 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-import multiprocessing
 
 from derpconf.config import Config, generate_config
 
@@ -30,7 +29,7 @@ Config.define('REDIS_DB_COUNT', 0, 'The number of redis db.', 'Cache')
 Config.define('REDIS_PASSWORD', '', 'The redis password', 'Cache')
 Config.define('REDIS_SESSION_EXPIRATION', 7200, 'Time for session expiration in Redis.', 'Cache')
 
-Config.define('NUMBER_OF_FORKS', multiprocessing.cpu_count(), 'Number of forks to use for tornado process. Defaults to number of cpus.', 'Runtime')
+Config.define('NUMBER_OF_FORKS', 0, 'Number of forks to use for tornado process. Defaults to number of cpus.', 'Runtime')
 Config.define('HEALTHCHECK_TEXT', 'WORKING', 'Default text for the healthcheck route.', 'Runtime')
 
 Config.define('STATIC_URL', '/static/', 'Static files route.', 'Static')
