@@ -58,7 +58,7 @@ class TestCreateTeamController(TeamControllerTestBase):
     @patch.object(CreateTeamController, 'post')
     def test_create_team(self, post_mock):
         self.ctrl.default()
-        post_mock.assert_called_with("/teams", {"name": "nameless"})
+        post_mock.assert_any_call("/teams", {"name": "nameless"})
 
     @patch.object(CreateTeamController, 'post')
     @patch.object(CreateTeamController, 'write')
@@ -66,14 +66,16 @@ class TestCreateTeamController(TeamControllerTestBase):
         response = Mock(status_code=200)
         post_mock.return_value = response
         self.ctrl.default()
-        write_mock.assert_called_with("Created 'nameless' team in 'Target' target.")
+        msg = "Created 'nameless' team in 'Target' target."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(CreateTeamController, 'post')
     @patch.object(CreateTeamController, 'write')
     def test_create_gets_server_error_and_notify(self, write_mock, post_mock):
         post_mock.side_effect = requests.ConnectionError
         self.ctrl.default()
-        write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
+        msg = "The server did not respond. Check your connection with the target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(CreateTeamController, 'post')
     @patch.object(CreateTeamController, 'write')
@@ -81,7 +83,8 @@ class TestCreateTeamController(TeamControllerTestBase):
         response = Mock(status_code=409)
         post_mock.return_value = response
         self.ctrl.default()
-        write_mock.assert_called_with("The team 'nameless' already exists in target 'Target'.")
+        msg = "The team 'nameless' already exists in target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(CreateTeamController, 'post')
     @patch.object(CreateTeamController, 'write')
@@ -89,7 +92,8 @@ class TestCreateTeamController(TeamControllerTestBase):
         response = Mock(status_code=400)
         post_mock.return_value = response
         self.ctrl.default()
-        write_mock.assert_called_with("You should define a name for the team to be created.")
+        msg = "You should define a name for the team to be created."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
 
 class TestShowTeamController(TeamControllerTestBase):
@@ -111,7 +115,7 @@ class TestShowTeamController(TeamControllerTestBase):
     @patch.object(ShowTeamController, 'get')
     def test_get_team(self, get_mock):
         self.ctrl.default()
-        get_mock.assert_called_with("/teams/nameless")
+        get_mock.assert_any_call("/teams/nameless")
 
     @patch.object(ShowTeamController, 'get')
     @patch('sys.stdout', new_callable=StringIO)
@@ -119,23 +123,43 @@ class TestShowTeamController(TeamControllerTestBase):
         get_mock.return_value = Mock(status_code=200, content="""
             {
                 "owner": "nameless@owner.com", "name": "nameless",
-                "members": ["User 0", "User 1", "User 2"]
+                "members": ["User 0", "User 1", "User 2"],
+                "projects": [
+                    {
+                        "name": "project1",
+                        "repository": "repository1",
+                        "createdBy": "nameless@owner.com"
+                    },
+                    {
+                        "name": "project2",
+                        "repository": "repository2",
+                        "createdBy": "nameless@owner.com"
+                    }
+                ]
             }
         """)
+
         self.ctrl.default()
         expected_stdout = """
-            nameless
-            ========
+        nameless
+        --------
 
-            Team members:
-            +--------------------+--------+
-            |        user        |  role  |
-            +--------------------+--------+
-            | nameless@owner.com | owner  |
-            | User 0             | member |
-            | User 1             | member |
-            | User 2             | member |
-            +--------------------+--------+
+        +--------------------+--------+
+        | user               | role   |
+        +--------------------+--------+
+        | nameless@owner.com | owner  |
+        | User 0             | member |
+        | User 1             | member |
+        | User 2             | member |
+        +--------------------+--------+
+
+
+        +--------------+-------------+--------------------+
+        | project name | repository  | created by         |
+        +--------------+-------------+--------------------+
+        | project1     | repository1 | nameless@owner.com |
+        | project2     | repository2 | nameless@owner.com |
+        +--------------+-------------+--------------------+
         """
         expect(mock_stdout.getvalue()).to_be_like(expected_stdout)
 
@@ -144,14 +168,18 @@ class TestShowTeamController(TeamControllerTestBase):
     def test_try_to_show_a_team_dows_not_exist(self, write_mock, get_mock):
         get_mock.return_value = Mock(status_code=404)
         self.ctrl.default()
-        write_mock.assert_called_with("The team 'nameless' does not exists in target 'Target'.")
+        msg = "The team 'nameless' does not exists in target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(ShowTeamController, 'get')
     @patch.object(ShowTeamController, 'write')
     def test_show_gets_server_error_and_notify(self, write_mock, get_mock):
         get_mock.side_effect = requests.ConnectionError
+
         self.ctrl.default()
-        write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
+
+        msg = "The server did not respond. Check your connection with the target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
 
 class TestUpdateTeamController(TeamControllerTestBase):
@@ -165,16 +193,19 @@ class TestUpdateTeamController(TeamControllerTestBase):
     def test_handles_connection_errors_nicely(self, write_mock, put_mock):
         put_mock.side_effect = requests.ConnectionError
         self.ctrl.default()
-        write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
+        msg = "The server did not respond. Check your connection with the target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(UpdateTeamController, 'put')
     @patch.object(UpdateTeamController, 'write')
     def test_handles_not_the_owner(self, write_mock, put_mock):
         response_mock = Mock(status_code=403)
         put_mock.return_value = response_mock
+
         self.ctrl.default()
+
         msg = "You are not the owner of team 'new-team' in target 'Target' (which means you can't update it)."
-        write_mock.assert_called_with(msg)
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(UpdateTeamController, 'put')
     @patch.object(UpdateTeamController, 'write')
@@ -183,7 +214,7 @@ class TestUpdateTeamController(TeamControllerTestBase):
         put_mock.return_value = response_mock
         self.ctrl.default()
         msg = "Team 'new-team' does not exist in target 'Target'."
-        write_mock.assert_called_with(msg)
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(UpdateTeamController, 'put')
     @patch.object(UpdateTeamController, 'write')
@@ -192,16 +223,18 @@ class TestUpdateTeamController(TeamControllerTestBase):
         put_mock.return_value = response_mock
         self.ctrl.default()
         msg = "The team's new name can't be null or empty."
-        write_mock.assert_called_with(msg)
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(UpdateTeamController, 'put')
     @patch.object(UpdateTeamController, 'write')
     def test_handles_proper_update(self, write_mock, put_mock):
         response_mock = Mock(status_code=200)
         put_mock.return_value = response_mock
+
         self.ctrl.default()
+
         msg = "Updated 'new-team' team to 'new-name' in 'Target' target."
-        write_mock.assert_called_with(msg)
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
 
 class TestDeleteTeamController(TeamControllerTestBase):
@@ -241,7 +274,7 @@ class TestDeleteTeamController(TeamControllerTestBase):
         ask_mock.return_value = "nameless"
         delete_mock.return_value = Mock(status_code=200)
         self.ctrl.default()
-        delete_mock.assert_called_with("/teams/nameless")
+        delete_mock.assert_any_call("/teams/nameless")
         expect(stdout_mock.getvalue()).to_be_like(
             """
                 This operation will delete all projects and all tests of team 'nameless'.
@@ -258,7 +291,7 @@ class TestDeleteTeamController(TeamControllerTestBase):
         ask_mock.return_value = "nameless"
         delete_mock.return_value = Mock(status_code=403)
         self.ctrl.default()
-        delete_mock.assert_called_with("/teams/nameless")
+        delete_mock.assert_any_call("/teams/nameless")
         expect(stdout_mock.getvalue()).to_be_like(
             """
                 This operation will delete all projects and all tests of team 'nameless'.
@@ -275,7 +308,7 @@ class TestDeleteTeamController(TeamControllerTestBase):
         ask_mock.return_value = "nameless"
         delete_mock.return_value = Mock(status_code=404)
         self.ctrl.default()
-        delete_mock.assert_called_with("/teams/nameless")
+        delete_mock.assert_any_call("/teams/nameless")
         expect(stdout_mock.getvalue()).to_be_like(
             """
                 This operation will delete all projects and all tests of team 'nameless'.
@@ -298,7 +331,9 @@ class TestAddUserTeamController(TeamControllerTestBase):
         response_mock = Mock(status_code=403)
         patch_mock.return_value = response_mock
         self.ctrl.default()
-        write_mock.assert_called_with("Missing parameter user")
+
+        msg = "You are not authenticated. Please use 'wight login'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(TeamAddUserController, 'patch')
     @patch.object(TeamAddUserController, 'write')
@@ -306,7 +341,9 @@ class TestAddUserTeamController(TeamControllerTestBase):
         response_mock = Mock(status_code=404)
         patch_mock.return_value = response_mock
         self.ctrl.default()
-        write_mock.assert_called_with("Team 'awesome' does not exist in target 'Target'.")
+
+        msg = "Team 'awesome' does not exist in target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(TeamAddUserController, 'patch')
     @patch.object(TeamAddUserController, 'write')
@@ -314,7 +351,9 @@ class TestAddUserTeamController(TeamControllerTestBase):
         response_mock = Mock(status_code=401)
         patch_mock.return_value = response_mock
         self.ctrl.default()
-        write_mock.assert_called_with("You need to be the team owner or member to add users")
+
+        msg = "You need to be the team owner or member to add users."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(TeamAddUserController, 'patch')
     @patch.object(TeamAddUserController, 'write')
@@ -322,7 +361,8 @@ class TestAddUserTeamController(TeamControllerTestBase):
         response_mock = Mock(status_code=200)
         patch_mock.return_value = response_mock
         self.ctrl.default()
-        write_mock.assert_called_with("User 'Ryu@streetFighter.com' added to Team 'awesome'.")
+        msg = "User 'Ryu@streetFighter.com' added to Team 'awesome'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
 
 class TestRemoveUserTeamController(TeamControllerTestBase):
@@ -336,8 +376,11 @@ class TestRemoveUserTeamController(TeamControllerTestBase):
     def test_remove_user_without_user_parameter(self, write_mock, delete_mock):
         response_mock = Mock(status_code=403)
         delete_mock.return_value = response_mock
+
         self.ctrl.default()
-        write_mock.assert_called_with("Missing parameter user")
+
+        msg = "You are not authenticated. Please use 'wight login'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(TeamRemoveUserController, 'delete')
     @patch.object(TeamRemoveUserController, 'write')
@@ -345,15 +388,20 @@ class TestRemoveUserTeamController(TeamControllerTestBase):
         response_mock = Mock(status_code=404)
         delete_mock.return_value = response_mock
         self.ctrl.default()
-        write_mock.assert_called_with("Team 'awesome' does not exist in target 'Target'.")
+
+        msg = "Team 'awesome' does not exist in target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(TeamRemoveUserController, 'delete')
     @patch.object(TeamRemoveUserController, 'write')
     def test_remove_user_when_not_owner(self, write_mock, delete_mock):
         response_mock = Mock(status_code=401)
         delete_mock.return_value = response_mock
+
         self.ctrl.default()
-        write_mock.assert_called_with("You need to be the team owner or member to remove users")
+
+        msg = "You need to be the team owner or member to remove users."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(TeamRemoveUserController, 'delete')
     @patch.object(TeamRemoveUserController, 'write')
@@ -361,4 +409,6 @@ class TestRemoveUserTeamController(TeamControllerTestBase):
         response_mock = Mock(status_code=200)
         delete_mock.return_value = response_mock
         self.ctrl.default()
-        write_mock.assert_called_with("User 'Ryu@streetFighter.com' removed from Team 'awesome'.")
+
+        msg = "User 'Ryu@streetFighter.com' removed from Team 'awesome'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)

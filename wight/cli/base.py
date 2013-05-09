@@ -43,6 +43,7 @@ class WightBaseController(controller.CementBaseController):
         dim_red = "%s%s" % (Fore.RED, Style.DIM)
         dim_green = "%s%s" % (Fore.GREEN, Style.DIM)
 
+        self.title_color = bright_cyan
         self.text_color = dim_white
         self.success_text_color = bright_green
         self.error_text_color = dim_red
@@ -202,5 +203,11 @@ class ConnectedController():
             ex = exc_val
             self.controller.log.error(ex)
             target = self.controller.app.user_data.target
-            self.controller.write("The server did not respond. Check your connection with the target '%s'." % target)
+
+            self.controller.line_break()
+            self.controller.puterror("The server did not respond. Check your connection with the target '%s%s%s'." % (
+                self.controller.keyword_color, target, self.controller.reset_error
+            ))
+            self.controller.line_break()
+
             return True

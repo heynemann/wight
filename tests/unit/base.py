@@ -39,6 +39,12 @@ def focus(*args, **kwargs):
 
 
 class TestCase(test.CementTestCase):
+    def clean_calls(self):
+        self.calls_made = []
+
+    def record_calls(self, *args, **kw):
+        self.calls_made.append((args, kw))
+
     def make_controller(self, cls, app=None, *args, **kw):
         if app is None:
             app = self.make_app(argv=args)

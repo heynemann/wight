@@ -71,7 +71,7 @@ class TeamFactory(factory.Factory):
     @classmethod
     def add_projects(cls, team, number_of_projects):
         for i in range(number_of_projects):
-            team.projects.append(ProjectFactory.create(team=team))
+            team.projects.append(ProjectFactory.create(team=team, created_by=team.owner))
 
         team.save()
 

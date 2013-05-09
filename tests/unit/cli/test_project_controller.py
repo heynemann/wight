@@ -71,7 +71,8 @@ class TestCreateProjectController(ProjectControllerTestBase):
     def test_create_gets_server_error_and_notify(self, write_mock, post_mock):
         post_mock.side_effect = requests.ConnectionError
         self.ctrl.default()
-        write_mock.assert_called_with("The server did not respond. Check your connection with the target 'Target'.")
+        msg = "The server did not respond. Check your connection with the target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(CreateProjectController, 'post')
     @patch.object(CreateProjectController, 'write')

@@ -61,7 +61,8 @@ class TeamHandlerTest(FullTestCase):
         expect(loads(obj)).to_be_like({
             "name": team.name,
             "owner": self.user.email,
-            "members": []
+            "members": [],
+            "projects": []
         })
 
     def test_get_team_not_found(self):

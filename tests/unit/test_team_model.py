@@ -46,6 +46,7 @@ class TestTeamModel(ModelTestCase):
     def test_to_dict(self):
         team = TeamFactory.create()
         TeamFactory.add_members(team, 2)
+        TeamFactory.add_projects(team, 2)
 
         expect(team.to_dict()).to_be_like({
             "name": team.name,
@@ -53,6 +54,10 @@ class TestTeamModel(ModelTestCase):
             "members": [
                 team.members[0].email,
                 team.members[1].email,
+            ],
+            "projects": [
+                team.projects[0].to_dict(),
+                team.projects[1].to_dict(),
             ]
         })
 

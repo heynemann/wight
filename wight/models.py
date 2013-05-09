@@ -169,7 +169,8 @@ class Team(Document):
         return {
             "name": self.name,
             "owner": self.owner.email,
-            "members": [member.to_dict() for member in self.members]
+            "members": [member.to_dict() for member in self.members],
+            "projects": [project.to_dict() for project in self.projects]
         }
 
     @classmethod
@@ -207,3 +208,10 @@ class Project(EmbeddedDocument):
 
         # Updates date_modified field
         self.date_modified = datetime.datetime.now()
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "repository": self.repository,
+            "createdBy": self.created_by.email
+        }
