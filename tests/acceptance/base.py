@@ -60,9 +60,9 @@ class AcceptanceTest(PythonTestCase):
                 stdin = kw['stdin']
                 del kw['stdin']
 
-                result = python(ROOT_PATH, command, _in=stdin, *arguments, **kw)
+                result = python(ROOT_PATH, command, kw, _in=stdin, *arguments)
             else:
-                result = python(ROOT_PATH, command, *arguments, **kw)
+                result = python(ROOT_PATH, command, kw, *arguments)
         except sh.ErrorReturnCode_1:
             error = sys.exc_info()[1]
             assert False, "Running %s returned status code 1. The error was: %s" % (command, error.stderr)

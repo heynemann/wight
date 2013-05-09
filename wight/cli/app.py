@@ -16,6 +16,7 @@ from wight.cli.auth import AuthController
 from wight.cli.target import TargetSetController, TargetGetController
 from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, TeamAddUserController, DeleteTeamController
 from wight.cli.user import ShowUserController
+from wight.cli.project import CreateProjectController
 from wight.models import UserData
 
 
@@ -40,6 +41,7 @@ class WightApp(foundation.CementApp):
             DeleteTeamController,
             ShowUserController,
             TeamAddUserController,
+            CreateProjectController,
         ]
 
         for controller in self.controllers:

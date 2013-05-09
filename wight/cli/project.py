@@ -7,12 +7,8 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
-from json import loads
-
-import six
 
 from cement.core import controller
-from prettytable import PrettyTable
 
 from wight.cli.base import WightBaseController, ConnectedController
 
@@ -46,7 +42,12 @@ class CreateProjectController(WightBaseController):
             if response.status_code == 200:
                 self.log.info(log_message)
                 self.write(log_message)
+                return
             elif response.status_code == 409:
                 self.write("The project '%s' already exists in team '%s' at '%s'." % (name, team_name, target))
+                return
             elif response.status_code == 400:
                 self.write("Both name and repository are required in order to save a team.")
+                return
+
+            self.write("The project '%s' was not created! (API Result: '%s', Status Code: '%s'" % (name, response.content, response.status_code))
