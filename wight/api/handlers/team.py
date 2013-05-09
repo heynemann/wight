@@ -120,3 +120,36 @@ class TeamMembersHandler(BaseHandler):
         self.set_status(200)
         self.write("OK")
         self.finish()
+
+
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    @BaseHandler.team_owner
+    def delete(self, team):
+        put_arguments = parse_qs(self.request.body)
+        user_email = put_arguments.get(six.b("user"), None)
+
+        if user_email:
+            user_email = user_email[0]
+            if isinstance(user_email, six.binary_type):
+                user_email = user_email.decode('utf-8')
+
+            user = User.objects.filter(email=user_email).first()
+
+            if user is None or not user in team.members:
+                self.set_status(400)
+                self.write("User not found")
+                self.finish()
+                return
+
+        else:
+            self.set_status(400)
+            self.finish()
+            return
+
+        team.members.remove(user)
+        team.save()
+
+        self.set_status(200)
+        self.write("OK")
+        self.finish()

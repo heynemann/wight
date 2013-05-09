@@ -154,3 +154,29 @@ class TeamHandlerTest(FullTestCase):
 
         team = Team.objects.filter(name=team.name).first()
         expect(team).not_to_be_null()
+
+    def test_remove_user(self):
+        user = UserFactory.create()
+        user2 = UserFactory.create()
+        team = TeamFactory.create(owner=self.user, members=[user2])
+
+        response = self.delete("/teams/%s/members" % team.name, user=user2.email)
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+
+        team = Team.objects.filter(name=team.name).first()
+        expect(team).not_to_be_null()
+        expect(team.members).to_length(0)
+        expect(team.members).not_to_include(user)
+
+    def test_remove_user_that_does_not_belong_to_team(self):
+        user = UserFactory.create()
+        team = TeamFactory.create(owner=self.user)
+
+        response = self.delete("/teams/%s/members" % team.name, user=user.email)
+        expect(response.code).to_equal(400)
+        expect(response.body).to_equal("User not found")
+
+        team = Team.objects.filter(name=team.name).first()
+        expect(team).not_to_be_null()
+        expect(team.members).to_length(0)
