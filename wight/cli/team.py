@@ -36,16 +36,28 @@ class CreateTeamController(WightBaseController):
         self.load_conf()
         target = self.app.user_data.target
         name = self.arguments.team_name
-        log_message = "Created '%s' team in '%s' target." % (name, target)
+
+        log_message = "Created '%s%s%s' team in '%s%s%s' target." % (
+            self.keyword_color, name, self.reset_success,
+            self.keyword_color, target, self.reset_success
+        )
+
         with ConnectedController(self):
             response = self.post("/teams", {"name": name})
+
+            self.line_break()
+
             if response.status_code == 200:
-                self.log.info(log_message)
-                self.write(log_message)
+                self.putsuccess(log_message)
             elif response.status_code == 409:
-                self.write("The team '%s' already exists in target '%s'." % (name, target))
+                self.puterror("The team '%s%s%s' already exists in target '%s%s%s'." % (
+                    self.keyword_color, name, self.reset_error,
+                    self.keyword_color, target, self.reset_error
+                ))
             elif response.status_code == 400:
-                self.write("You should define a name for the team to be created.")
+                self.puterror("You should define a name for the team to be created.")
+
+            self.line_break()
 
 
 class ShowTeamController(WightBaseController):

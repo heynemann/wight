@@ -42,7 +42,12 @@ class TeamHandler(BaseHandler):
     @tornado.web.asynchronous
     @BaseHandler.authenticated
     def post(self, team_name):
-        name = self.get_argument("name")
+        name = self.get_argument("name").strip()
+
+        if not name.strip():
+            self.set_status(400)
+            self.finish()
+            return
 
         team = Team.create(name, owner=self.current_user)
 
