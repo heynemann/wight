@@ -8,8 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-from os.path import expanduser
-
 from cement.core import controller
 
 from wight.cli.base import WightBaseController
@@ -33,7 +31,12 @@ class TargetSetController(WightBaseController):
         self.load_conf()
 
         target = self.arguments.target
-        self.write("Setting target to '%s'." % target)
+        self.line_break()
+        self.putsuccess("Wight target set to '%s%s%s'. In order to login with wight, use '%swight login%s'." % (
+            self.keyword_color, target, self.reset_success,
+            self.commands_color, self.reset_success
+        ))
+        self.line_break()
 
         ud = UserData.load()
         if ud is None:

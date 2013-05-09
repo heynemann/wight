@@ -15,6 +15,7 @@ import getpass
 from cement.core import controller
 import requests
 from six.moves import input
+from colorama import Style, Fore
 
 from wight import __version__
 from wight.cli.config import Config
@@ -31,6 +32,38 @@ class WightBaseController(controller.CementBaseController):
 
         super(WightBaseController, self).__init__(*args, **kw)
         self.ignored += ['api']
+
+        bright_white = "%s%s" % (Fore.WHITE, Style.BRIGHT)
+        bright_yellow = "%s%s" % (Fore.YELLOW, Style.BRIGHT)
+        bright_cyan = "%s%s" % (Fore.CYAN, Style.BRIGHT)
+        bright_green = "%s%s" % (Fore.GREEN, Style.BRIGHT)
+        bright_magenta = "%s%s" % (Fore.MAGENTA, Style.BRIGHT)
+
+        dim_white = "%s%s" % (Fore.WHITE, Style.DIM)
+        dim_red = "%s%s" % (Fore.RED, Style.DIM)
+        dim_green = "%s%s" % (Fore.GREEN, Style.DIM)
+
+        self.text_color = dim_white
+        self.success_text_color = bright_green
+        self.error_text_color = dim_red
+        self.commands_color = bright_yellow
+        self.keyword_color = bright_magenta
+
+        self.reset = "%s%s" % (Style.RESET_ALL, self.text_color)
+        self.reset_success = "%s%s" % (Style.RESET_ALL, self.success_text_color)
+        self.reset_error = "%s%s" % (Style.RESET_ALL, self.error_text_color)
+
+    def puts(self, message):
+        self.write("%s%s%s" % (self.reset, message, self.reset))
+
+    def putsuccess(self, message):
+        self.write("%s%s%s" % (self.reset_success, message, self.reset_success))
+
+    def puterror(self, message):
+        self.write("%s%s%s" % (self.reset_error, message, self.reset_error))
+
+    def line_break(self):
+        self.write("")
 
     def _parse_args(self):
         super(WightBaseController, self)._parse_args()

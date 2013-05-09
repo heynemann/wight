@@ -9,6 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from cement.core import foundation, handler
+from colorama import init
 
 from wight.cli.base import WightDefaultController
 from wight.cli.schedule import ScheduleController
@@ -28,6 +29,7 @@ class WightApp(foundation.CementApp):
     def __init__(self, label=None, **kw):
         super(WightApp, self).__init__(**kw)
         self.user_data = UserData.load()
+        init(autoreset=True)
 
     def register_controllers(self):
         self.controllers = [
