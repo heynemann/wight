@@ -20,7 +20,7 @@ class TestTeam(AcceptanceTest):
     def test_can_create_team(self):
         team_name = "test-create-team"
 
-        result = self.execute("create-team", team_name)
+        result = self.execute("team-create", team_name)
         expect(result).to_equal("Created 'test-create-team' team in '%s' target." % self.target)
 
         team = Team.objects.filter(name=team_name).first()
@@ -29,7 +29,7 @@ class TestTeam(AcceptanceTest):
     def test_can_show_team(self):
         team = TeamFactory.create(owner=self.user)
 
-        result = self.execute("show-team", team.name)
+        result = self.execute("team-show", team.name)
         expect(result).to_be_like("""
         %s
         %s
@@ -45,7 +45,7 @@ class TestTeam(AcceptanceTest):
     def test_can_update_team(self):
         team = TeamFactory.create(owner=self.user)
 
-        result = self.execute("update-team", team.name, "new-team-name")
+        result = self.execute("team-update", team.name, "new-team-name")
         expect(result).to_equal("Updated '%s' team to 'new-team-name' in '%s' target." % (team.name, self.target))
 
         team = Team.objects.filter(name="new-team-name").first()
@@ -64,7 +64,7 @@ class TestTeam(AcceptanceTest):
     def test_can_delete_team(self):
         team = TeamFactory.create(owner=self.user)
 
-        result = self.execute("delete-team", team.name, stdin=[team.name])
+        result = self.execute("team-delete", team.name, stdin=[team.name])
         expect(result).to_be_like(
             """
                 This operation will delete all projects and all tests of team '%s'.

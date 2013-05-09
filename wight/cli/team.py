@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+
 from json import loads
 
 import six
@@ -19,7 +20,7 @@ from wight.cli.base import WightBaseController, ConnectedController
 
 class CreateTeamController(WightBaseController):
     class Meta:
-        label = 'create-team'
+        label = 'team-create'
         stack_on = 'base'
         description = 'Create a team.'
         config_defaults = dict()
@@ -29,7 +30,7 @@ class CreateTeamController(WightBaseController):
             (['team_name'], dict(help='The name of the team to be created')),
         ]
 
-    @controller.expose(hide=False, aliases=["create-team"], help='Create a team.')
+    @controller.expose(hide=False, aliases=["team-create"], help='Create a team.')
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
@@ -49,7 +50,7 @@ class CreateTeamController(WightBaseController):
 
 class ShowTeamController(WightBaseController):
     class Meta:
-        label = 'show-team'
+        label = 'team-show'
         stack_on = 'base'
         description = 'Show the registered team information.'
         config_defaults = dict()
@@ -59,7 +60,7 @@ class ShowTeamController(WightBaseController):
             (['team_name'], dict(help='The name of the team to be showed')),
         ]
 
-    @controller.expose(hide=False, aliases=["show-team"], help='Show the registered team information.')
+    @controller.expose(hide=False, aliases=["team-show"], help='Show the registered team information.')
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
@@ -92,7 +93,7 @@ class ShowTeamController(WightBaseController):
 
 class UpdateTeamController(WightBaseController):
     class Meta:
-        label = 'update-team'
+        label = 'team-update'
         stack_on = 'base'
         description = 'Updates a team.'
         config_defaults = dict()
@@ -103,7 +104,7 @@ class UpdateTeamController(WightBaseController):
             (['new_name'], dict(help='The new name for the team')),
         ]
 
-    @controller.expose(hide=False, aliases=["update-team"], help='Updates a team.')
+    @controller.expose(hide=False, aliases=["team-update"], help='Updates a team.')
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
@@ -127,7 +128,7 @@ class UpdateTeamController(WightBaseController):
 
 class DeleteTeamController(WightBaseController):
     class Meta:
-        label = 'delete-team'
+        label = 'team-delete'
         stack_on = 'base'
         description = 'Delete a team.'
         config_defaults = dict()
@@ -137,7 +138,7 @@ class DeleteTeamController(WightBaseController):
             (['team_name'], dict(help='The name of the team to be deleted')),
         ]
 
-    @controller.expose(hide=False, aliases=["delete-team"], help='Delete a team.')
+    @controller.expose(hide=False, aliases=["team-delete"], help='Delete a team.')
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
