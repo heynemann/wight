@@ -99,7 +99,7 @@ class TestUpdateProjectController(ProjectControllerTestBase):
         self.controller_kwargs = {
             "team": self.team.name,
             "project_name": self.project.name,
-            "name": "new name",
+            "new_name": "new name",
             "repo": "repo"
         }
         self.controller_class = UpdateProjectController
@@ -117,47 +117,43 @@ class TestUpdateProjectController(ProjectControllerTestBase):
 
     @patch.object(UpdateProjectController, 'put')
     @patch.object(UpdateProjectController, 'write')
-    def test_handles_project_not_found(self, write_mock, put_mock):
+    def test_handles_not_found(self, write_mock, put_mock):
         response_mock = Mock(status_code=404)
         put_mock.return_value = response_mock
         self.ctrl.default()
         msg = "The team '%s' or the project '%s' does not exists in target '%s'." % (self.team.name, self.project.name, self.ctrl.app.user_data.target)
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
+    @patch.object(UpdateProjectController, 'put')
+    @patch.object(UpdateProjectController, 'write')
+    def test_update_gets_server_error_and_notify(self, write_mock, put_mock):
+        put_mock.side_effect = requests.ConnectionError
+        self.ctrl.default()
+        msg = "The server did not respond. Check your connection with the target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
-    # @patch.object(CreateProjectController, 'post')
-    # def test_create_project(self, post_mock):
-    #     self.ctrl.default()
-    #     post_mock.assert_called_with('/teams/%s/projects/' % self.controller_kwargs['team'], {'name': self.controller_kwargs['project_name'], 'repository': self.controller_kwargs['repo']})
-    #
-    # @patch.object(CreateProjectController, 'post')
-    # @patch.object(CreateProjectController, 'write')
-    # def test_create_project_notify_user(self, write_mock, post_mock):
-    #     response = Mock(status_code=200)
-    #     post_mock.return_value = response
-    #     self.ctrl.default()
-    #     write_mock.assert_called_with("Created '%s' project in '%s' team at 'Target'." % (self.controller_kwargs['project_name'], self.controller_kwargs['team']))
-    #
-    # @patch.object(CreateProjectController, 'post')
-    # @patch.object(CreateProjectController, 'write')
-    # def test_create_gets_server_error_and_notify(self, write_mock, post_mock):
-    #     post_mock.side_effect = requests.ConnectionError
-    #     self.ctrl.default()
-    #     msg = "The server did not respond. Check your connection with the target 'Target'."
-    #     expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
-    #
-    # @patch.object(CreateProjectController, 'post')
-    # @patch.object(CreateProjectController, 'write')
-    # def test_try_to_create_a_project_that_already_exists(self, write_mock, post_mock):
-    #     response = Mock(status_code=409)
-    #     post_mock.return_value = response
-    #     self.ctrl.default()
-    #     write_mock.assert_called_with("The project '%s' already exists in team '%s' at 'Target'." % (self.controller_kwargs['project_name'], self.controller_kwargs['team']))
-    #
-    # @patch.object(CreateProjectController, 'post')
-    # @patch.object(CreateProjectController, 'write')
-    # def test_try_to_create_a_team_with_invalid_arguments(self, write_mock, post_mock):
-    #     response = Mock(status_code=400)
-    #     post_mock.return_value = response
-    #     self.ctrl.default()
-    #     write_mock.assert_called_with("Both name and repository are required in order to save a team.")
+    @patch.object(UpdateProjectController, 'put')
+    @patch.object(UpdateProjectController, 'write')
+    def test_handle_not_team_member(self, write_mock, put_mock):
+        response_mock = Mock(status_code=403)
+        put_mock.return_value = response_mock
+        self.ctrl.default()
+        msg = "You are not member of the team for the project '%s' and cannot update it." % self.project.name
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
+
+    @patch.object(UpdateProjectController, 'put')
+    def test_update_project(self, put_mock):
+        self.ctrl.default()
+        put_mock.assert_called_with(
+            '/teams/%s/projects/%s' % (self.team.name, self.project.name),
+            {'name': "new name", 'repository': "repo"}
+        )
+
+    @patch.object(UpdateProjectController, 'put')
+    @patch.object(UpdateProjectController, 'write')
+    def test_create_project_notify_user(self, write_mock, put_mock):
+        response = Mock(status_code=200)
+        put_mock.return_value = response
+        self.ctrl.default()
+        msg = "Updated 'new name' project in '%s' team at 'Target'." % self.team.name
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
