@@ -21,6 +21,7 @@ tests_require = [
     'ipdb',
     'sh',
     'factory_boy',
+    'coveralls',
 ]
 
 setup(
