@@ -24,7 +24,7 @@ from wight.api.handlers.healthcheck import HealthCheckHandler
 from wight.api.handlers.authentication import AuthenticationHandler, AuthenticationWithTokenHandler, RegisterUserHandler
 from wight.api.handlers.team import TeamHandler, TeamMembersHandler
 from wight.api.handlers.project import ProjectHandler
-from wight.api.handlers.user import UserHandler
+from wight.api.handlers.user import UserHandler, UserPasswordHandler
 
 #class FakeSentry(object):
     #def __init__(self, dsn):
@@ -49,6 +49,7 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/teams/(?P<team_name>.+?)/members/?', TeamMembersHandler, name='team_members'),
         url(r'/teams/?(?P<team_name>.+?)?', TeamHandler, name='team'),
         url(r'/user/info/?(.+?)?', UserHandler, name='user_info'),
+        url(r'/user/change-pass/?', UserPasswordHandler, name='change_password'),
     ]
 
     logging.info("Connecting to redis on {0}:{1}/{2}".format(self.config.REDIS_HOST, self.config.REDIS_PORT, self.config.REDIS_DB_COUNT))

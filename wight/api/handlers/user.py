@@ -11,6 +11,7 @@
 import tornado.web
 from json import dumps
 
+from wight.models import User
 from wight.api.handlers.base import BaseHandler
 from wight.models import Team
 from mongoengine import Q
@@ -31,3 +32,21 @@ class UserHandler(BaseHandler):
         self.content_type = 'application/json'
         self.write(dumps(user))
         self.finish()
+
+
+class UserPasswordHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    def post(self):
+        old_pass = self.get_argument("old_pass")
+        new_pass = self.get_argument("new_pass")
+
+        user = User.objects.filter(token=self.request.headers['X-Wight-Auth']).first()
+        if user.password != User.get_hash_for(user.salt, old_pass):
+            self.send_error(status_code=403)
+        else:
+            user.salt = None
+            user.password = new_pass
+            user.save()
+            self.finish()
