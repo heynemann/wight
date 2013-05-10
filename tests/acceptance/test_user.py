@@ -30,10 +30,10 @@ class TestUser(AcceptanceTest):
         t2 = TeamFactory.create(members=[self.user])
         result = self.execute("user-info")
         expect(result).to_be_like("""User: %s
-          +--------+--------+
-          | team   | role   |
-          +--------+--------+
-          | %s     | owner  |
-          | %s     | member |
-          +--------+--------+
+          +---------+--------+
+          | team    | role   |
+          +---------+--------+
+          | %s      | owner  |
+          | %s      | member |
+          +---------+--------+
         """ % (self.user.email, t1.name, t2.name))

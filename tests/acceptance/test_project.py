@@ -15,7 +15,7 @@ from tests.acceptance.base import AcceptanceTest
 from tests.factories import TeamFactory
 
 
-class TestProject(AcceptanceTest):
+class TestCreateProject(AcceptanceTest):
 
     def test_can_create_project(self):
         team = TeamFactory.create(owner=self.user)
@@ -23,7 +23,9 @@ class TestProject(AcceptanceTest):
         repo = "repo"
 
         result = self.execute("project-create", team=team.name, project_name=project_name, repo=repo)
-        expect(result).to_be_like("Created '%s' project in '%s' team at '%s'." % (project_name, team.name, self.target))
+        expect(result).to_be_like(
+            "Created '%s' project in '%s' team at '%s'." % (project_name, team.name, self.target)
+        )
 
         team = Team.objects.filter(name=team.name).first()
         expect(team).not_to_be_null()
@@ -32,52 +34,53 @@ class TestProject(AcceptanceTest):
         expect(team.projects[0].name).to_equal(project_name)
         expect(team.projects[0].repository).to_equal(repo)
 
-    #def test_can_show_team(self):
-        #team = TeamFactory.create(owner=self.user)
 
-        #result = self.execute("team-show", team.name)
-        #expect(result).to_be_like("""
-        #%s
-        #%s
+class TestUpdateProject(AcceptanceTest):
+    def setUp(self):
+        super(TestUpdateProject, self).setUp()
+        self.team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_projects(self.team, 1)
+        self.project = self.team.projects[0]
 
-        #Team members:
-        #+--------------------------------+-------+
-        #| user                           |  role |
-        #+--------------------------------+-------+
-        #| %s                             | owner |
-        #+--------------------------------+-------+
-        #""" % (team.name, "=" * len(team.name), self.username))
+    def test_can_update_project(self):
+        result = self.execute(
+            "project-update",
+            team=self.team.name,
+            project=self.project.name,
+            project_name="new-project-name",
+            repo="new-repo"
+        )
+        expect(result).to_be_like(
+            "Updated '%s' project in '%s' team at '%s'." % ("new-project-name", self.team.name, self.target)
+        )
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team.projects[0].name).to_equal("new-project-name")
+        expect(team.projects[0].repository).to_equal("new-repo")
 
-    #def test_can_update_team(self):
-        #team = TeamFactory.create(owner=self.user)
+    def test_can_update_project_with_name_only(self):
+        result = self.execute(
+            "project-update",
+            team=self.team.name,
+            project=self.project.name,
+            project_name="new-project-name"
+        )
+        expect(result).to_be_like(
+            "Updated '%s' project in '%s' team at '%s'." % ("new-project-name", self.team.name, self.target)
+        )
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team.projects[0].name).to_equal("new-project-name")
+        expect(team.projects[0].repository).to_equal(self.project.repository)
 
-        #result = self.execute("team-update", team.name, "new-team-name")
-        #expect(result).to_equal("Updated '%s' team to 'new-team-name' in '%s' target." % (team.name, self.target))
-
-        #team = Team.objects.filter(name="new-team-name").first()
-        #expect(team).not_to_be_null()
-
-    #def test_can_add_user(self):
-        #team = TeamFactory.create(owner=self.user)
-        #user = UserFactory.create()
-
-        #result = self.execute("team-adduser", team.name, user.email)
-        #expect(result).to_equal("User '%s' added to Team '%s'." % (user.email, team.name))
-
-        #team = Team.objects.filter(name=team.name).first()
-        #expect(team.members).to_include(user)
-
-    #def test_can_delete_team(self):
-        #team = TeamFactory.create(owner=self.user)
-
-        #result = self.execute("team-delete", team.name, stdin=[team.name])
-        #expect(result).to_be_like(
-            #"""
-                #This operation will delete all projects and all tests of team '%s'.
-                #You have to retype the team name to confirm deletion.
-
-                #Team name:  Deleted '%s' team, all its projects and tests in '%s' target.
-            #""" % (team.name, team.name, self.target))
-
-        #team = Team.objects.filter(name=team.name).first()
-        #expect(team).to_be_null()
+    def test_can_update_project_with_repository_only(self):
+        result = self.execute(
+            "project-update",
+            team=self.team.name,
+            project=self.project.name,
+            repo="new-repo"
+        )
+        expect(result).to_be_like(
+            "Updated '%s' project in '%s' team at '%s'." % (self.project.name, self.team.name, self.target)
+        )
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team.projects[0].name).to_equal(self.project.name)
+        expect(team.projects[0].repository).to_equal("new-repo")

@@ -57,15 +57,15 @@ class UpdateProjectController(WightBaseController):
     class Meta:
         label = 'project-update'
         stack_on = 'base'
-        description = 'Updatesd a project.'
+        description = 'Updates a project.'
         config_defaults = dict()
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
             (['--team'], dict(help='Name of the team that owns this project.', required=True)),
-            (['--project-name'], dict(help='Name of the project to be updated.', required=True)),
-            (['--new-name'], dict(help='Name to update for this project', required=True)),
-            (['--repo'], dict(help='Git repository to update for this project.', required=True)),
+            (['--project'], dict(help='Name of the project to be updated.', required=True)),
+            (['--project_name'], dict(help='Name to update for this project', required=False)),
+            (['--repo'], dict(help='Git repository to update for this project.', required=False)),
         ]
 
     @controller.expose(hide=False, aliases=["project-update"], help='Updates a project.')
@@ -74,14 +74,15 @@ class UpdateProjectController(WightBaseController):
         self.load_conf()
         target = self.app.user_data.target
         team_name = self.arguments.team
-        project_name = self.arguments.project_name
-        name = self.arguments.new_name
+        project_name = self.arguments.project
+        name = self.arguments.project_name
         repo = self.arguments.repo
 
         with ConnectedController(self):
             response = self.put("/teams/%s/projects/%s" % (team_name, project_name), {"name": name, "repository": repo})
             self.line_break()
             if response.status_code == 200:
+                name = name or project_name
                 self.putsuccess("Updated '%s%s%s' project in '%s%s%s' team at '%s%s%s'." % (
                     self.keyword_color, name, self.reset_success,
                     self.keyword_color, team_name, self.reset_success,
