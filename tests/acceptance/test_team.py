@@ -34,13 +34,13 @@ class TestTeam(AcceptanceTest):
         %s
         %s
 
-        Team members:
         +--------------------------------+-------+
         | user                           |  role |
         +--------------------------------+-------+
         | %s                             | owner |
         +--------------------------------+-------+
-        """ % (team.name, "=" * len(team.name), self.username))
+        This team has no projects. To create a project use 'wight project-create'.
+        """ % (team.name, "-" * len(team.name), self.username))
 
     def test_can_update_team(self):
         team = TeamFactory.create(owner=self.user)

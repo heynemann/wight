@@ -18,13 +18,8 @@ import tornado.wsgi
 from tornado.web import url
 #from raven import Client
 
-#from wight.api.utils.redis_session import RedisSessionStore
-#from wight.api.cache import RedisCache
-from wight.api.handlers.healthcheck import HealthCheckHandler
-from wight.api.handlers.authentication import AuthenticationHandler, AuthenticationWithTokenHandler, RegisterUserHandler
-from wight.api.handlers.team import TeamHandler, TeamMembersHandler
-from wight.api.handlers.project import ProjectHandler
-from wight.api.handlers.user import UserHandler, UserPasswordHandler
+from wight.web.handlers.healthcheck import HealthCheckHandler
+from wight.web.handlers.report import ReportHandler
 
 #class FakeSentry(object):
     #def __init__(self, dsn):
@@ -36,20 +31,15 @@ from wight.api.handlers.user import UserHandler, UserPasswordHandler
 
 
 def configure_app(self, config=None, log_level='INFO', debug=False, static_path=None):
-    static_path = abspath(join(dirname(__file__), 'static'))
+    if static_path is None:
+        static_path = abspath(join(dirname(__file__), 'static'))
+    template_path = abspath(join(dirname(__file__), 'templates'))
 
     self.config = config
 
     handlers = [
         url(r'/healthcheck(?:/|\.html)?', HealthCheckHandler, name="healthcheck"),
-        url(r'/auth/user/?', AuthenticationHandler, name="auth_user"),
-        url(r'/auth/token/?', AuthenticationWithTokenHandler, name="auth_token"),
-        url(r'/auth/register/?', RegisterUserHandler, name="register_user"),
-        url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)?', ProjectHandler, name='team_projects'),
-        url(r'/teams/(?P<team_name>.+?)/members/?', TeamMembersHandler, name='team_members'),
-        url(r'/teams/?(?P<team_name>.+?)?', TeamHandler, name='team'),
-        url(r'/user/info/?(.+?)?', UserHandler, name='user_info'),
-        url(r'/user/change-pass/?', UserPasswordHandler, name='change_password'),
+        url(r'/report/(?P<report_hash>.+?)(?:/|\.html)?', ReportHandler, name="report"),
     ]
 
     logging.info("Connecting to redis on {0}:{1}/{2}".format(self.config.REDIS_HOST, self.config.REDIS_PORT, self.config.REDIS_DB_COUNT))
@@ -83,7 +73,8 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
     options = {
         "cookie_secret": self.config.COOKIE_SECRET,
         "static_path": static_path,
-        "static_url_prefix": self.config.STATIC_URL
+        "static_url_prefix": self.config.STATIC_URL,
+        "template_path": template_path
     }
 
     if debug:
@@ -93,8 +84,8 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
     return handlers, options
 
 
-class WightApp(tornado.web.Application):
+class WightWebApp(tornado.web.Application):
 
     def __init__(self, config=None, log_level='INFO', debug=False, static_path=None):
         handlers, options = configure_app(self, config, log_level, debug, static_path)
-        super(WightApp, self).__init__(handlers, **options)
+        super(WightWebApp, self).__init__(handlers, **options)

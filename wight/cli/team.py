@@ -72,6 +72,36 @@ class ShowTeamController(WightBaseController):
             (['team_name'], dict(help='The name of the team to be showed')),
         ]
 
+    def __print_members(self, owner, members):
+        headers = [
+            "%suser%s" % (self.commands_color, self.reset),
+            "%srole%s" % (self.commands_color, self.reset)
+        ]
+        members_table = PrettyTable(headers)
+
+        members_table.align[headers[0]] = "l"
+        members_table.align[headers[1]] = "l"
+        members_table.add_row([owner, "owner"])
+        for member in members:
+            members_table.add_row([member, "member"])
+        self.puts(members_table)
+
+    def __print_projects(self, projects):
+        headers = [
+            "%sproject name%s" % (self.commands_color, self.reset),
+            "%srepository%s" % (self.commands_color, self.reset),
+            "%screated by%s" % (self.commands_color, self.reset)
+        ]
+        members_table = PrettyTable(headers)
+
+        members_table.align[headers[0]] = "l"
+        members_table.align[headers[1]] = "l"
+        members_table.align[headers[2]] = "l"
+
+        for project in projects:
+            members_table.add_row([project['name'], project['repository'], project['createdBy']])
+        self.puts(members_table)
+
     @controller.expose(hide=False, aliases=["team-show"], help='Show the registered team information.')
     @WightBaseController.authenticated
     def default(self):
@@ -81,26 +111,34 @@ class ShowTeamController(WightBaseController):
         with ConnectedController(self):
             response = self.get("/teams/%s" % name)
             if response.status_code == 200:
-                content = response.content
-                self.write("")
-                self.write(name)
-                self.write("=" * len(name))
-                self.write("")
-                self.write("Team members:")
+                self.line_break()
+                self.puts("%s%s" % (self.title_color, name))
+                self.puts("-" * len(name))
+                self.line_break()
 
+                content = response.content
                 if isinstance(content, six.binary_type):
                     content = content.decode('utf-8')
                 team_data = loads(content)
 
-                members_table = PrettyTable(["user", "role"])
-                members_table.align["user"] = "l"
-                members_table.add_row([team_data["owner"], "owner"])
-                for member in team_data["members"]:
-                    members_table.add_row([member, "member"])
-                self.write(members_table)
-                self.write("")
+                self.__print_members(team_data['owner'], team_data['members'])
+
+                self.line_break()
+                if 'projects' in team_data and team_data['projects']:
+                    self.__print_projects(team_data['projects'])
+                else:
+                    self.puterror("This team has no projects. To create a project use '%swight project-create%s'." % (
+                        self.commands_color, self.reset_error
+                    ))
+
+                self.line_break()
             elif response.status_code == 404:
-                self.write("The team '%s' does not exists in target '%s'." % (name, target))
+                self.line_break()
+                self.puterror("The team '%s%s%s' does not exists in target '%s%s%s'." % (
+                    self.keyword_color, name, self.reset_error,
+                    self.keyword_color, target, self.reset_error)
+                )
+                self.line_break()
 
 
 class UpdateTeamController(WightBaseController):
@@ -123,19 +161,31 @@ class UpdateTeamController(WightBaseController):
         target = self.app.user_data.target
         name = self.arguments.team_name
         new_name = self.arguments.new_name
-        log_message = "Updated '%s' team to '%s' in '%s' target." % (name, new_name, target)
+        log_message = "Updated '%s%s%s' team to '%s%s%s' in '%s%s%s' target." % (
+            self.keyword_color, name, self.reset_success,
+            self.keyword_color, new_name, self.reset_success,
+            self.keyword_color, target, self.reset_success
+        )
 
         with ConnectedController(self):
             response = self.put("/teams/%s" % name, {"name": new_name})
+
+            self.line_break()
             if response.status_code == 200:
-                self.log.info(log_message)
-                self.write(log_message)
+                self.putsuccess(log_message)
             elif response.status_code == 403:
-                self.write("You are not the owner of team '%s' in target '%s' (which means you can't update it)." % (name, target))
+                self.puterror("You are not the owner of team '%s%s%s' in target '%s%s%s' (which means you can't update it)." % (
+                    self.keyword_color, name, self.reset_error,
+                    self.keyword_color, target, self.reset_error
+                ))
             elif response.status_code == 404:
-                self.write("Team '%s' does not exist in target '%s'." % (name, target))
+                self.puterror("Team '%s%s%s' does not exist in target '%s%s%s'." % (
+                    self.keyword_color, name, self.reset_error,
+                    self.keyword_color, target, self.reset_error
+                ))
             elif response.status_code == 400:
-                self.write("The team's new name can't be null or empty.")
+                self.puterror("The team's new name can't be null or empty.")
+            self.line_break()
 
 
 class DeleteTeamController(WightBaseController):
@@ -200,14 +250,29 @@ class TeamAddUserController(WightBaseController):
 
         with ConnectedController(self):
             response = self.patch("/teams/%s/members" % name, {"user": user_email})
+
+            self.line_break()
+
             if response.status_code == 200:
-                self.write("User '%s' added to Team '%s'." % (user_email, name))
+                self.putsuccess("User '%s%s%s' added to Team '%s%s%s'." % (
+                    self.keyword_color, user_email, self.reset_success,
+                    self.keyword_color, name, self.reset_success
+                ))
             elif response.status_code == 403:
-                self.write("Missing parameter user")
+                self.puterror("You are not authenticated. Please use '%swight login%s'." % (
+                    self.commands_color, self.reset_error
+                ))
             elif response.status_code == 404:
-                self.write("Team '%s' does not exist in target '%s'." % (name, target))
+                self.puterror("Team '%s%s%s' does not exist in target '%s%s%s'." % (
+                    self.keyword_color, name, self.reset_error,
+                    self.keyword_color, target, self.reset_error
+                ))
             elif response.status_code == 401:
-                self.write("You need to be the team owner or member to add users")
+                self.puterror("You need to be the team owner or member to add users.")
+            elif response.status_code == 409:
+                self.puterror(response.content)
+
+            self.line_break()
 
 
 class TeamRemoveUserController(WightBaseController):
@@ -233,11 +298,24 @@ class TeamRemoveUserController(WightBaseController):
 
         with ConnectedController(self):
             response = self.delete("/teams/%s/members" % name, {"user": user_email})
+
+            self.line_break()
+
             if response.status_code == 200:
-                self.write("User '%s' removed from Team '%s'." % (user_email, name))
+                self.putsuccess("User '%s%s%s' removed from Team '%s%s%s'." % (
+                    self.keyword_color, user_email, self.reset_success,
+                    self.keyword_color, name, self.reset_success
+                ))
             elif response.status_code == 403:
-                self.write("Missing parameter user")
+                self.puterror("You are not authenticated. Please use '%swight login%s'." % (
+                    self.commands_color, self.reset_error
+                ))
             elif response.status_code == 404:
-                self.write("Team '%s' does not exist in target '%s'." % (name, target))
+                self.puterror("Team '%s%s%s' does not exist in target '%s%s%s'." % (
+                    self.keyword_color, name, self.reset_error,
+                    self.keyword_color, target, self.reset_error
+                ))
             elif response.status_code == 401:
-                self.write("You need to be the team owner or member to remove users")
+                self.puterror("You need to be the team owner or member to remove users.")
+
+            self.line_break()

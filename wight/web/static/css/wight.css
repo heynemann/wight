@@ -1,0 +1,35 @@
+body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+.hero-unit p {
+    margin-top: 15px;
+}
+
+.hero-unit p small {
+    display: block;
+    margin-top: -20px;
+}
+
+.totals li,
+.stats li {
+    margin-top: 10px;
+}
+
+.totals li i,
+.stats li i {
+    margin-right: 2px;
+}
+
+.page-stats svg,
+.test-stats svg,
+.request-stats svg {
+    height: 400px;
+}
+
+.test-result-table {
+    margin-top: 10px;
+    margin-bottom: 60px;
+    margin-left: 60px;
+}

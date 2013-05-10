@@ -17,9 +17,13 @@ install:
   - sudo apt-get install -y redis-server
 
   # install python requirements
+  - pip install coveralls
   - pip install -e .[tests]
 
 script:
     # finally run tests
     - make ci-test
     - make acc
+
+after_success:
+  - coveralls
