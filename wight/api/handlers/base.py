@@ -67,6 +67,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def current_user(self):
+        if hasattr(self, '_current_user') and self._current_user is not None:
+            return self._current_user
+
         if not 'X-Wight-Auth' in self.request.headers:
             return None
 
@@ -79,5 +82,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if user.token_expiration < datetime.now():
             return None
+
+        self._current_user = user
 
         return user
