@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from mongoengine import DoesNotExist
 import six
 
 try:
@@ -57,7 +58,12 @@ class ProjectHandler(BaseHandler):
             repository = repository[0]
             if isinstance(repository, six.binary_type):
                 repository = repository.decode('utf-8')
-        team.update_project(project_name, name, repository)
-        self.set_status(200)
-        self.write("OK")
+        try:
+            team.update_project(project_name, name, repository)
+            self.set_status(200)
+            self.write("OK")
+        except DoesNotExist:
+            self.set_status(404)
+            self.write("Project with name '%s' was not found." % project_name)
+
         self.finish()

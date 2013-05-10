@@ -153,6 +153,11 @@ class UpdateTeamProjectTest(FullTestCase):
         expect(team.projects[0].name).to_equal("test")
         expect(team.projects[0].repository).to_equal(self.project.repository)
 
-    def test_cant_updte_project_for_invalid_team(self):
+    def test_cant_update_project_for_invalid_team(self):
         response = self.put("/teams/invalid-team/projects/%s" % self.project.name, name="test")
         expect(response.code).to_equal(404)
+
+    def test_cant_update_a_non_existing_project(self):
+        response = self.put("/teams/%s/projects/non_ecxists_project" % self.team.name, name="test")
+        expect(response.code).to_equal(404)
+        expect(response.body).to_equal("Project with name 'non_ecxists_project' was not found.")

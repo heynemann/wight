@@ -19,8 +19,8 @@ from uuid import uuid4
 import six
 from mongoengine import (
     Document, EmbeddedDocument,  # documents
-    UUIDField, StringField, DateTimeField, ListField, ReferenceField, EmbeddedDocumentField  # fields
-)
+    UUIDField, StringField, DateTimeField, ListField, ReferenceField, EmbeddedDocumentField, # fields
+    DoesNotExist)
 from mongoengine.queryset import NotUniqueError
 
 
@@ -192,13 +192,17 @@ class Team(Document):
         self.save()
 
     def update_project(self, project_name, new_name, new_repository):
+        project_exists = False
         for project in self.projects:
             if project.name == project_name:
-                if new_name:
-                    project.name = new_name
-                if new_repository:
-                    project.repository = new_repository
-        self.save()
+                project_exists = True
+                project.name = new_name if new_name else project.name
+                project.repository = new_repository if new_repository else project.repository
+                break
+        if project_exists:
+            self.save()
+        else:
+            raise DoesNotExist("Project with name '%s' was not found." % project_name)
 
 
 class Project(EmbeddedDocument):
