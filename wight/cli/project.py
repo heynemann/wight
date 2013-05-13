@@ -127,7 +127,10 @@ class DeleteProjectController(WightBaseController):
         project_name = self.arguments.project
 
         self.line_break()
-        self.write("This operation will delete all tests of the project '%s'." % project_name)
+        self.write(
+            "This operation will delete the project '%s%s%s' and all its tests." %
+            (self.keyword_color, project_name, self.reset_error)
+        )
         confirmation = self.ask_for("%sAre you sure you want to delete project '%s%s%s'? [%sy/n%s]" % (
             self.reset, self.keyword_color, project_name, self.reset_error, self.keyword_color, self.reset)
         )

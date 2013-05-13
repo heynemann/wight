@@ -179,7 +179,7 @@ class TestDeleteProjectController(ProjectControllerTestBase):
         self.ctrl.default()
         expect(stdout_mock.getvalue()).to_be_like(
             """
-            This operation will delete all tests of the project '%s'.
+            This operation will delete the project '%s' and all its tests.
             """ % self.project.name
         )
         ask_mock.called_with("Are you sure you want to delete project '%s'? [y/n]" % self.project.name)
@@ -191,7 +191,7 @@ class TestDeleteProjectController(ProjectControllerTestBase):
         self.ctrl.default()
         expect(stdout_mock.getvalue()).to_be_like(
             """
-            This operation will delete all tests of the project '%s'.
+            This operation will delete the project '%s' and all its tests.
             Aborting...
             """ % self.project.name
         )
@@ -206,7 +206,7 @@ class TestDeleteProjectController(ProjectControllerTestBase):
         delete_mock.assert_any_call("/teams/%s/projects/%s" % (self.team.name, self.project.name))
         expect(stdout_mock.getvalue()).to_be_like(
             """
-            This operation will delete all tests of the project '%s'.
+            This operation will delete the project '%s' and all its tests.
             Deleted '%s' project and tests for team '%s' in 'Target' target.
             """ % (self.project.name, self.project.name, self.team.name)
         )
@@ -221,7 +221,7 @@ class TestDeleteProjectController(ProjectControllerTestBase):
         delete_mock.assert_any_call("/teams/%s/projects/%s" % (self.team.name, self.project.name))
         expect(stdout_mock.getvalue()).to_be_like(
             """
-            This operation will delete all tests of the project '%s'.
+            This operation will delete the project '%s' and all its tests.
             You are not member of the team for the project '%s' and cannot delete it.
             """ % (self.project.name, self.project.name)
         )
