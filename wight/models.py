@@ -204,6 +204,10 @@ class Team(Document):
         else:
             raise DoesNotExist("Project with name '%s' was not found." % project_name)
 
+    def delete_project(self, project_name):
+        self.projects = [project for project in self.projects if project.name != project_name]
+        self.save()
+
 
 class Project(EmbeddedDocument):
     name = StringField(max_length=2000, required=True)
