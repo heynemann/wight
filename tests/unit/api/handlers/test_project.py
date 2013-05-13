@@ -161,3 +161,51 @@ class UpdateTeamProjectTest(FullTestCase):
         response = self.put("/teams/%s/projects/non_ecxists_project" % self.team.name, name="test")
         expect(response.code).to_equal(404)
         expect(response.body).to_equal("Project with name 'non_ecxists_project' was not found.")
+
+
+class DeleteTeamProjectTest(FullTestCase):
+    def setUp(self):
+        super(DeleteTeamProjectTest, self).setUp()
+
+        self.user = UserFactory.create(with_token=True)
+        self.team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_projects(self.team, 1)
+        TeamFactory.add_members(self.team, 2)
+        self.project = self.team.projects[0]
+
+    def test_cant_delete_project_without_being_auth(self):
+        self.user = None
+        response = self.delete("/teams/%s/projects/%s" % (self.team.name, self.project.name))
+        expect(response.code).to_equal(401)
+
+    def test_cant_delete_project_without_being_in_the_team(self):
+        self.user = UserFactory.create(with_token=True)
+        response = self.delete("/teams/%s/projects/%s" % (self.team.name, self.project.name))
+        expect(response.code).to_equal(403)
+
+    def test_delete_project_being_owner(self):
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team.projects).to_length(1)
+        response = self.delete("/teams/%s/projects/%s" % (self.team.name, self.project.name))
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team).not_to_be_null()
+        expect(team.projects).to_length(0)
+
+    def test_delete_project_being_team_member(self):
+        self.user = self.team.members[0]
+        self.user.validate_token()
+        self.user.save()
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team.projects).to_length(1)
+        response = self.delete("/teams/%s/projects/%s" % (self.team.name, self.project.name))
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team).not_to_be_null()
+        expect(team.projects).to_length(0)
+
+    def test_cant_delete_project_for_invalid_team(self):
+        response = self.delete("/teams/invalid-team/projects/%s" % self.project.name)
+        expect(response.code).to_equal(404)

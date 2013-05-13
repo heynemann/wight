@@ -98,8 +98,8 @@ class TestUpdateProjectController(ProjectControllerTestBase):
         self.project = self.team.projects[0]
         self.controller_kwargs = {
             "team": self.team.name,
-            "project_name": self.project.name,
-            "new_name": "new name",
+            "project": self.project.name,
+            "project_name": "new name",
             "repo": "repo"
         }
         self.controller_class = UpdateProjectController
@@ -151,7 +151,7 @@ class TestUpdateProjectController(ProjectControllerTestBase):
 
     @patch.object(UpdateProjectController, 'put')
     @patch.object(UpdateProjectController, 'write')
-    def test_create_project_notify_user(self, write_mock, put_mock):
+    def test_update_project_notify_user(self, write_mock, put_mock):
         response = Mock(status_code=200)
         put_mock.return_value = response
         self.ctrl.default()

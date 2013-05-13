@@ -67,3 +67,12 @@ class ProjectHandler(BaseHandler):
             self.write("Project with name '%s' was not found." % project_name)
 
         self.finish()
+
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    @BaseHandler.team_member
+    def delete(self, team, project_name):
+        team.delete_project(project_name)
+        self.set_status(200)
+        self.write("OK")
+        self.finish()
