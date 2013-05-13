@@ -191,7 +191,7 @@ class Team(Document):
         self.projects.append(prj)
         self.save()
 
-    def update_project(self, project_name, new_name, new_repository):
+    def update_project(self, project_name, new_name=None, new_repository=None):
         project_exists = False
         for project in self.projects:
             if project.name == project_name:
