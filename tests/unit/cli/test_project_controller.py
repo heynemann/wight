@@ -7,7 +7,6 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
-from wight.errors import UnauthenticatedError
 
 try:
     from StringIO import StringIO
@@ -16,11 +15,12 @@ except ImportError:
 
 from mock import patch, Mock
 from preggy import expect
-import six
 
-from wight.cli.project import CreateProjectController, UpdateProjectController
+from wight.cli.project import CreateProjectController, UpdateProjectController, DeleteProjectController
 from wight.cli.base import requests
 from wight.models import UserData
+from wight.errors import UnauthenticatedError
+
 from tests.unit.base import TestCase
 from tests.factories import TeamFactory
 
@@ -157,3 +157,71 @@ class TestUpdateProjectController(ProjectControllerTestBase):
         self.ctrl.default()
         msg = "Updated 'new name' project in '%s' team at 'Target'." % self.team.name
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
+
+
+class TestDeleteProjectController(ProjectControllerTestBase):
+    def setUp(self):
+        self.team = TeamFactory.create()
+        TeamFactory.add_projects(self.team, 1)
+        self.project = self.team.projects[0]
+        self.controller_kwargs = {
+            "team": self.team.name,
+            "project": self.project.name,
+        }
+        self.controller_class = DeleteProjectController
+        super(TestDeleteProjectController, self).setUp()
+
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(DeleteProjectController, 'ask_for')
+    @patch.object(DeleteProjectController, 'delete')
+    def test_should_show_confirm_deletion_message(self, delete_mock, ask_mock, stdout_mock):
+        ask_mock.return_value = "y"
+        self.ctrl.default()
+        expect(stdout_mock.getvalue()).to_be_like(
+            """
+            This operation will delete the project '%s' and all its tests.
+            """ % self.project.name
+        )
+        ask_mock.called_with("Are you sure you want to delete project '%s'? [y/n]" % self.project.name)
+
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(DeleteProjectController, 'ask_for')
+    def test_should_return_if_confirmation_not_type_correctly(self, ask_mock, stdout_mock):
+        ask_mock.return_value = "n"
+        self.ctrl.default()
+        expect(stdout_mock.getvalue()).to_be_like(
+            """
+            This operation will delete the project '%s' and all its tests.
+            Aborting...
+            """ % self.project.name
+        )
+
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(DeleteProjectController, 'ask_for')
+    @patch.object(DeleteProjectController, 'delete')
+    def test_should_make_the_delete_in_api(self, delete_mock, ask_mock, stdout_mock):
+        ask_mock.return_value = "y"
+        delete_mock.return_value = Mock(status_code=200)
+        self.ctrl.default()
+        delete_mock.assert_any_call("/teams/%s/projects/%s" % (self.team.name, self.project.name))
+        expect(stdout_mock.getvalue()).to_be_like(
+            """
+            This operation will delete the project '%s' and all its tests.
+            Deleted '%s' project and tests for team '%s' in 'Target' target.
+            """ % (self.project.name, self.project.name, self.team.name)
+        )
+
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(DeleteProjectController, 'ask_for')
+    @patch.object(DeleteProjectController, 'delete')
+    def test_should_notify_user_if_status_code_was_forbidden(self, delete_mock, ask_mock, stdout_mock):
+        ask_mock.return_value = "y"
+        delete_mock.return_value = Mock(status_code=403)
+        self.ctrl.default()
+        delete_mock.assert_any_call("/teams/%s/projects/%s" % (self.team.name, self.project.name))
+        expect(stdout_mock.getvalue()).to_be_like(
+            """
+            This operation will delete the project '%s' and all its tests.
+            You are not member of the team for the project '%s' and cannot delete it.
+            """ % (self.project.name, self.project.name)
+        )

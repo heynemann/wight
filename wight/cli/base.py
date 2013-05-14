@@ -54,6 +54,11 @@ class WightBaseController(controller.CementBaseController):
         self.reset_success = "%s%s" % (Style.RESET_ALL, self.success_text_color)
         self.reset_error = "%s%s" % (Style.RESET_ALL, self.error_text_color)
 
+    def abort(self, message="Aborting..."):
+        self.line_break()
+        self.puterror(message)
+        self.line_break()
+
     def puts(self, message):
         self.write("%s%s%s" % (self.reset, message, self.reset))
 

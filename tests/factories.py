@@ -9,10 +9,11 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from datetime import datetime
+from uuid import uuid4
 
 import factory
 
-from wight.models import User, Team, Project
+from wight.models import User, Team, Project, LoadTest
 
 
 class UserFactory(factory.Factory):
@@ -85,3 +86,23 @@ class ProjectFactory(factory.Factory):
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())
     team = factory.SubFactory(UserFactory)
+    tests = []
+
+
+class LoadTestFactory(factory.Factory):
+    FACTORY_FOR = LoadTest
+
+    uuid = factory.LazyAttribute(lambda user: uuid4())
+    created_by = factory.SubFactory(UserFactory)
+    team = factory.SubFactory(TeamFactory)
+    project_name = factory.LazyAttributeSequence(lambda user, index: 'project-%d' % index)
+    scheduled = True
+    date_modified = factory.LazyAttribute(lambda user: datetime.now())
+    date_created = factory.LazyAttribute(lambda user: datetime.now())
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        load_test = super(LoadTestFactory, cls)._prepare(create, **kwargs)
+        if create:
+            load_test.save()
+        return load_test

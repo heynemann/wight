@@ -19,8 +19,8 @@ from uuid import uuid4
 import six
 from mongoengine import (
     Document, EmbeddedDocument,  # documents
-    UUIDField, StringField, DateTimeField, ListField, ReferenceField, EmbeddedDocumentField, # fields
-    DoesNotExist)
+    UUIDField, StringField, DateTimeField, BooleanField, ListField, ReferenceField, EmbeddedDocumentField, # fields
+    DoesNotExist, queryset_manager)
 from mongoengine.queryset import NotUniqueError
 
 
@@ -191,7 +191,7 @@ class Team(Document):
         self.projects.append(prj)
         self.save()
 
-    def update_project(self, project_name, new_name, new_repository):
+    def update_project(self, project_name, new_name=None, new_repository=None):
         project_exists = False
         for project in self.projects:
             if project.name == project_name:
@@ -232,3 +232,35 @@ class Project(EmbeddedDocument):
             "repository": self.repository,
             "createdBy": self.created_by.email
         }
+
+
+class LoadTest(Document):
+    uuid = UUIDField(required=True, default=uuid4())
+    scheduled = BooleanField()
+    team = ReferenceField(Team, required=True)
+    created_by = ReferenceField(User, required=True)
+    project_name = StringField(max_length=2000, required=True)
+    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.now)
+
+    meta = {
+        "ordering": ["-date_created"]
+    }
+
+    def clean(self):
+        self.date_modified = datetime.datetime.now()
+
+    def to_dict(self):
+        return {
+            "uuid": str(self.uuid),
+            "createdBy": self.created_by.email,
+            "team": self.team.name,
+            "project": self.project_name,
+            "scheduled": self.scheduled,
+            "created": self.date_created,
+            "lastModified": self.date_modified,
+        }
+
+    @classmethod
+    def get_by_team_and_project(cls, team, project_name):
+        return LoadTest.objects(team=team, project_name=project_name)[:20]

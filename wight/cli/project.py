@@ -103,3 +103,56 @@ class UpdateProjectController(WightBaseController):
                     )
                 )
             self.line_break()
+
+
+class DeleteProjectController(WightBaseController):
+    class Meta:
+        label = 'project-delete'
+        stack_on = 'base'
+        description = 'Deletes a project.'
+        config_defaults = dict()
+
+        arguments = [
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            (['--team'], dict(help='Name of the team that owns this project.', required=True)),
+            (['--project'], dict(help='Name of the project to be deleted.', required=True)),
+        ]
+
+    @controller.expose(hide=False, aliases=["project-delete"], help='Deletes a project.')
+    @WightBaseController.authenticated
+    def default(self):
+        self.load_conf()
+        target = self.app.user_data.target
+        team_name = self.arguments.team
+        project_name = self.arguments.project
+
+        self.line_break()
+        self.write(
+            "This operation will delete the project '%s%s%s' and all its tests." %
+            (self.keyword_color, project_name, self.reset_error)
+        )
+        confirmation = self.ask_for("%sAre you sure you want to delete project '%s%s%s'? [%sy/n%s]" % (
+            self.reset, self.keyword_color, project_name, self.reset_error, self.keyword_color, self.reset)
+        )
+        self.line_break()
+        if not confirmation or confirmation.lower() not in ("y", "n") or confirmation.lower() == "n":
+            self.abort()
+            return False
+        log_message = "Deleted '%s%s%s' project and tests for team '%s%s%s' in '%s%s%s' target." % (
+            self.keyword_color, project_name, self.reset_error,
+            self.keyword_color, team_name, self.reset_error,
+            self.keyword_color, target, self.reset_error
+        )
+        with ConnectedController(self):
+            response = self.delete("/teams/%s/projects/%s" % (team_name, project_name))
+            self.line_break()
+            if response.status_code == 200:
+                self.log.info(log_message)
+                self.write(log_message)
+            elif response.status_code == 403:
+                self.puterror(
+                    "You are not member of the team for the project '%s%s%s' and cannot delete it." % (
+                        self.keyword_color, project_name, self.reset_error,
+                    )
+                )
+            self.line_break()

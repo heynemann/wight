@@ -84,3 +84,28 @@ class TestUpdateProject(AcceptanceTest):
         team = Team.objects.filter(name=self.team.name).first()
         expect(team.projects[0].name).to_equal(self.project.name)
         expect(team.projects[0].repository).to_equal("new-repo")
+
+
+class TestDeleteProject(AcceptanceTest):
+    def setUp(self):
+        super(TestDeleteProject, self).setUp()
+        self.team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_projects(self.team, 1)
+        self.project = self.team.projects[0]
+
+    def test_can_delete_project(self):
+        result = self.execute(
+            "project-delete",
+            team=self.team.name,
+            project=self.project.name,
+            stdin=['y']
+        )
+        expect(result).to_be_like(
+            """
+            This operation will delete the project '%s' and all its tests.
+            Are you sure you want to delete project '%s'? [y/n]
+            Deleted '%s' project and tests for team '%s' in '%s' target.
+            """ % (self.project.name, self.project.name, self.project.name, self.team.name, self.target)
+        )
+        team = Team.objects.filter(name=self.team.name).first()
+        expect(team.projects).to_length(0)
