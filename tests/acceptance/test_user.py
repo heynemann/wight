@@ -8,9 +8,13 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-from preggy import expect
+import sys
 
-from tests.acceptance.base import AcceptanceTest
+from six import StringIO
+from preggy import expect
+import pexpect
+
+from tests.acceptance.base import AcceptanceTest, ROOT_PATH
 from tests.factories import TeamFactory, UserFactory
 
 
@@ -38,9 +42,22 @@ class TestUser(AcceptanceTest):
           +---------+--------+
         """ % (self.user.email, t1.name, t2.name))
 
-    # TODO: isso aqui quebra
-    # def test_change_user_password(self):
-    #     new_pass = "abcdef"
-    #     stdin =  [self.password, new_pass, new_pass]
-    #     result = self.execute("change-password", stdin=stdin)
-    #     expect(result).to_equal("Password changed successfuly.")
+    def test_change_user_password(self):
+        new_pass = "abcdef"
+        child = pexpect.spawn("%s %s change-password" % (sys.executable, ROOT_PATH))
+        result = StringIO()
+        child.logfile = result
+        child.expect("Please enter your current password:")
+        child.sendline(self.password)
+        child.expect("Please enter your new password:")
+        child.sendline(new_pass)
+        child.expect("Please enter your new password again:")
+        child.sendline(new_pass)
+        child.expect(pexpect.EOF)
+        result = result.getvalue()
+        expect(result.replace("\r", "")).to_be_like("""
+            Please enter your current password: 123456
+            Please enter your new password: abcdef
+            Please enter your new password again: abcdef
+            Password changed successfuly.
+        """)

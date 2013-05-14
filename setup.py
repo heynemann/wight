@@ -22,6 +22,7 @@ tests_require = [
     'sh',
     'factory_boy',
     'coveralls',
+    'pexpect'
 ]
 
 setup(
