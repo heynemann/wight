@@ -267,4 +267,15 @@ class LoadTest(Document):
 
     @classmethod
     def get_by_team_and_project_name(cls, team, project_name):
-        return LoadTest.objects(team=team, project_name=project_name)[:20]
+        return cls._get_sliced_by_team_and_project_name(team, project_name, 20)
+
+    @classmethod
+    def get_by_team(cls, team):
+        results = []
+        for project in team.projects:
+            results.extend(cls._get_sliced_by_team_and_project_name(team, project.name, 5))
+        return results
+
+    @classmethod
+    def _get_sliced_by_team_and_project_name(cls, team, project_name, slice):
+        return LoadTest.objects(team=team, project_name=project_name)[:slice]

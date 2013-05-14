@@ -107,7 +107,7 @@ class TestCreatingLoadTestModel(ModelTestCase):
             }
         )
 
-    def test_get_all_tests_for_a_team_and_project_ordered_by_date_created_desc(self):
+    def test_get_last_20_tests_for_a_team_and_project_ordered_by_date_created_desc(self):
         self.adding_to_project(25, self.team, self.project)
         self.adding_to_project(5, self.team, self.team.projects[1])
         loaded_tests = list(LoadTest.get_by_team_and_project_name(self.team, self.project.name))
@@ -115,22 +115,20 @@ class TestCreatingLoadTestModel(ModelTestCase):
         for load_tests in loaded_tests:
             expect(load_tests.project_name).to_equal(self.project.name)
 
-    # def test_get_all_tests_for_a_team_ordered_by_date_created_desc(self):
-    #     self.adding_to_project(7, self.team, self.project)
-    #     self.adding_to_project(6, self.team, self.team.projects[1])
-    #     self.adding_to_project(6)
-    #     loaded_tests = list(LoadTest.get_by_team(self.team))
-    #     expect(loaded_tests).to_length(10)
-    #     load_tests_for_project1 = [load_test for load_test in loaded_tests if load_test.project_name == self.project.name]
-    #     expect(load_tests_for_project1).to_length(5)
-    #     another_project_name = self.team.projects[1].name
-    #     load_tests_for_project2 = [load_test for load_test in loaded_tests if load_test.project_name == another_project_name]
-    #     expect(load_tests_for_project2).to_length(5)
+    def test_get_last_5_tests_for_a_team_ordered_by_date_created_desc(self):
+        self.adding_to_project(7, self.team, self.project)
+        self.adding_to_project(6, self.team, self.team.projects[1])
+        self.adding_to_project(6)
+        loaded_tests = list(LoadTest.get_by_team(self.team))
+        expect(loaded_tests).to_length(10)
+        load_tests_for_project1 = [load_test for load_test in loaded_tests if load_test.project_name == self.project.name]
+        expect(load_tests_for_project1).to_length(5)
+        another_project_name = self.team.projects[1].name
+        load_tests_for_project2 = [load_test for load_test in loaded_tests if load_test.project_name == another_project_name]
+        expect(load_tests_for_project2).to_length(5)
 
-    # def test_get_last_tree_load_tests_for_all_projects_when_owner(self):
-    #     self.add_test_to_project(5, [True, False, False, True, True], self.team, self.project)
-    #     self.add_test_to_project(4, [True, True, False, False], self.team, self.team.projects[1])
-    #     loaded_tests = list(LoadTest.get_all(self.user))
+    # def test_get_last_3_load_tests_for_all_projects_when_owner(self):
+    #     loaded_tests = list(LoadTest.get_by_user(self.user))
     #     expect(loaded_tests).to_length(6)
 
     # def test_get_all_scheduled_tests(self):
