@@ -56,8 +56,8 @@ class TestUser(AcceptanceTest):
         child.expect(pexpect.EOF)
         result = result.getvalue()
         expect(result.replace("\r", "")).to_be_like("""
-            Please enter your current password: 123456
-            Please enter your new password: abcdef
-            Please enter your new password again: abcdef
+            Please enter your current password: %s
+            Please enter your new password: %s
+            Please enter your new password again: %s
             Password changed successfuly.
-        """)
+        """ % (self.password, new_pass, new_pass))
