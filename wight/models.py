@@ -262,5 +262,5 @@ class LoadTest(Document):
         }
 
     @classmethod
-    def get_by_team_and_project(cls, team, project_name):
+    def get_by_team_and_project_name(cls, team, project_name):
         return LoadTest.objects(team=team, project_name=project_name)[:20]
