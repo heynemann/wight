@@ -216,7 +216,6 @@ class Project(EmbeddedDocument):
     date_modified = DateTimeField(default=datetime.datetime.now)
     date_created = DateTimeField(default=datetime.datetime.now)
     team = ReferenceField(Team, required=True)
-    load_tests = ListField(ReferenceField("LoadTest"))
 
     def clean(self):
         if self.created_by.id != self.team.owner.id:
@@ -236,24 +235,32 @@ class Project(EmbeddedDocument):
 
 
 class LoadTest(Document):
+    uuid = UUIDField(required=True, default=uuid4())
     scheduled = BooleanField()
-    project = EmbeddedDocumentField(Project, required=True)
+    team = ReferenceField(Team, required=True)
+    created_by = ReferenceField(User, required=True)
+    project_name = StringField(max_length=2000, required=True)
+    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.now)
+
+    meta = {
+        "ordering": ["-date_created"]
+    }
+
+    def clean(self):
+        self.date_modified = datetime.datetime.now()
 
     def to_dict(self):
         return {
-            "team": self.project.team.name,
-            "project": self.project.name,
-            "scheduled": self.scheduled
+            "uuid": str(self.uuid),
+            "createdBy": self.created_by.email,
+            "team": self.team.name,
+            "project": self.project_name,
+            "scheduled": self.scheduled,
+            "created": self.date_created,
+            "lastModified": self.date_modified,
         }
 
-    @queryset_manager
-    def get_by_project(cls, query_set, project_name):
-        return query_set.filter(project__name=project_name)
-
-    @queryset_manager
-    def get_scheduled(cls, query_set):
-        return query_set.filter(scheduled=True)
-
-    @queryset_manager
-    def get_scheduled_by_project(cls, query_set, project_name):
-        return query_set.filter(scheduled=True, project__name=project_name)
+    @classmethod
+    def get_by_team_and_project(cls, team, project_name):
+        return LoadTest.objects(team=team, project_name=project_name)[:20]
