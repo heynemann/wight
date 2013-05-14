@@ -248,6 +248,10 @@ class LoadTest(Document):
     }
 
     def clean(self):
+        if self.created_by.id != self.team.owner.id:
+            team_member_ids = [member.id for member in self.team.members]
+            if self.created_by.id not in team_member_ids:
+                raise ValueError("Only the owner or members of team %s can create tests for it." % self.team.name)
         self.date_modified = datetime.datetime.now()
 
     def to_dict(self):

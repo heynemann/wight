@@ -24,12 +24,6 @@ class TestCreatingLoadTestModel(ModelTestCase):
         self.team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(self.team, 2)
         self.project = self.team.projects[0]
-        self.test = LoadTestFactory.create(
-            created_by=self.user,
-            team=self.team,
-            project_name=self.project.name,
-            scheduled=False
-        )
 
     def adding_to_project(self, load_tests=1, team=None, project=None):
         if not team:
@@ -40,30 +34,76 @@ class TestCreatingLoadTestModel(ModelTestCase):
             project = team.projects[-1]
 
         for i in range(load_tests):
-            LoadTestFactory.create(team=team, project_name=project.name)
+            LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
 
-    def test_can_create_a_load_test(self):
-        retrieveds = LoadTest.objects(id=self.test.id)
+    def test_can_create_a_load_test_if_team_owner(self):
+        test = LoadTestFactory.create(
+            created_by=self.user,
+            team=self.team,
+            project_name=self.project.name,
+            scheduled=False
+        )
+        retrieveds = LoadTest.objects(id=test.id)
         expect(retrieveds.count()).to_equal(1)
         retrieved = retrieveds.first()
         expect(retrieved.scheduled).to_equal(False)
         expect(retrieved.created_by.email).to_equal(self.user.email)
         expect(retrieved.team.name).to_equal(self.team.name)
         expect(retrieved.project_name).to_equal(self.project.name)
-        expect(retrieved.date_created).to_be_like(self.test.date_created)
-        expect(retrieved.date_modified).to_be_like(self.test.date_modified)
+        expect(retrieved.date_created).to_be_like(test.date_created)
+        expect(retrieved.date_modified).to_be_like(test.date_modified)
+
+    def test_can_create_a_load_test_if_team_member(self):
+        TeamFactory.add_members(self.team, 1)
+        user = self.team.members[0]
+        test = LoadTestFactory.create(
+            created_by=user,
+            team=self.team,
+            project_name=self.project.name,
+            scheduled=False
+        )
+        retrieveds = LoadTest.objects(id=test.id)
+        expect(retrieveds.count()).to_equal(1)
+        retrieved = retrieveds.first()
+        expect(retrieved.scheduled).to_equal(False)
+        expect(retrieved.created_by.email).to_equal(user.email)
+        expect(retrieved.team.name).to_equal(self.team.name)
+        expect(retrieved.project_name).to_equal(self.project.name)
+        expect(retrieved.date_created).to_be_like(test.date_created)
+        expect(retrieved.date_modified).to_be_like(test.date_modified)
+
+    def test_cant_create_a_load_test_if_not_team_owner_or_team_member(self):
+        try:
+            LoadTestFactory.create(
+                created_by=UserFactory.create(),
+                team=self.team,
+                project_name=self.project.name,
+                scheduled=False
+            )
+        except ValueError:
+            exc = sys.exc_info()[1]
+            expect(str(exc)).to_include("Only the owner or members of team %s can create tests for it." % self.team.name)
+            return
+
+        assert False, "Should not have gotten this far"
 
     def test_to_dict(self):
-        retrieved = LoadTest.objects(id=self.test.id).first()
+        test = LoadTestFactory.create(
+            created_by=self.user,
+            team=self.team,
+            project_name=self.project.name,
+            scheduled=False
+        )
+        retrieved = LoadTest.objects(id=test.id).first()
         expect(retrieved.to_dict()).to_be_like(
             {
-                "uuid": str(self.test.uuid),
+                "uuid": str(test.uuid),
                 "createdBy": self.user.email,
                 "team": self.team.name,
                 "project": self.project.name,
-                "scheduled": self.test.scheduled,
-                "created": self.test.date_created,
-                "lastModified": self.test.date_modified,
+                "scheduled": test.scheduled,
+                "created": test.date_created,
+                "lastModified": test.date_modified,
             }
         )
 
