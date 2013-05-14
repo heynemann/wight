@@ -11,7 +11,7 @@
 from preggy import expect
 
 from tests.acceptance.base import AcceptanceTest
-from tests.factories import TeamFactory
+from tests.factories import TeamFactory, UserFactory
 
 
 class TestUser(AcceptanceTest):
@@ -37,3 +37,10 @@ class TestUser(AcceptanceTest):
           | %s      | member |
           +---------+--------+
         """ % (self.user.email, t1.name, t2.name))
+
+    # TODO: isso aqui quebra
+    # def test_change_user_password(self):
+    #     new_pass = "abcdef"
+    #     stdin =  [self.password, new_pass, new_pass]
+    #     result = self.execute("change-password", stdin=stdin)
+    #     expect(result).to_equal("Password changed successfuly.")

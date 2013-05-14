@@ -42,11 +42,10 @@ class UserPasswordHandler(BaseHandler):
         old_pass = self.get_argument("old_pass")
         new_pass = self.get_argument("new_pass")
 
-        user = User.objects.filter(token=self.request.headers['X-Wight-Auth']).first()
-        if user.password != User.get_hash_for(user.salt, old_pass):
+        if self.current_user.password != User.get_hash_for(self.current_user.salt, old_pass):
             self.send_error(status_code=403)
         else:
-            user.salt = None
-            user.password = new_pass
-            user.save()
+            self.current_user.salt = None
+            self.current_user.password = new_pass
+            self.current_user.save()
             self.finish()

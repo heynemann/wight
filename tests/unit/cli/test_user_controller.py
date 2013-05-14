@@ -14,11 +14,77 @@ except ImportError:
     from io import StringIO
 
 from mock import patch, Mock
-
+import requests
+from tests.factories import UserFactory
 from wight.models import UserData
-from wight.cli.user import ShowUserController
-from tests.unit.base import TestCase
+from wight.cli.user import ShowUserController, ChangePasswordController
+from tests.unit.base import TestCase, ApiTestCase
 from preggy import expect
+
+
+class TestChangePasswordController(ApiTestCase, TestCase):
+
+    @patch.object(requests, 'post')
+    @patch.object(ChangePasswordController, 'puts')
+    @patch.object(ChangePasswordController, 'get_pass')
+    def test_change_password_normally(self, get_pass_mock, puts_mock, post_mock):
+        post_mock.return_value = Mock(status_code=200)
+        get_pass_mock.return_value = "testing"
+
+        ctrl = self.make_controller(ChangePasswordController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
+        ctrl.default()
+
+        call_list = get_pass_mock.call_args_list
+        expect(str(call_list[0]).split("'")[1]).to_equal("Please enter your current password:")
+        expect(str(call_list[1]).split("'")[1]).to_equal("Please enter your new password:")
+        expect(str(call_list[2]).split("'")[1]).to_equal("Please enter your new password again:")
+
+        puts_mock.assert_called_with("Password changed successfuly.")
+
+    @patch.object(requests, 'post')
+    @patch.object(ChangePasswordController, 'puterror')
+    @patch.object(ChangePasswordController, 'get_pass')
+    def test_change_password_fails_if_old_pass_is_wrong(self, get_pass_mock, puterror_mock, post_mock):
+        post_mock.return_value = Mock(status_code=403)
+        get_pass_mock.return_value = "testing"
+
+        ctrl = self.make_controller(ChangePasswordController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
+        ctrl.default()
+
+        puterror_mock.assert_called_with("The original password didn't match. Please try again")
+
+    @patch.object(requests, 'post')
+    @patch.object(ChangePasswordController, 'puterror')
+    @patch.object(ChangePasswordController, 'get_pass')
+    def test_change_password_message_if_unknown_return_code_from_api(self, get_pass_mock, puterror_mock, post_mock):
+        post_mock.return_value = Mock(status_code=500)
+        get_pass_mock.return_value = "testing"
+
+        ctrl = self.make_controller(ChangePasswordController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
+        ctrl.default()
+
+        puterror_mock.assert_called_with("Wight API returned an unexpected status code!")
+
+    @patch.object(ChangePasswordController, 'puterror')
+    @patch.object(ChangePasswordController, 'get_pass')
+    def test_change_password_fails_if_password_matching_fails(self, get_pass_mock, puterror_mock):
+
+        ctrl = self.make_controller(ChangePasswordController, conf=self.fixture_for('test.conf'))
+        ctrl.app.user_data = UserData(target="Target")
+        ctrl.app.user_data.token = "token-value"
+        pass_values = ['testing', 'retesting', 'reretesting']
+        def side_effect(self):
+            return pass_values.pop()
+        get_pass_mock.side_effect = side_effect
+
+        ctrl.default()
+        puterror_mock.assert_called_with("New password check failed. Please try again.")
 
 
 class TestShowUserController(TestCase):
