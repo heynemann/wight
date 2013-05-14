@@ -70,7 +70,7 @@ class TestCreatingLoadTestModel(ModelTestCase):
     def test_get_all_tests_for_a_team_and_project_ordered_by_date_created_desc(self):
         self.adding_to_project(25, self.team, self.project)
         self.adding_to_project(5, self.team, self.team.projects[1])
-        loaded_tests = list(LoadTest.get_by_team_and_project(self.team, self.project.name))
+        loaded_tests = list(LoadTest.get_by_team_and_project_name(self.team, self.project.name))
         expect(loaded_tests).to_length(20)
         for load_tests in loaded_tests:
             expect(load_tests.project_name).to_equal(self.project.name)
