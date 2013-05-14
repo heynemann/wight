@@ -12,7 +12,7 @@ from datetime import datetime
 
 import factory
 
-from wight.models import User, Team, Project
+from wight.models import User, Team, Project, LoadTest
 
 
 class UserFactory(factory.Factory):
@@ -85,3 +85,18 @@ class ProjectFactory(factory.Factory):
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())
     team = factory.SubFactory(UserFactory)
+    tests = []
+
+
+class LoadTestFactory(factory.Factory):
+    FACTORY_FOR = LoadTest
+
+    scheduled = True
+    project = factory.SubFactory(ProjectFactory)
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        load_test = super(LoadTestFactory, cls)._prepare(create, **kwargs)
+        if create:
+            load_test.save()
+        return load_test

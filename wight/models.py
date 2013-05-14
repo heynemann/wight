@@ -19,8 +19,8 @@ from uuid import uuid4
 import six
 from mongoengine import (
     Document, EmbeddedDocument,  # documents
-    UUIDField, StringField, DateTimeField, ListField, ReferenceField, EmbeddedDocumentField, # fields
-    DoesNotExist)
+    UUIDField, StringField, DateTimeField, BooleanField, ListField, ReferenceField, EmbeddedDocumentField, # fields
+    DoesNotExist, queryset_manager)
 from mongoengine.queryset import NotUniqueError
 
 
@@ -216,6 +216,7 @@ class Project(EmbeddedDocument):
     date_modified = DateTimeField(default=datetime.datetime.now)
     date_created = DateTimeField(default=datetime.datetime.now)
     team = ReferenceField(Team, required=True)
+    load_tests = ListField(ReferenceField("LoadTest"))
 
     def clean(self):
         if self.created_by.id != self.team.owner.id:
@@ -232,3 +233,27 @@ class Project(EmbeddedDocument):
             "repository": self.repository,
             "createdBy": self.created_by.email
         }
+
+
+class LoadTest(Document):
+    scheduled = BooleanField()
+    project = EmbeddedDocumentField(Project, required=True)
+
+    def to_dict(self):
+        return {
+            "team": self.project.team.name,
+            "project": self.project.name,
+            "scheduled": self.scheduled
+        }
+
+    @queryset_manager
+    def get_by_project(cls, query_set, project_name):
+        return query_set.filter(project__name=project_name)
+
+    @queryset_manager
+    def get_scheduled(cls, query_set):
+        return query_set.filter(scheduled=True)
+
+    @queryset_manager
+    def get_scheduled_by_project(cls, query_set, project_name):
+        return query_set.filter(scheduled=True, project__name=project_name)
