@@ -25,7 +25,9 @@ class ScheduleLoadTestTest(FullTestCase):
 
     def test_schedule_test(self):
         url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
-        response = self.post(url)
+        response = self.post(url, **{
+            "base_url": "http://www.globo.com"
+        })
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("OK")
 
@@ -34,21 +36,43 @@ class ScheduleLoadTestTest(FullTestCase):
         expect(tests).to_length(1)
         expect(tests[0].created_by.id).to_equal(self.user.id)
         expect(tests[0].project_name).to_equal(self.project.name)
+        expect(tests[0].base_url).to_equal("http://www.globo.com")
 
     def test_schedule_test_without_being_a_member(self):
         team = TeamFactory.create()
         prj = team.add_project("bla", "repo", team.owner)
 
         url = "/teams/%s/projects/%s/load_tests/" % (team.name, prj.name)
-        response = self.post(url)
+        response = self.post(url, **{
+            "base_url": "http://www.globo.com"
+        })
         expect(response.code).to_equal(403)
 
     def test_schedule_test_for_invalid_project(self):
         url = "/teams/%s/projects/bogus-project/load_tests/" % self.team.name
-        response = self.post(url)
+        response = self.post(url, **{
+            "base_url": "http://www.globo.com"
+        })
         expect(response.code).to_equal(404)
 
     def test_schedule_test_for_invalid_team(self):
         url = "/teams/bogus-team/projects/bogus-project/load_tests/"
-        response = self.post(url)
+        response = self.post(url, **{
+            "base_url": "http://www.globo.com"
+        })
         expect(response.code).to_equal(404)
+
+    def test_schedule_test_for_invalid_url(self):
+        url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
+        response = self.post(url, **{
+            "base_url": ""
+        })
+        expect(response.code).to_equal(400)
+
+        response = self.post(url)
+        expect(response.code).to_equal(400)
+
+        response = self.post(url, **{
+            "base_url": "wqeqwejqwjeqw"
+        })
+        expect(response.code).to_equal(400)

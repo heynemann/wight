@@ -20,7 +20,7 @@ import six
 from mongoengine import (
     Document, EmbeddedDocument,  # documents
     UUIDField, StringField, DateTimeField, BooleanField, ListField, ReferenceField, EmbeddedDocumentField,  # fields
-    DoesNotExist)
+    URLField, DoesNotExist)
 from mongoengine.queryset import NotUniqueError
 
 
@@ -242,6 +242,7 @@ class LoadTest(Document):
     team = ReferenceField(Team, required=True)
     created_by = ReferenceField(User, required=True)
     project_name = StringField(max_length=2000, required=True)
+    base_url = URLField(max_length=2000, required=True)
     date_created = DateTimeField(default=datetime.datetime.now)
     date_modified = DateTimeField(default=datetime.datetime.now)
 
@@ -254,6 +255,7 @@ class LoadTest(Document):
             team_member_ids = [member.id for member in self.team.members]
             if self.created_by.id not in team_member_ids:
                 raise ValueError("Only the owner or members of team %s can create tests for it." % self.team.name)
+
         self.date_modified = datetime.datetime.now()
 
     def to_dict(self):
