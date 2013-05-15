@@ -92,11 +92,13 @@ class TestCreatingLoadTestModel(ModelTestCase):
             created_by=self.user,
             team=self.team,
             project_name=self.project.name,
-            scheduled=False
+            scheduled=False,
+            base_url="http://some-server.com/some-url"
         )
         retrieved = LoadTest.objects(id=test.id).first()
         expect(retrieved.to_dict()).to_be_like(
             {
+                "baseUrl": "http://some-server.com/some-url",
                 "uuid": str(test.uuid),
                 "createdBy": self.user.email,
                 "team": self.team.name,

@@ -264,6 +264,7 @@ class LoadTest(Document):
             "createdBy": self.created_by.email,
             "team": self.team.name,
             "project": self.project_name,
+            "baseUrl": str(self.base_url),
             "scheduled": self.scheduled,
             "created": self.date_created,
             "lastModified": self.date_modified,
