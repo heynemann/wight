@@ -12,12 +12,12 @@ from cement.core import foundation, handler
 from colorama import init
 
 from wight.cli.base import WightDefaultController
-from wight.cli.schedule import ScheduleController
 from wight.cli.auth import AuthController
 from wight.cli.target import TargetSetController, TargetGetController
 from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, TeamAddUserController, DeleteTeamController, TeamRemoveUserController
 from wight.cli.project import CreateProjectController, UpdateProjectController, DeleteProjectController
 from wight.cli.user import ShowUserController, ChangePasswordController
+from wight.cli.load_test import ScheduleLoadTestController
 from wight.models import UserData
 
 
@@ -34,7 +34,6 @@ class WightApp(foundation.CementApp):
     def register_controllers(self):
         self.controllers = [
             AuthController,
-            ScheduleController,
             TargetSetController,
             TargetGetController,
             CreateTeamController,
@@ -47,7 +46,8 @@ class WightApp(foundation.CementApp):
             UpdateProjectController,
             DeleteProjectController,
             TeamRemoveUserController,
-            ChangePasswordController
+            ChangePasswordController,
+            ScheduleLoadTestController
         ]
 
         for controller in self.controllers:
