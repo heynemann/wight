@@ -28,12 +28,8 @@ class LoadTestHandler(BaseHandler):
 
         project = project[0]
 
-        try:
-            test = LoadTest(scheduled=True, team=team, created_by=self.current_user, project_name=project.name)
-            test.save()
-        except ValueError:
-            self.set_status(409)
-            self.finish()
+        test = LoadTest(scheduled=True, team=team, created_by=self.current_user, project_name=project.name)
+        test.save()
 
         self.set_status(200)
         self.write("OK")
