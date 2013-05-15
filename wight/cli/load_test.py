@@ -22,8 +22,9 @@ class ScheduleLoadTestController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['team_name'], dict(help='The name of the team that owns the project to schedule a load test')),
-            (['project_name'], dict(help='The name of the project to schedule a load test')),
+            (['--base_url'], dict(help='The base url to run the load test against', required=True)),
+            (['--team_name'], dict(help='The name of the team that owns the project to schedule a load test', required=True)),
+            (['--project_name'], dict(help='The name of the project to schedule a load test', required=True)),
         ]
 
     @controller.expose(hide=False, aliases=["schedule"], help='Schedules a new load test.')
@@ -33,6 +34,7 @@ class ScheduleLoadTestController(WightBaseController):
         target = self.app.user_data.target
         team_name = self.arguments.team_name
         project_name = self.arguments.project_name
+        base_url = self.arguments.base_url
 
         log_message = "Scheduled a new load test for project '%s%s%s' in team '%s%s%s' at '%s%s%s' target." % (
             self.keyword_color, project_name, self.reset_success,
@@ -44,6 +46,8 @@ class ScheduleLoadTestController(WightBaseController):
             response = self.post("/teams/%(team_name)s/projects/%(project_name)s/load_tests/" % {
                 "team_name": team_name,
                 "project_name": project_name
+            }, {
+                'base_url': base_url
             })
 
             self.line_break()

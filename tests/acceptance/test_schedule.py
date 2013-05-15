@@ -22,7 +22,7 @@ class TestSchedule(AcceptanceTest):
         TeamFactory.add_projects(team, 2)
         project_name = team.projects[0].name
 
-        result = self.execute("schedule", team.name, project_name)
+        result = self.execute("schedule", team_name=team.name, project_name=project_name, base_url="http://www.globo.com")
         expect(result).to_be_like(
             "Scheduled a new load test for project '%s' in team '%s' at '%s' target." % (
                 project_name, team.name, self.target

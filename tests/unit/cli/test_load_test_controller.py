@@ -40,14 +40,16 @@ class LoadTestControllerTestBase(TestCase):
 
 class LoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team_name": "nameless", "project_name": "project"}
+        self.controller_kwargs = {"team_name": "nameless", "project_name": "project", "base_url": "http://www.globo.com"}
         self.controller_class = ScheduleLoadTestController
         super(LoadTestControllerTest, self).setUp()
 
     @patch.object(ScheduleLoadTestController, 'post')
     def test_schedule_test(self, post_mock):
         self.ctrl.default()
-        post_mock.assert_any_call("/teams/nameless/projects/project/load_tests/")
+        post_mock.assert_any_call("/teams/nameless/projects/project/load_tests/", {
+            "base_url": "http://www.globo.com"
+        })
 
     @patch.object(ScheduleLoadTestController, 'post')
     @patch.object(ScheduleLoadTestController, 'write')
