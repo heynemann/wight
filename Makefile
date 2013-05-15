@@ -10,11 +10,17 @@ focus: mongo_test redis
 	@rm -rf ~/.wighttest
 	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -a 'focus' -vv --with-yanc -s tests/unit/ 
 
-acceptance acc integration func functional: mongo_test redis kill_app
+acceptance acc a: mongo_test redis kill_app
 	@sleep 3
 	@rm -rf ~/.wightacc
 	@python wight/api/server.py --port 2368 --bind 0.0.0.0 --conf ./tests/acceptance/acceptance.conf &
 	@WIGHT_USERDATA_PATH=~/.wightacc nosetests -vv --with-yanc -s tests/acceptance/
+
+functional func f: mongo_test redis kill_app
+	@sleep 3
+	@rm -rf ~/.wightacc
+	@python wight/api/server.py --port 2368 --bind 0.0.0.0 --conf ./tests/acceptance/acceptance.conf &
+	@WIGHT_USERDATA_PATH=~/.wightacc nosetests -vv --with-yanc -s tests/functional/
 
 tox:
 	@PATH=$$PATH:~/.pythonbrew/pythons/Python-2.6.*/bin/:~/.pythonbrew/pythons/Python-2.7.*/bin/:~/.pythonbrew/pythons/Python-3.0.*/bin/:~/.pythonbrew/pythons/Python-3.1.*/bin/:~/.pythonbrew/pythons/Python-3.2.3/bin/:~/.pythonbrew/pythons/Python-3.3.0/bin/ tox
@@ -35,6 +41,7 @@ toxpypy:
 	@PATH=$$PATH:~/.pythonbrew/pythons/Python-2.6.*/bin/:~/.pythonbrew/pythons/Python-2.7.*/bin/:~/.pythonbrew/pythons/Python-3.0.*/bin/:~/.pythonbrew/pythons/Python-3.1.*/bin/:~/.pythonbrew/pythons/Python-3.2.3/bin/:~/.pythonbrew/pythons/Python-3.3.0/bin/ tox -e pypy
 
 setup:
+	@pip install git+git://github.com/heynemann/pygit2.git
 	@pip install -e .[tests]
 
 kill_redis:
