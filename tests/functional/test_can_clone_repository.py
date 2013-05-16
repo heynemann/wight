@@ -21,7 +21,6 @@ class TestCanCloneRepository(TestCase):
     def test_repository_is_created(self):
         temp_path = tempfile.mkdtemp()
         repo = Repository.clone("git://github.com/heynemann/wight.git", temp_path)
-        repo.checkout('refs/heads/master')
 
         expect(repo.is_empty).to_be_false()
         expect(repo.is_bare).to_be_false()
