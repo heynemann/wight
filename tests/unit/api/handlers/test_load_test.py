@@ -7,12 +7,16 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from json import loads
 
 from preggy import expect
+import six
+
+from bson import json_util
 
 from wight.models import LoadTest
 from tests.unit.base import FullTestCase
-from tests.factories import TeamFactory, UserFactory
+from tests.factories import TeamFactory, UserFactory, LoadTestFactory
 
 
 class ScheduleLoadTestTest(FullTestCase):
@@ -76,3 +80,47 @@ class ScheduleLoadTestTest(FullTestCase):
             "base_url": "wqeqwejqwjeqw"
         })
         expect(response.code).to_equal(400)
+
+
+class ListLoadTestsTest(FullTestCase):
+    def setUp(self):
+        super(ListLoadTestsTest, self).setUp()
+        self.user = UserFactory.create(with_token=True)
+        self.team = TeamFactory.create(owner=self.user)
+        self.project = self.team.add_project("schedule-test-project-1", "repo", self.user)
+
+    def test_get_return_401_if_not_authenticated(self):
+        self.user = None
+        url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(401)
+
+    def test_get_return_403_if_not_team_owner(self):
+        user = UserFactory.create(with_token=True)
+        team = TeamFactory.create(owner=user)
+        project = team.add_project("schedule-test-project-1", "repo", user)
+        url = "/teams/%s/projects/%s/load_tests/" % (team.name, project.name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(403)
+
+    def test_get_return_200_if_not_team_owner_but_team_member(self):
+        TeamFactory.add_members(self.team, 1, with_token=True)
+        self.user = self.team.members[0]
+        url = "/teams/%s/projects/%s/load_tests/?quantity=20" % (self.team.name, self.project.name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+    def test_get_20_load_tests(self):
+        LoadTestFactory.adding_to_project(24, user=self.user, team=self.team, project=self.project)
+        url = "/teams/%s/projects/%s/load_tests/?quantity=20" % (self.team.name, self.project.name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+        obj = response.body
+        if isinstance(obj, six.binary_type):
+            obj = obj.decode('utf-8')
+
+        obj = loads(obj)
+        expect(obj).to_length(20)
+        load_test = LoadTest.objects(team=self.team, project_name=self.project.name).first()
+        expect(obj[0]).to_be_like(load_test.to_dict())

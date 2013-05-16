@@ -92,8 +92,8 @@ class TestCreatingLoadTestModel(ModelTestCase):
                 "team": self.team.name,
                 "project": self.project.name,
                 "scheduled": test.scheduled,
-                "created": test.date_created,
-                "lastModified": test.date_modified,
+                "created": test.date_created.isoformat()[:19],
+                "lastModified": test.date_modified.isoformat()[:19],
             }
         )
 

@@ -8,7 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+import json
 import re
+import datetime
+
+from json import dumps
+from bson import json_util
 
 import tornado.web
 
@@ -50,4 +55,17 @@ class LoadTestHandler(BaseHandler):
 
         self.set_status(200)
         self.write("OK")
+        self.finish()
+
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    @BaseHandler.team_member
+    def get(self, team, project_name):
+        quantity = self.get_argument("quantity").strip()
+        if quantity:
+            quantity = int(quantity)
+        load_tests = LoadTest.get_sliced_by_team_and_project_name(team, project_name, quantity)
+        self.set_status(200)
+        response = dumps([load_test.to_dict() for load_test in load_tests])
+        self.write(response)
         self.finish()

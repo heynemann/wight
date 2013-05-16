@@ -266,23 +266,23 @@ class LoadTest(Document):
             "project": self.project_name,
             "baseUrl": str(self.base_url),
             "scheduled": self.scheduled,
-            "created": self.date_created,
-            "lastModified": self.date_modified,
+            "created": self.date_created.isoformat()[:19],
+            "lastModified": self.date_modified.isoformat()[:19],
         }
 
     @classmethod
     def get_by_team_and_project_name(cls, team, project_name):
-        return cls._get_sliced_by_team_and_project_name(team, project_name, 20)
+        return cls.get_sliced_by_team_and_project_name(team, project_name, 20)
 
     @classmethod
     def get_by_team(cls, team, quantity=5):
         results = []
         for project in team.projects:
-            results.extend(cls._get_sliced_by_team_and_project_name(team, project.name, quantity))
+            results.extend(cls.get_sliced_by_team_and_project_name(team, project.name, quantity))
         return results
 
     @classmethod
-    def _get_sliced_by_team_and_project_name(cls, team, project_name, quantity):
+    def get_sliced_by_team_and_project_name(cls, team, project_name, quantity):
         return LoadTest.objects(team=team, project_name=project_name)[:quantity]
 
     @classmethod

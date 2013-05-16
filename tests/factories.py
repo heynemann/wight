@@ -63,9 +63,9 @@ class TeamFactory(factory.Factory):
         return team
 
     @classmethod
-    def add_members(cls, team, number_of_members):
+    def add_members(cls, team, number_of_members, with_token=False):
         for i in range(number_of_members):
-            team.members.append(UserFactory.create())
+            team.members.append(UserFactory.create(with_token=with_token))
 
         team.save()
 
