@@ -61,6 +61,7 @@ wight is a load testing scheduling and tracking tool.
         'requests',
         'prettytable',
         'colorama',
+        'pyyaml',
     ],
     extras_require={
         'tests': tests_require,

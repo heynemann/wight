@@ -42,6 +42,7 @@ toxpypy:
 	@PATH=$$PATH:~/.pythonbrew/pythons/Python-2.6.*/bin/:~/.pythonbrew/pythons/Python-2.7.*/bin/:~/.pythonbrew/pythons/Python-3.0.*/bin/:~/.pythonbrew/pythons/Python-3.1.*/bin/:~/.pythonbrew/pythons/Python-3.2.3/bin/:~/.pythonbrew/pythons/Python-3.3.0/bin/ tox -e pypy
 
 setup:
+	@if [ '' != '`which brew`' ]; then cat brew-requirements | xargs brew install; fi
 	@pip install git+git://github.com/heynemann/pygit2.git
 	@pip install -e .[tests]
 
