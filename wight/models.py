@@ -20,7 +20,7 @@ import six
 from mongoengine import (
     Document, EmbeddedDocument,  # documents
     UUIDField, StringField, DateTimeField, BooleanField, ListField, ReferenceField, EmbeddedDocumentField,  # fields
-    URLField, DoesNotExist)
+    URLField, DoesNotExist, Q)
 from mongoengine.queryset import NotUniqueError
 
 
@@ -96,7 +96,7 @@ class User(Document):
 
     @classmethod
     def get_hash_for(cls, salt, password):
-        return (hmac.new(six.b(str(salt)), six.b(str(password)), hashlib.sha1).hexdigest())
+        return hmac.new(six.b(str(salt)), six.b(str(password)), hashlib.sha1).hexdigest()
 
     @classmethod
     def authenticate(cls, email, password, expiration=2 * 60 * 24):
@@ -275,12 +275,20 @@ class LoadTest(Document):
         return cls._get_sliced_by_team_and_project_name(team, project_name, 20)
 
     @classmethod
-    def get_by_team(cls, team):
+    def get_by_team(cls, team, quantity=5):
         results = []
         for project in team.projects:
-            results.extend(cls._get_sliced_by_team_and_project_name(team, project.name, 5))
+            results.extend(cls._get_sliced_by_team_and_project_name(team, project.name, quantity))
         return results
 
     @classmethod
-    def _get_sliced_by_team_and_project_name(cls, team, project_name, slice):
-        return LoadTest.objects(team=team, project_name=project_name)[:slice]
+    def _get_sliced_by_team_and_project_name(cls, team, project_name, quantity):
+        return LoadTest.objects(team=team, project_name=project_name)[:quantity]
+
+    @classmethod
+    def get_by_user(cls, user):
+        results = []
+        teams = Team.objects(Q(members__contains=user) | Q(owner=user))
+        for team in teams:
+            results.extend(cls.get_by_team(team, quantity=3))
+        return results

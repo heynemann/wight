@@ -25,9 +25,12 @@ class TestCreatingLoadTestModel(ModelTestCase):
         TeamFactory.add_projects(self.team, 2)
         self.project = self.team.projects[0]
 
-    def adding_to_project(self, load_tests=1, team=None, project=None):
+    def adding_to_project(self, load_tests=1, user=None, team=None, project=None):
+        if not user:
+            user = self.user
+
         if not team:
-            team = TeamFactory.create()
+            team = TeamFactory.create(owner=user)
 
         if not project:
             TeamFactory.add_projects(team, 1)
@@ -110,16 +113,16 @@ class TestCreatingLoadTestModel(ModelTestCase):
         )
 
     def test_get_last_20_tests_for_a_team_and_project_ordered_by_date_created_desc(self):
-        self.adding_to_project(25, self.team, self.project)
-        self.adding_to_project(5, self.team, self.team.projects[1])
+        self.adding_to_project(25, team=self.team, project=self.project)
+        self.adding_to_project(5, team=self.team, project=self.team.projects[1])
         loaded_tests = list(LoadTest.get_by_team_and_project_name(self.team, self.project.name))
         expect(loaded_tests).to_length(20)
         for load_tests in loaded_tests:
             expect(load_tests.project_name).to_equal(self.project.name)
 
     def test_get_last_5_tests_for_a_team_ordered_by_date_created_desc(self):
-        self.adding_to_project(7, self.team, self.project)
-        self.adding_to_project(6, self.team, self.team.projects[1])
+        self.adding_to_project(7, team=self.team, project=self.project)
+        self.adding_to_project(6, team=self.team, project=self.team.projects[1])
         self.adding_to_project(6)
         loaded_tests = list(LoadTest.get_by_team(self.team))
         expect(loaded_tests).to_length(10)
@@ -129,20 +132,23 @@ class TestCreatingLoadTestModel(ModelTestCase):
         load_tests_for_project2 = [load_test for load_test in loaded_tests if load_test.project_name == another_project_name]
         expect(load_tests_for_project2).to_length(5)
 
-    # def test_get_last_3_load_tests_for_all_projects_when_owner(self):
-    #     loaded_tests = list(LoadTest.get_by_user(self.user))
-    #     expect(loaded_tests).to_length(6)
+    def test_get_last_3_load_tests_for_all_projects_when_owner(self):
+        self.adding_to_project(4, team=self.team, project=self.project)
+        self.adding_to_project(4, team=self.team, project=self.team.projects[1])
+        team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_projects(team, 1)
+        self.adding_to_project(4, team=team, project=team.projects[0])
+        self.adding_to_project(4, user=UserFactory.create())
+        loaded_tests = list(LoadTest.get_by_user(self.user))
+        expect(loaded_tests).to_length(9)
 
-    # def test_get_all_scheduled_tests(self):
-    #     LoadTestFactory.create(project=self.project, scheduled=True)
-    #     LoadTestFactory.create(project=self.project, scheduled=False)
-    #     LoadTestFactory.create(project=self.team.projects[1], scheduled=True)
-    #     loaded_tests = list(LoadTest.get_scheduled())
-    #     expect(loaded_tests).to_length(2)
-    #
-    # def test_get_all_scheduled_tests_by_projects(self):
-    #     LoadTestFactory.create(project=self.project, scheduled=True)
-    #     LoadTestFactory.create(project=self.project, scheduled=False)
-    #     LoadTestFactory.create(project=self.team.projects[1], scheduled=True)
-    #     loaded_tests = list(LoadTest.get_scheduled_by_project(self.project.name))
-    #     expect(loaded_tests).to_length(1)
+    def test_get_last_3_load_tests_for_all_projects_when_member(self):
+        TeamFactory.add_members(self.team, 1)
+        user = self.team.members[0]
+        self.adding_to_project(4, team=self.team, project=self.project)
+        self.adding_to_project(4, team=self.team, project=self.team.projects[1])
+        team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_projects(team, 1)
+        self.adding_to_project(4, team=team, project=team.projects[0])
+        loaded_tests = list(LoadTest.get_by_user(user))
+        expect(loaded_tests).to_length(6)
