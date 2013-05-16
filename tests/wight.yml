@@ -1,0 +1,6 @@
+tests:
+  -
+    title: HealthCheck Test
+    module: healthcheck.py
+    class: HealthCheckTest
+    test: test_healthcheck

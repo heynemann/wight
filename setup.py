@@ -15,7 +15,7 @@ tests_require = [
     'nose',
     'coverage',
     'yanc',
-    'preggy==0.5.1',
+    'preggy==0.5.7',
     'mock',
     'tox',
     'ipdb',
@@ -62,6 +62,7 @@ wight is a load testing scheduling and tracking tool.
         'prettytable',
         'colorama',
         'pyyaml',
+        'funkload',
     ],
     extras_require={
         'tests': tests_require,
