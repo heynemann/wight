@@ -11,9 +11,8 @@
 import sys
 
 from preggy import expect
-from mongoengine.base.document import ValidationError
 
-from wight.models import Team, LoadTest
+from wight.models import LoadTest
 from tests.unit.base import ModelTestCase
 from tests.factories import TeamFactory, UserFactory, LoadTestFactory
 
@@ -24,20 +23,6 @@ class TestCreatingLoadTestModel(ModelTestCase):
         self.team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(self.team, 2)
         self.project = self.team.projects[0]
-
-    def adding_to_project(self, load_tests=1, user=None, team=None, project=None):
-        if not user:
-            user = self.user
-
-        if not team:
-            team = TeamFactory.create(owner=user)
-
-        if not project:
-            TeamFactory.add_projects(team, 1)
-            project = team.projects[-1]
-
-        for i in range(load_tests):
-            LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
 
     def test_can_create_a_load_test_if_team_owner(self):
         test = LoadTestFactory.create(
@@ -113,17 +98,17 @@ class TestCreatingLoadTestModel(ModelTestCase):
         )
 
     def test_get_last_20_tests_for_a_team_and_project_ordered_by_date_created_desc(self):
-        self.adding_to_project(25, team=self.team, project=self.project)
-        self.adding_to_project(5, team=self.team, project=self.team.projects[1])
+        LoadTestFactory.adding_to_project(25, user=self.user, team=self.team, project=self.project)
+        LoadTestFactory.adding_to_project(5, user=self.user, team=self.team, project=self.team.projects[1])
         loaded_tests = list(LoadTest.get_by_team_and_project_name(self.team, self.project.name))
         expect(loaded_tests).to_length(20)
         for load_tests in loaded_tests:
             expect(load_tests.project_name).to_equal(self.project.name)
 
     def test_get_last_5_tests_for_a_team_ordered_by_date_created_desc(self):
-        self.adding_to_project(7, team=self.team, project=self.project)
-        self.adding_to_project(6, team=self.team, project=self.team.projects[1])
-        self.adding_to_project(6)
+        LoadTestFactory.adding_to_project(7, user=self.user, team=self.team, project=self.project)
+        LoadTestFactory.adding_to_project(6, user=self.user, team=self.team, project=self.team.projects[1])
+        LoadTestFactory.adding_to_project(6, user=self.user)
         loaded_tests = list(LoadTest.get_by_team(self.team))
         expect(loaded_tests).to_length(10)
         load_tests_for_project1 = [load_test for load_test in loaded_tests if load_test.project_name == self.project.name]
@@ -133,22 +118,22 @@ class TestCreatingLoadTestModel(ModelTestCase):
         expect(load_tests_for_project2).to_length(5)
 
     def test_get_last_3_load_tests_for_all_projects_when_owner(self):
-        self.adding_to_project(4, team=self.team, project=self.project)
-        self.adding_to_project(4, team=self.team, project=self.team.projects[1])
+        LoadTestFactory.adding_to_project(4, user=self.user, team=self.team, project=self.project)
+        LoadTestFactory.adding_to_project(4, user=self.user, team=self.team, project=self.team.projects[1])
         team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(team, 1)
-        self.adding_to_project(4, team=team, project=team.projects[0])
-        self.adding_to_project(4, user=UserFactory.create())
+        LoadTestFactory.adding_to_project(4, user=self.user, team=team, project=team.projects[0])
+        LoadTestFactory.adding_to_project(4, user=UserFactory.create())
         loaded_tests = list(LoadTest.get_by_user(self.user))
         expect(loaded_tests).to_length(9)
 
     def test_get_last_3_load_tests_for_all_projects_when_member(self):
         TeamFactory.add_members(self.team, 1)
         user = self.team.members[0]
-        self.adding_to_project(4, team=self.team, project=self.project)
-        self.adding_to_project(4, team=self.team, project=self.team.projects[1])
+        LoadTestFactory.adding_to_project(4, user=self.user, team=self.team, project=self.project)
+        LoadTestFactory.adding_to_project(4, user=self.user, team=self.team, project=self.team.projects[1])
         team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(team, 1)
-        self.adding_to_project(4, team=team, project=team.projects[0])
+        LoadTestFactory.adding_to_project(4, user=self.user, team=team, project=team.projects[0])
         loaded_tests = list(LoadTest.get_by_user(user))
         expect(loaded_tests).to_length(6)

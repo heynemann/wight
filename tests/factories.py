@@ -107,3 +107,18 @@ class LoadTestFactory(factory.Factory):
         if create:
             load_test.save()
         return load_test
+
+    @classmethod
+    def adding_to_project(cls, load_tests=1, user=None, team=None, project=None):
+        if not user:
+            user = UserFactory.create()
+
+        if not team:
+            team = TeamFactory.create(owner=user)
+
+        if not project:
+            TeamFactory.add_projects(team, 1)
+            project = team.projects[-1]
+
+        for i in range(load_tests):
+            LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
