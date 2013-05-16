@@ -62,8 +62,7 @@ class LoadTestHandler(BaseHandler):
     @BaseHandler.team_member
     def get(self, team, project_name):
         quantity = self.get_argument("quantity").strip()
-        if quantity:
-            quantity = int(quantity)
+        quantity = int(quantity) if quantity else 20
         load_tests = LoadTest.get_sliced_by_team_and_project_name(team, project_name, quantity)
         self.set_status(200)
         response = dumps([load_test.to_dict() for load_test in load_tests])

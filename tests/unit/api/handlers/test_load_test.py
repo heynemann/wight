@@ -95,6 +95,11 @@ class ListLoadTestsTest(FullTestCase):
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(401)
 
+    def test_get_return_400_if_quantity_not_passed(self):
+        url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(400)
+
     def test_get_return_403_if_not_team_owner(self):
         user = UserFactory.create(with_token=True)
         team = TeamFactory.create(owner=user)
@@ -110,9 +115,24 @@ class ListLoadTestsTest(FullTestCase):
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)
 
-    def test_get_20_load_tests(self):
+    def test_get_load_tests_with_quantity(self):
         LoadTestFactory.adding_to_project(24, user=self.user, team=self.team, project=self.project)
-        url = "/teams/%s/projects/%s/load_tests/?quantity=20" % (self.team.name, self.project.name)
+        url = "/teams/%s/projects/%s/load_tests/?quantity=16" % (self.team.name, self.project.name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+        obj = response.body
+        if isinstance(obj, six.binary_type):
+            obj = obj.decode('utf-8')
+
+        obj = loads(obj)
+        expect(obj).to_length(16)
+        load_test = LoadTest.objects(team=self.team, project_name=self.project.name).first()
+        expect(obj[0]).to_be_like(load_test.to_dict())
+
+    def test_get_load_tests_with_20_by_default_if_quantity_was_empty(self):
+        LoadTestFactory.adding_to_project(24, user=self.user, team=self.team, project=self.project)
+        url = "/teams/%s/projects/%s/load_tests/?quantity=" % (self.team.name, self.project.name)
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)
 
