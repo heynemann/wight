@@ -274,7 +274,6 @@ class TestCyclePages(EmbeddedDocument):
     total_pages = IntField(required=True)
     successful_pages = IntField(required=True)
     failed_pages = IntField(required=True)
-    failed_pages_percentage = FloatField(required=True)
 
     minimum = FloatField(required=True)
     average = FloatField(required=True)
