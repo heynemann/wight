@@ -14,7 +14,7 @@ from preggy import expect
 
 from wight.models import LoadTest
 from tests.unit.base import ModelTestCase
-from tests.factories import TeamFactory, UserFactory, LoadTestFactory
+from tests.factories import TeamFactory, UserFactory, LoadTestFactory, FunkLoadTestResultFactory
 
 
 class TestCreatingLoadTestModel(ModelTestCase):
@@ -168,7 +168,8 @@ class TestLoadFromFunkloadResult(ModelTestCase):
             'time': u'2013-05-17T17:39:01.511075',
             'version': u'1.16.1'
         }
-        cycles = {}
+
+        cycles = FunkLoadTestResultFactory.get_result(4)
 
         test.add_result(config, cycles)
 
@@ -176,8 +177,11 @@ class TestLoadFromFunkloadResult(ModelTestCase):
 
         expect(loaded_test).not_to_be_null()
 
-        expect(loaded_test.config).not_to_be_null()
-        cfg = loaded_test.config
+        expect(loaded_test.results).to_length(4)
+
+        result = loaded_test.results[0]
+
+        cfg = result.config
 
         expect(cfg.title).to_equal(config['class_title'])
         expect(cfg.description).to_equal(config['class_description'])

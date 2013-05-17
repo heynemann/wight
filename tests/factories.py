@@ -125,3 +125,91 @@ class LoadTestFactory(factory.Factory):
             test = LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
 
         return test
+
+
+class FunkLoadTestResultPercentiles(object):
+    def __init__(self, cycle, number_of_percentiles):
+        self.name = "%03s" % cycle
+        self.stepsize = 5
+        self.results = []
+        for i in xrange(0, 100, 5):
+            value = (1 - i / 100)
+            setattr(self, "perc%02s" % i, value)
+            self.results.append(value)
+
+    def calcPercentiles(self):
+        pass
+
+
+class FunkLoadTestResultPages(object):
+    def __init__(self, cycle):
+        self.finalized = False
+
+        self.apdex = "0.993"
+        self.apdex_score = "0.993"
+        self.avg = "0.234"
+        self.count = "200"
+        self.cvus = cycle * 10 + 1
+        self.cycle = "%03d" % cycle
+        self.cycle_duration = "10"
+        self.error = "0"
+        self.error_percent = "0.0"
+        self.max = "0.384"
+        self.min = "0.123"
+        self.per_second = {1368828264: 4, 1368828265: 33, 1368828266: 37, 1368828267: 32, 1368828268: 44, 1368828269: 26}
+        self.rps = 35.2
+        self.rps_max = 44.0
+        self.rps_min = 0
+        self.success = "300"
+        self.tps = "20.30394"
+        self.total = 0.99324
+
+        self.percentiles = FunkLoadTestResultPercentiles(cycle, self.success)
+
+    def finalize(self):
+        self.finalized = True
+
+
+class FunkLoadTestResultTests(object):
+    def __init__(self, cycle):
+        self.finalized = False
+
+        self.avg = "0.234"
+        self.count = "200"
+        self.cvus = cycle * 10 + 1
+        self.cycle = "%03d" % cycle
+        self.cycle_duration = "10"
+        self.error = "0"
+        self.error_percent = "0.0"
+        self.images = "2"
+        self.links = "3"
+        self.max = "0.384"
+        self.min = "0.123"
+        self.pages = "8"
+        self.redirects = "12"
+        self.success = "300"
+        self.total = "0.99923"
+        self.tps = "20.30394"
+        self.traceback = []
+        self.xmlrpc = "0"
+
+        self.percentiles = FunkLoadTestResultPercentiles(cycle, self.success)
+
+    def finalize(self):
+        self.finalized = True
+
+
+class FunkLoadTestResultFactory(object):
+    @staticmethod
+    def get_result(cycles):
+        results = {}
+        for cycle in xrange(cycles):
+            cycle_key = "%03s" % cycle
+            results[cycle_key] = {
+                'test': FunkLoadTestResultTests(cycle),
+                'response_step': None,
+                'response': FunkLoadTestResultPages(cycle),
+                'page': FunkLoadTestResultPages(cycle)
+            }
+
+        return results

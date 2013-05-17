@@ -320,6 +320,7 @@ class TestResult(EmbeddedDocument):
     pages_visited = IntField(required=True)
     requests_made = IntField(required=True)
 
+    config = EmbeddedDocumentField(TestConfiguration)
     cycles = ListField(EmbeddedDocumentField(TestCycle))
 
     def clean(self):
@@ -337,7 +338,6 @@ class LoadTest(Document):
     date_modified = DateTimeField(default=datetime.datetime.now)
 
     results = ListField(EmbeddedDocumentField(TestResult))
-    config = EmbeddedDocumentField(TestConfiguration)
 
     meta = {
         "ordering": ["-date_created"]
@@ -364,7 +364,7 @@ class LoadTest(Document):
         }
 
     def add_result(self, config, stats):
-        self.config = TestConfiguration(
+        cfg = TestConfiguration(
             title=config['class_title'],
             description=config['class_description'],
             test_date=datetime.datetime.strptime(config['time'], "%Y-%m-%dT%H:%M:%S.%f"),
@@ -388,12 +388,13 @@ class LoadTest(Document):
         for key, value in stats.items():
             value['test'].finalize()
             value['page'].finalize()
-            value['request'].finalize()
+            value['response'].finalize()
 
             result = TestResult(
                 tests_executed=value['test'].count,
                 pages_visited=value['page'].count,
-                requests_made=value['request'].count
+                requests_made=value['response'].count,
+                config=cfg
             )
 
             self.results.append(result)
