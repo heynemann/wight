@@ -8,7 +8,7 @@ test ci-test: mongo_test redis
 focus: mongo_test redis
 	@sleep 1
 	@rm -rf ~/.wighttest
-	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -a 'focus' -vv --with-yanc -s tests/unit/ 
+	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -a 'focus' -vv --with-yanc -s tests/unit/
 
 functional func f: mongo_test redis kill_app
 	@sleep 3
@@ -44,7 +44,7 @@ toxpypy:
 setup:
 	@if [ '' != '`which brew`' ]; then cat brew-requirements | xargs brew install; fi
 	@pip install git+git://github.com/heynemann/pygit2.git
-	@pip install -e .[tests]
+	@pip install -e .\[tests\]
 
 kill_redis:
 	-redis-cli -p 7780 shutdown
