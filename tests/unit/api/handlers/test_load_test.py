@@ -116,7 +116,7 @@ class ListLoadTestsTest(FullTestCase):
         expect(response.code).to_equal(200)
 
     def test_get_load_tests_with_quantity(self):
-        LoadTestFactory.adding_to_project(24, user=self.user, team=self.team, project=self.project)
+        LoadTestFactory.add_to_project(24, user=self.user, team=self.team, project=self.project)
         url = "/teams/%s/projects/%s/load_tests/?quantity=16" % (self.team.name, self.project.name)
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)
@@ -131,7 +131,7 @@ class ListLoadTestsTest(FullTestCase):
         expect(obj[0]).to_be_like(load_test.to_dict())
 
     def test_get_load_tests_with_20_by_default_if_quantity_was_empty(self):
-        LoadTestFactory.adding_to_project(24, user=self.user, team=self.team, project=self.project)
+        LoadTestFactory.add_to_project(24, user=self.user, team=self.team, project=self.project)
         url = "/teams/%s/projects/%s/load_tests/?quantity=" % (self.team.name, self.project.name)
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)

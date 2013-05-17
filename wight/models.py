@@ -242,6 +242,8 @@ class Project(EmbeddedDocument):
 class TestConfiguration(EmbeddedDocument):
     title = StringField(max_length=2000, required=True)
     description = StringField(max_length=2000, required=True)
+    test_date = DateTimeField(required=True)
+    funkload_version = StringField(max_length=255, required=True)
 
     module = StringField(required=True)
     class_name = StringField(required=True)
@@ -255,7 +257,6 @@ class TestConfiguration(EmbeddedDocument):
     sleep_time_max = FloatField(required=True)
 
     startup_delay = FloatField(required=True)
-    apdex_default = FloatField(required=True)
 
 
 class TestCycleTests(EmbeddedDocument):
@@ -315,17 +316,10 @@ class TestResult(EmbeddedDocument):
     date_created = DateTimeField(default=datetime.datetime.now)
     date_modified = DateTimeField(default=datetime.datetime.now)
 
-    pages = IntField(required=True)
-    redirects = IntField(required=True)
-    links = IntField(required=True)
-    images = IntField(required=True)
-    xmlrpcs = IntField(required=True)
-
     tests_executed = IntField(required=True)
     pages_visited = IntField(required=True)
     requests_made = IntField(required=True)
 
-    config = EmbeddedDocumentField(TestConfiguration)
     cycles = ListField(EmbeddedDocumentField(TestCycle))
 
     def clean(self):
@@ -343,6 +337,7 @@ class LoadTest(Document):
     date_modified = DateTimeField(default=datetime.datetime.now)
 
     results = ListField(EmbeddedDocumentField(TestResult))
+    config = EmbeddedDocumentField(TestConfiguration)
 
     meta = {
         "ordering": ["-date_created"]
@@ -367,6 +362,43 @@ class LoadTest(Document):
             "created": self.date_created.isoformat()[:19],
             "lastModified": self.date_modified.isoformat()[:19],
         }
+
+    def add_result(self, config, stats):
+        self.config = TestConfiguration(
+            title=config['class_title'],
+            description=config['class_description'],
+            test_date=datetime.datetime.strptime(config['time'], "%Y-%m-%dT%H:%M:%S.%f"),
+            funkload_version=config['version'],
+
+            module=config['module'],
+            class_name=config['class'],
+            test_name=config['method'],
+
+            target_server=config['server_url'],
+            cycles=config['cycles'],
+            cycle_duration=config['duration'],
+
+            sleep_time=float(config['sleep_time']),
+            sleep_time_min=float(config['sleep_time_min']),
+            sleep_time_max=float(config['sleep_time_max']),
+
+            startup_delay=float(config['startup_delay'])
+        )
+
+        for key, value in stats.items():
+            value['test'].finalize()
+            value['page'].finalize()
+            value['request'].finalize()
+
+            result = TestResult(
+                tests_executed=value['test'].count,
+                pages_visited=value['page'].count,
+                requests_made=value['request'].count
+            )
+
+            self.results.append(result)
+
+        self.save()
 
     @classmethod
     def get_by_team_and_project_name(cls, team, project_name):

@@ -36,3 +36,4 @@ class TestCanRunFunkloadBench(FunkLoadBaseTest):
         expect(result.xml).not_to_be_null()
         expect(result.result).not_to_be_null()
         expect(result.config).not_to_be_null()
+        import ipdb;ipdb.set_trace()

@@ -109,7 +109,7 @@ class LoadTestFactory(factory.Factory):
         return load_test
 
     @classmethod
-    def adding_to_project(cls, load_tests=1, user=None, team=None, project=None):
+    def add_to_project(cls, load_tests=1, user=None, team=None, project=None):
         if not user:
             user = UserFactory.create()
 
@@ -120,5 +120,8 @@ class LoadTestFactory(factory.Factory):
             TeamFactory.add_projects(team, 1)
             project = team.projects[-1]
 
+        test = None
         for i in range(load_tests):
-            LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
+            test = LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
+
+        return test
