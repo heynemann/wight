@@ -9,10 +9,11 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from datetime import datetime
+from uuid import uuid4
 
 import factory
 
-from wight.models import User, Team, Project
+from wight.models import User, Team, Project, LoadTest
 
 
 class UserFactory(factory.Factory):
@@ -62,9 +63,9 @@ class TeamFactory(factory.Factory):
         return team
 
     @classmethod
-    def add_members(cls, team, number_of_members):
+    def add_members(cls, team, number_of_members, with_token=False):
         for i in range(number_of_members):
-            team.members.append(UserFactory.create())
+            team.members.append(UserFactory.create(with_token=with_token))
 
         team.save()
 
@@ -85,3 +86,39 @@ class ProjectFactory(factory.Factory):
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())
     team = factory.SubFactory(UserFactory)
+    tests = []
+
+
+class LoadTestFactory(factory.Factory):
+    FACTORY_FOR = LoadTest
+
+    uuid = factory.LazyAttribute(lambda user: uuid4())
+    created_by = factory.SubFactory(UserFactory)
+    team = factory.SubFactory(TeamFactory)
+    project_name = factory.LazyAttributeSequence(lambda user, index: 'project-%d' % index)
+    base_url = factory.LazyAttributeSequence(lambda user, index: 'http://localhost:%04d' % index)
+    scheduled = True
+    date_modified = factory.LazyAttribute(lambda user: datetime.now())
+    date_created = factory.LazyAttribute(lambda user: datetime.now())
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        load_test = super(LoadTestFactory, cls)._prepare(create, **kwargs)
+        if create:
+            load_test.save()
+        return load_test
+
+    @classmethod
+    def adding_to_project(cls, load_tests=1, user=None, team=None, project=None):
+        if not user:
+            user = UserFactory.create()
+
+        if not team:
+            team = TeamFactory.create(owner=user)
+
+        if not project:
+            TeamFactory.add_projects(team, 1)
+            project = team.projects[-1]
+
+        for i in range(load_tests):
+            LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)

@@ -19,8 +19,11 @@ from uuid import uuid4
 import six
 from mongoengine import (
     Document, EmbeddedDocument,  # documents
-    UUIDField, StringField, DateTimeField, ListField, ReferenceField, EmbeddedDocumentField  # fields
-)
+
+    UUIDField, StringField, IntField, FloatField, DateTimeField, BooleanField, ListField,
+    URLField, ReferenceField, EmbeddedDocumentField,  # fields
+
+    DoesNotExist, Q)
 from mongoengine.queryset import NotUniqueError
 
 
@@ -96,7 +99,7 @@ class User(Document):
 
     @classmethod
     def get_hash_for(cls, salt, password):
-        return (hmac.new(six.b(str(salt)), six.b(str(password)), hashlib.sha1).hexdigest())
+        return hmac.new(six.b(str(salt)), six.b(str(password)), hashlib.sha1).hexdigest()
 
     @classmethod
     def authenticate(cls, email, password, expiration=2 * 60 * 24):
@@ -191,6 +194,25 @@ class Team(Document):
         self.projects.append(prj)
         self.save()
 
+        return prj
+
+    def update_project(self, project_name, new_name=None, new_repository=None):
+        project_exists = False
+        for project in self.projects:
+            if project.name == project_name:
+                project_exists = True
+                project.name = new_name if new_name else project.name
+                project.repository = new_repository if new_repository else project.repository
+                break
+        if project_exists:
+            self.save()
+        else:
+            raise DoesNotExist("Project with name '%s' was not found." % project_name)
+
+    def delete_project(self, project_name):
+        self.projects = [project for project in self.projects if project.name != project_name]
+        self.save()
+
 
 class Project(EmbeddedDocument):
     name = StringField(max_length=2000, required=True)
@@ -215,3 +237,156 @@ class Project(EmbeddedDocument):
             "repository": self.repository,
             "createdBy": self.created_by.email
         }
+
+
+class TestConfiguration(EmbeddedDocument):
+    title = StringField(max_length=2000, required=True)
+    description = StringField(max_length=2000, required=True)
+
+    module = StringField(required=True)
+    class_name = StringField(required=True)
+    test_name = StringField(required=True)
+    target_server = StringField(required=True)
+    cycles = StringField(required=True)
+    cycle_duration = IntField(required=True)
+
+    sleep_time = FloatField(required=True)
+    sleep_time_min = FloatField(required=True)
+    sleep_time_max = FloatField(required=True)
+
+    startup_delay = FloatField(required=True)
+    apdex_default = FloatField(required=True)
+
+
+class TestCycleTests(EmbeddedDocument):
+    successful_tests_per_second = FloatField(required=True)
+    total_tests = IntField(required=True)
+    successful_tests = IntField(required=True)
+    failed_tests = IntField(required=True)
+    failed_tests_percentage = FloatField(required=True)
+
+
+class TestCyclePages(EmbeddedDocument):
+    apdex = FloatField(Required=True)
+    successful_pages_per_second = FloatField(required=True)
+    maximum_successful_pages_per_second = FloatField(required=True)
+
+    total_pages = IntField(required=True)
+    successful_pages = IntField(required=True)
+    failed_pages = IntField(required=True)
+
+    minimum = FloatField(required=True)
+    average = FloatField(required=True)
+    maximum = FloatField(required=True)
+    p10 = FloatField(required=True)
+    p50 = FloatField(required=True)
+    p90 = FloatField(required=True)
+    p95 = FloatField(required=True)
+
+
+class TestCycleRequests(EmbeddedDocument):
+    apdex = FloatField(Required=True)
+    successful_requests_per_second = FloatField(required=True)
+    maximum_successful_requests_per_second = FloatField(required=True)
+    total_requests = IntField(required=True)
+    successful_requests = IntField(required=True)
+    failed_requests = IntField(required=True)
+
+    minimum = FloatField(required=True)
+    average = FloatField(required=True)
+    maximum = FloatField(required=True)
+    p10 = FloatField(required=True)
+    p50 = FloatField(required=True)
+    p90 = FloatField(required=True)
+    p95 = FloatField(required=True)
+
+
+class TestCycle(EmbeddedDocument):
+    cycle_number = IntField(required=True)
+    concurrent_users = IntField(required=True)
+
+    test = EmbeddedDocumentField(TestCycleTests)
+    page = EmbeddedDocumentField(TestCyclePages)
+    request = EmbeddedDocumentField(TestCycleRequests)
+
+
+class TestResult(EmbeddedDocument):
+    uuid = UUIDField(required=True, default=uuid4())
+    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.now)
+
+    pages = IntField(required=True)
+    redirects = IntField(required=True)
+    links = IntField(required=True)
+    images = IntField(required=True)
+    xmlrpcs = IntField(required=True)
+
+    tests_executed = IntField(required=True)
+    pages_visited = IntField(required=True)
+    requests_made = IntField(required=True)
+
+    config = EmbeddedDocumentField(TestConfiguration)
+    cycles = ListField(EmbeddedDocumentField(TestCycle))
+
+    def clean(self):
+        self.date_modified = datetime.datetime.now()
+
+
+class LoadTest(Document):
+    uuid = UUIDField(required=True, default=uuid4())
+    scheduled = BooleanField()
+    team = ReferenceField(Team, required=True)
+    created_by = ReferenceField(User, required=True)
+    project_name = StringField(max_length=2000, required=True)
+    base_url = URLField(max_length=2000, required=True)
+    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.now)
+
+    results = ListField(EmbeddedDocumentField(TestResult))
+
+    meta = {
+        "ordering": ["-date_created"]
+    }
+
+    def clean(self):
+        if self.created_by.id != self.team.owner.id:
+            team_member_ids = [member.id for member in self.team.members]
+            if self.created_by.id not in team_member_ids:
+                raise ValueError("Only the owner or members of team %s can create tests for it." % self.team.name)
+
+        self.date_modified = datetime.datetime.now()
+
+    def to_dict(self):
+        return {
+            "uuid": str(self.uuid),
+            "createdBy": self.created_by.email,
+            "team": self.team.name,
+            "project": self.project_name,
+            "baseUrl": str(self.base_url),
+            "scheduled": self.scheduled,
+            "created": self.date_created.isoformat()[:19],
+            "lastModified": self.date_modified.isoformat()[:19],
+        }
+
+    @classmethod
+    def get_by_team_and_project_name(cls, team, project_name):
+        return cls.get_sliced_by_team_and_project_name(team, project_name, 20)
+
+    @classmethod
+    def get_by_team(cls, team, quantity=5):
+        results = []
+        for project in team.projects:
+            results.extend(cls.get_sliced_by_team_and_project_name(team, project.name, quantity))
+        return results
+
+    @classmethod
+    def get_sliced_by_team_and_project_name(cls, team, project_name, quantity):
+        return LoadTest.objects(team=team, project_name=project_name)[:quantity]
+
+    @classmethod
+    def get_by_user(cls, user):
+        results = []
+        teams = Team.objects(Q(members__contains=user) | Q(owner=user))
+        for team in teams:
+            results.extend(cls.get_by_team(team, quantity=3))
+        return results

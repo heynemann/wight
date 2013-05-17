@@ -1,0 +1,60 @@
+body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+.hero-unit p {
+    margin-top: 15px;
+}
+
+.hero-unit p small {
+    display: block;
+    margin-top: -20px;
+}
+
+.toolbar a {
+    font-size: 14px;
+}
+
+.toolbar i {
+    margin-right: 5px;
+}
+
+.totals li,
+.stats li {
+    margin-top: 10px;
+}
+
+.totals li i,
+.stats li i {
+    margin-right: 2px;
+}
+
+.page-stats svg,
+.test-stats svg,
+.request-stats svg {
+    height: 400px;
+}
+
+.page-response-time svg {
+    height: 550px;
+}
+
+.page-apdex {
+    margin-top: -30px;
+}
+
+.page-apdex svg {
+    height: 200px;
+}
+
+.test-result-table {
+    margin-top: 10px;
+    margin-bottom: 60px;
+}
+
+.legend {
+    margin-top: -60px;
+    margin-bottom: 30px;
+    text-align: right;
+}

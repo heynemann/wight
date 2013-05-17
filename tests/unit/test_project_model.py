@@ -81,3 +81,38 @@ class TestProjectModel(ModelTestCase):
         expect(retrieved).not_to_be_null()
         expect(retrieved.projects).to_length(1)
         expect(retrieved.projects[0].name).to_equal(team2.projects[0].name)
+
+    def test_update_a_project_with_name_and_repository(self):
+        team = TeamFactory.create()
+        TeamFactory.add_projects(team, 1)
+        project = team.projects[0]
+        team.update_project(project.name, "new-name", "new-repository")
+        retrieved = Team.objects.filter(name=team.name).first()
+        expect(retrieved.projects[0].name).to_equal("new-name")
+        expect(retrieved.projects[0].repository).to_equal("new-repository")
+
+    def test_update_a_project_with_name(self):
+        team = TeamFactory.create()
+        TeamFactory.add_projects(team, 1)
+        project = team.projects[0]
+        team.update_project(project.name, "new-name")
+        retrieved = Team.objects.filter(name=team.name).first()
+        expect(retrieved.projects[0].name).to_equal("new-name")
+        expect(retrieved.projects[0].repository).to_equal(project.repository)
+
+    def test_update_a_project_with_repository(self):
+        team = TeamFactory.create()
+        TeamFactory.add_projects(team, 1)
+        project = team.projects[0]
+        team.update_project(project.name, new_repository="new-repository")
+        retrieved = Team.objects.filter(name=team.name).first()
+        expect(retrieved.projects[0].name).to_equal(project.name)
+        expect(retrieved.projects[0].repository).to_equal("new-repository")
+
+    def test_delete_a_project(self):
+        team = TeamFactory.create()
+        TeamFactory.add_projects(team, 1)
+        project = team.projects[0]
+        team.delete_project(project.name)
+        retrieved = Team.objects.filter(name=team.name).first()
+        expect(retrieved.projects).to_length(0)

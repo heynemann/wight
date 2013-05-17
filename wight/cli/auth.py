@@ -25,11 +25,6 @@ class AuthController(WightBaseController):
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
         ]
 
-    def __abort(self, message="Aborting..."):
-        self.line_break()
-        self.puterror(message)
-        self.line_break()
-
     @controller.expose(hide=True, help='Log-in to wight (or register if user not found).')
     def default(self):
         if not self.app.user_data or not self.app.user_data.target:
@@ -51,7 +46,7 @@ class AuthController(WightBaseController):
             )
 
         if not email:
-            self.__abort()
+            self.abort()
             return False
 
         password = self.arguments.password
@@ -61,7 +56,7 @@ class AuthController(WightBaseController):
             )
 
         if not password:
-            self.__abort()
+            self.abort()
             return False
 
         with ConnectedController(self):
@@ -71,10 +66,10 @@ class AuthController(WightBaseController):
             })
 
             if response.status_code == 400:
-                self.__abort("Invalid email or password")
+                self.abort("Invalid email or password")
                 return False
             if response.status_code == 403:
-                self.__abort("Authentication failed.")
+                self.abort("Authentication failed.")
                 return False
             elif response.status_code == 404:
                 register = self.ask_for("%sUser does not exist. Do you wish to register? [%sy/n%s]" % (
@@ -82,7 +77,7 @@ class AuthController(WightBaseController):
                 )
 
                 if not register or register.lower() not in ("y", "n") or register.lower() == "n":
-                    self.__abort()
+                    self.abort()
                     return False
 
                 response = self.get("/auth/register", headers={

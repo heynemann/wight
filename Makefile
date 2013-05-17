@@ -1,14 +1,23 @@
 test ci-test: mongo_test redis
 	@sleep 3
 	@rm -rf ~/.wighttest
-	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/unit/
+	@rm -rf .coverage
+	@coverage2 run --branch `which nosetests` -vv --with-yanc -s tests/unit/
+	@coverage2 report --omit="wight/worker/*" -m --fail-under=80
 
 focus: mongo_test redis
 	@sleep 1
 	@rm -rf ~/.wighttest
-	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -a 'focus' -vv --with-yanc -s --with-coverage --cover-erase --cover-inclusive --cover-package=wight tests/unit/ 
+	@WIGHT_USERDATA_PATH=~/.wighttest nosetests -a 'focus' -vv --with-yanc -s tests/unit/ 
 
-acceptance acc integration func functional: mongo_test redis kill_app
+functional func f: mongo_test redis kill_app
+	@sleep 3
+	@rm -rf ~/.wightfunc
+	@python wight/api/server.py --port 2368 --bind 0.0.0.0 --conf ./tests/acceptance/acceptance.conf &
+	@WIGHT_USERDATA_PATH=~/.wightfunc coverage2 run --source=wight.worker --branch `which nosetests` -vv --with-yanc -s tests/functional/
+	@coverage2 report -m --fail-under=80
+
+acceptance acc a: mongo_test redis kill_app
 	@sleep 3
 	@rm -rf ~/.wightacc
 	@python wight/api/server.py --port 2368 --bind 0.0.0.0 --conf ./tests/acceptance/acceptance.conf &
@@ -33,6 +42,8 @@ toxpypy:
 	@PATH=$$PATH:~/.pythonbrew/pythons/Python-2.6.*/bin/:~/.pythonbrew/pythons/Python-2.7.*/bin/:~/.pythonbrew/pythons/Python-3.0.*/bin/:~/.pythonbrew/pythons/Python-3.1.*/bin/:~/.pythonbrew/pythons/Python-3.2.3/bin/:~/.pythonbrew/pythons/Python-3.3.0/bin/ tox -e pypy
 
 setup:
+	@if [ '' != '`which brew`' ]; then cat brew-requirements | xargs brew install; fi
+	@pip install git+git://github.com/heynemann/pygit2.git
 	@pip install -e .[tests]
 
 kill_redis:
@@ -59,6 +70,10 @@ mongo_test: kill_mongo_test
 run: mongo redis
 	@sleep 3
 	@python wight/api/server.py --port 2367 --bind 0.0.0.0 --conf ./wight/api/local.conf -vvv --debug
+
+web: mongo redis
+	@sleep 3
+	@python wight/web/server.py --port 2368 --bind 0.0.0.0 --conf ./wight/api/local.conf -vvv --debug
 
 kill_app:
 	@-ps aux | egrep server.py | egrep -v egrep | awk ' { print $$2 } ' | xargs kill -9
