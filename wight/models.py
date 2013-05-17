@@ -19,8 +19,11 @@ from uuid import uuid4
 import six
 from mongoengine import (
     Document, EmbeddedDocument,  # documents
-    UUIDField, StringField, DateTimeField, BooleanField, ListField, ReferenceField, EmbeddedDocumentField,  # fields
-    URLField, DoesNotExist, Q)
+
+    UUIDField, StringField, IntField, FloatField, DateTimeField, BooleanField, ListField,
+    URLField, ReferenceField, EmbeddedDocumentField,  # fields
+
+    DoesNotExist, Q)
 from mongoengine.queryset import NotUniqueError
 
 
@@ -236,6 +239,100 @@ class Project(EmbeddedDocument):
         }
 
 
+class TestConfiguration(EmbeddedDocument):
+    title = StringField(max_length=2000, required=True)
+    description = StringField(max_length=2000, required=True)
+
+    module = StringField(required=True)
+    class_name = StringField(required=True)
+    test_name = StringField(required=True)
+    target_server = StringField(required=True)
+    cycles = StringField(required=True)
+    cycle_duration = IntField(required=True)
+
+    sleep_time = FloatField(required=True)
+    sleep_time_min = FloatField(required=True)
+    sleep_time_max = FloatField(required=True)
+
+    startup_delay = FloatField(required=True)
+    apdex_default = FloatField(required=True)
+
+
+class TestCycleTests(EmbeddedDocument):
+    successful_tests_per_second = FloatField(required=True)
+    total_tests = IntField(required=True)
+    successful_tests = IntField(required=True)
+    failed_tests = IntField(required=True)
+    failed_tests_percentage = FloatField(required=True)
+
+
+class TestCyclePages(EmbeddedDocument):
+    apdex = FloatField(Required=True)
+    successful_pages_per_second = FloatField(required=True)
+    maximum_successful_pages_per_second = FloatField(required=True)
+
+    total_pages = IntField(required=True)
+    successful_pages = IntField(required=True)
+    failed_pages = IntField(required=True)
+    failed_pages_percentage = FloatField(required=True)
+
+    minimum = FloatField(required=True)
+    average = FloatField(required=True)
+    maximum = FloatField(required=True)
+    p10 = FloatField(required=True)
+    p50 = FloatField(required=True)
+    p90 = FloatField(required=True)
+    p95 = FloatField(required=True)
+
+
+class TestCycleRequests(EmbeddedDocument):
+    apdex = FloatField(Required=True)
+    successful_requests_per_second = FloatField(required=True)
+    maximum_successful_requests_per_second = FloatField(required=True)
+    total_requests = IntField(required=True)
+    successful_requests = IntField(required=True)
+    failed_requests = IntField(required=True)
+
+    minimum = FloatField(required=True)
+    average = FloatField(required=True)
+    maximum = FloatField(required=True)
+    p10 = FloatField(required=True)
+    p50 = FloatField(required=True)
+    p90 = FloatField(required=True)
+    p95 = FloatField(required=True)
+
+
+class TestCycle(EmbeddedDocument):
+    cycle_number = IntField(required=True)
+    concurrent_users = IntField(required=True)
+
+    test = EmbeddedDocumentField(TestCycleTests)
+    page = EmbeddedDocumentField(TestCyclePages)
+    request = EmbeddedDocumentField(TestCycleRequests)
+
+
+class TestResult(EmbeddedDocument):
+    uuid = UUIDField(required=True, default=uuid4())
+    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.now)
+
+    pages = IntField(required=True)
+    redirects = IntField(required=True)
+    links = IntField(required=True)
+    images = IntField(required=True)
+    xmlrpcs = IntField(required=True)
+
+    tests_executed = IntField(required=True)
+    pages_visited = IntField(required=True)
+    requests_made = IntField(required=True)
+
+    config = EmbeddedDocumentField(TestConfiguration)
+    cycles = ListField(EmbeddedDocumentField(TestCycle))
+
+    def clean(self):
+        self.date_modified = datetime.datetime.now()
+
+
 class LoadTest(Document):
     uuid = UUIDField(required=True, default=uuid4())
     scheduled = BooleanField()
@@ -245,6 +342,8 @@ class LoadTest(Document):
     base_url = URLField(max_length=2000, required=True)
     date_created = DateTimeField(default=datetime.datetime.now)
     date_modified = DateTimeField(default=datetime.datetime.now)
+
+    results = ListField(EmbeddedDocumentField(TestResult))
 
     meta = {
         "ordering": ["-date_created"]
