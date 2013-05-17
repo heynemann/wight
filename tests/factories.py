@@ -97,7 +97,7 @@ class LoadTestFactory(factory.Factory):
     team = factory.SubFactory(TeamFactory)
     project_name = factory.LazyAttributeSequence(lambda user, index: 'project-%d' % index)
     base_url = factory.LazyAttributeSequence(lambda user, index: 'http://localhost:%04d' % index)
-    scheduled = True
+    status = "Scheduled"
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())
 

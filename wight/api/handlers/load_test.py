@@ -50,7 +50,7 @@ class LoadTestHandler(BaseHandler):
 
         project = project[0]
 
-        test = LoadTest(scheduled=True, base_url=base_url, team=team, created_by=self.current_user, project_name=project.name)
+        test = LoadTest(status="Scheduled", base_url=base_url, team=team, created_by=self.current_user, project_name=project.name)
         test.save()
 
         self.set_status(200)

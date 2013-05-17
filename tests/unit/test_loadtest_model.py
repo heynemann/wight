@@ -28,13 +28,12 @@ class TestCreatingLoadTestModel(ModelTestCase):
         test = LoadTestFactory.create(
             created_by=self.user,
             team=self.team,
-            project_name=self.project.name,
-            scheduled=False
+            project_name=self.project.name
         )
         retrieveds = LoadTest.objects(id=test.id)
         expect(retrieveds.count()).to_equal(1)
         retrieved = retrieveds.first()
-        expect(retrieved.scheduled).to_equal(False)
+        expect(retrieved.status).to_equal("Scheduled")
         expect(retrieved.created_by.email).to_equal(self.user.email)
         expect(retrieved.team.name).to_equal(self.team.name)
         expect(retrieved.project_name).to_equal(self.project.name)
@@ -47,13 +46,12 @@ class TestCreatingLoadTestModel(ModelTestCase):
         test = LoadTestFactory.create(
             created_by=user,
             team=self.team,
-            project_name=self.project.name,
-            scheduled=False
+            project_name=self.project.name
         )
         retrieveds = LoadTest.objects(id=test.id)
         expect(retrieveds.count()).to_equal(1)
         retrieved = retrieveds.first()
-        expect(retrieved.scheduled).to_equal(False)
+        expect(retrieved.status).to_equal("Scheduled")
         expect(retrieved.created_by.email).to_equal(user.email)
         expect(retrieved.team.name).to_equal(self.team.name)
         expect(retrieved.project_name).to_equal(self.project.name)
@@ -65,8 +63,7 @@ class TestCreatingLoadTestModel(ModelTestCase):
             LoadTestFactory.create(
                 created_by=UserFactory.create(),
                 team=self.team,
-                project_name=self.project.name,
-                scheduled=False
+                project_name=self.project.name
             )
         except ValueError:
             exc = sys.exc_info()[1]
@@ -80,7 +77,6 @@ class TestCreatingLoadTestModel(ModelTestCase):
             created_by=self.user,
             team=self.team,
             project_name=self.project.name,
-            scheduled=False,
             base_url="http://some-server.com/some-url"
         )
         retrieved = LoadTest.objects(id=test.id).first()
@@ -91,7 +87,7 @@ class TestCreatingLoadTestModel(ModelTestCase):
                 "createdBy": self.user.email,
                 "team": self.team.name,
                 "project": self.project.name,
-                "scheduled": test.scheduled,
+                "status": test.status,
                 "created": test.date_created.isoformat()[:19],
                 "lastModified": test.date_modified.isoformat()[:19],
             }

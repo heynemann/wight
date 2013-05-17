@@ -12,8 +12,6 @@ from json import loads
 from preggy import expect
 import six
 
-from bson import json_util
-
 from wight.models import LoadTest
 from tests.unit.base import FullTestCase
 from tests.factories import TeamFactory, UserFactory, LoadTestFactory

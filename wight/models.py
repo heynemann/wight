@@ -328,7 +328,7 @@ class TestResult(EmbeddedDocument):
 
 class LoadTest(Document):
     uuid = UUIDField(required=True, default=uuid4())
-    scheduled = BooleanField()
+    status = StringField(required=True, choices=("Scheduled", "Running", "Finished"))
     team = ReferenceField(Team, required=True)
     created_by = ReferenceField(User, required=True)
     project_name = StringField(max_length=2000, required=True)
@@ -358,7 +358,7 @@ class LoadTest(Document):
             "team": self.team.name,
             "project": self.project_name,
             "baseUrl": str(self.base_url),
-            "scheduled": self.scheduled,
+            "status": self.status,
             "created": self.date_created.isoformat()[:19],
             "lastModified": self.date_modified.isoformat()[:19],
         }
