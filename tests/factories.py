@@ -213,3 +213,29 @@ class FunkLoadTestResultFactory(object):
             }
 
         return results
+
+    @staticmethod
+    def get_config():
+        return {
+            u'class': u'HealthCheckTest',
+            u'class_description': u'Testando se o healthcheck aguenta carga.',
+            u'class_title': u'HealthCheck Tests',
+            u'configuration_file': u'/private/var/folders/th/z6vmj34j1gngpvwl5fg5t9440000gp/T/tmprkUn7b/HealthCheckTest.conf',
+            u'cycle_time': u'1.0',
+            u'cycles': u'[10, 20]',
+            u'description': u'Testando se o healthcheck aguenta carga.',
+            u'duration': u'5',
+            u'id': u'test_healthcheck',
+            u'log_xml': u'/private/var/folders/th/z6vmj34j1gngpvwl5fg5t9440000gp/T/tmprkUn7b/funkload.xml',
+            u'method': u'test_healthcheck',
+            u'module': u'test_healthcheck',
+            u'node': u'HeynemannMBP',
+            u'python_version': u'2.7.3',
+            u'server_url': u'http://localhost:2368',
+            u'sleep_time': u'0.01',
+            u'sleep_time_max': u'0.5',
+            u'sleep_time_min': u'0.0',
+            u'startup_delay': u'0.01',
+            'time': u'2013-05-17T17:39:01.511075',
+            'version': u'1.16.1'
+        }
