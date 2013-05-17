@@ -30,8 +30,10 @@ from tests.unit.base import TestCase
 
 
 def get_mock_side_effect(*args, **kwargs):
+    response = Mock()
+    response.status_code = 200
     if args[0] == "/user/info":
-        return """
+        response.content = """
         {
             "user": {
                 "email": "awesome@gmail.com",
@@ -43,7 +45,7 @@ def get_mock_side_effect(*args, **kwargs):
         }
         """
     elif args[0] == "/teams/team1":
-        return """
+        response.content = """
         {
             "projects": [
                 {"name": "project1"},
@@ -52,7 +54,7 @@ def get_mock_side_effect(*args, **kwargs):
         }
         """
     elif args[0] == "/teams/team2":
-        return """
+        response.content = """
         {
             "projects": [
                 {"name": "project3"},
@@ -61,7 +63,7 @@ def get_mock_side_effect(*args, **kwargs):
         }
         """
     elif args[0] == "/teams/nameless":
-        return """
+        response.content = """
         {
             "projects": [
                 {"name": "project-nameless1"},
@@ -70,21 +72,21 @@ def get_mock_side_effect(*args, **kwargs):
         }
         """
     elif args[0] == "/teams/nameless/projects/project-nameless1/load_tests/?quantity=5":
-        return generate_fake_load_you_know_what(2, "nameless", "project-nameless1")
+        response.content = generate_fake_load_you_know_what(2, "nameless", "project-nameless1")
     elif args[0] == "/teams/nameless/projects/project-nameless2/load_tests/?quantity=5":
-        return generate_fake_load_you_know_what(1, "nameless", "project-nameless2")
+        response.content = generate_fake_load_you_know_what(1, "nameless", "project-nameless2")
     elif args[0] == "/teams/team1/projects/project1/load_tests/?quantity=3":
-        return generate_fake_load_you_know_what(1, "team1", "project1")
+        response.content = generate_fake_load_you_know_what(1, "team1", "project1")
     elif args[0] == "/teams/team1/projects/project2/load_tests/?quantity=3":
-        return generate_fake_load_you_know_what(1, "team1", "project1")
+        response.content = generate_fake_load_you_know_what(1, "team1", "project1")
     elif args[0] == "/teams/team2/projects/project3/load_tests/?quantity=3":
-        return generate_fake_load_you_know_what(3, "team1", "project1")
+        response.content = generate_fake_load_you_know_what(3, "team1", "project1")
     elif args[0] == "/teams/team2/projects/project4/load_tests/?quantity=3":
-        return generate_fake_load_you_know_what(1, "team1", "project1")
+        response.content = generate_fake_load_you_know_what(1, "team1", "project1")
     elif args[0] == "/teams/nameless/projects/project-nany/load_tests/?quantity=20":
-        return generate_fake_load_you_know_what(1, "nameless", "project-nany")
+        response.content = generate_fake_load_you_know_what(1, "nameless", "project-nany")
 
-    return ""
+    return response
 
 
 def generate_fake_load_you_know_what(quantity, team, project):
@@ -96,7 +98,7 @@ def generate_fake_load_you_know_what(quantity, team, project):
             "createdBy": "",
             "team": team,
             "project": project,
-            "scheduled": True,
+            "status": True,
             "created": "31/12/2060 00:00:00",
             "lastModified": "31/12/2060 00:00:00",
         })
@@ -157,7 +159,7 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
 
 class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team_name": None, "project_name": None}
+        self.controller_kwargs = {"team": None, "project": None}
         self.controller_class = ListLoadTestController
         super(ListAllLoadTestControllerTest, self).setUp()
 
@@ -236,7 +238,7 @@ class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
 
 class ListTeamLoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team_name": "nameless", "project_name": None}
+        self.controller_kwargs = {"team": "nameless", "project": None}
         self.controller_class = ListLoadTestController
         super(ListTeamLoadTestControllerTest, self).setUp()
 
@@ -253,7 +255,7 @@ class ListTeamLoadTestControllerTest(LoadTestControllerTestBase):
 
 class ListTeamAndProjectLoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team_name": "nameless", "project_name": "project-nany"}
+        self.controller_kwargs = {"team": "nameless", "project": "project-nany"}
         self.controller_class = ListLoadTestController
         super(ListTeamAndProjectLoadTestControllerTest, self).setUp()
 

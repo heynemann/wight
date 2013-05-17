@@ -73,15 +73,15 @@ class ListLoadTestController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['--team_name'], dict(help='The name of the team that owns the project to list load tests', required=False)),
-            (['--project_name'], dict(help='The name of the project to list load tests', required=False)),
+            (['--team'], dict(help='The name of the team that owns the project to list load tests', required=False)),
+            (['--project'], dict(help='The name of the project to list load tests', required=False)),
         ]
 
     @controller.expose(hide=False, aliases=["list"], help='List a load tests.')
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
-        team_name = self.arguments.team_name
+        team_name = self.arguments.team
         teams_names = []
         quantity = "3"
         if team_name:
@@ -89,14 +89,14 @@ class ListLoadTestController(WightBaseController):
             quantity = "5"
         else:
             user_info = self.get("/user/info")
-            user_info = loads(user_info)
+            user_info = loads(user_info.content)
             teams_names = [team["name"] for team in user_info["user"]["teams"]]
 
-        project_name = self.arguments.project_name
+        project_name = self.arguments.project
         teams_projects = []
         for team_name in teams_names:
             team_info = self.get("/teams/%s" % team_name)
-            team_info = loads(team_info)
+            team_info = loads(team_info.content)
             if project_name:
                 teams_projects.append((team_name, project_name))
                 quantity = "20"
@@ -107,7 +107,7 @@ class ListLoadTestController(WightBaseController):
         for team_project in teams_projects:
             team, project = team_project
             load_test_info = self.get("/teams/%s/projects/%s/load_tests/?quantity=%s" % (team, project, quantity))
-            load_tests.append({"header": team_project, "load_tests": loads(load_test_info)})
+            load_tests.append({"header": team_project, "load_tests": loads(load_test_info.content)})
 
         self.__print_load_tests(load_tests)
 
@@ -130,5 +130,5 @@ class ListLoadTestController(WightBaseController):
             table.align[headers[2]] = "l"
 
             for test in load_test["load_tests"]:
-                table.add_row([test["uuid"], test["scheduled"], "wight show %s" % test["uuid"]])
+                table.add_row([test["uuid"], test["status"], "wight show %s" % test["uuid"]])
             self.puts(table)

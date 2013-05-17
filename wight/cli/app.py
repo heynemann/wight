@@ -17,7 +17,7 @@ from wight.cli.target import TargetSetController, TargetGetController
 from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, TeamAddUserController, DeleteTeamController, TeamRemoveUserController
 from wight.cli.project import CreateProjectController, UpdateProjectController, DeleteProjectController
 from wight.cli.user import ShowUserController, ChangePasswordController
-from wight.cli.load_test import ScheduleLoadTestController
+from wight.cli.load_test import ScheduleLoadTestController, ListLoadTestController
 from wight.models import UserData
 
 
@@ -47,7 +47,8 @@ class WightApp(foundation.CementApp):
             DeleteProjectController,
             TeamRemoveUserController,
             ChangePasswordController,
-            ScheduleLoadTestController
+            ScheduleLoadTestController,
+            ListLoadTestController
         ]
 
         for controller in self.controllers:
