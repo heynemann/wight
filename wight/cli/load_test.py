@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from json import loads
 
 from cement.core import controller
 
@@ -60,3 +61,44 @@ class ScheduleLoadTestController(WightBaseController):
                 ))
 
             self.line_break()
+
+
+class ListLoadTestController(WightBaseController):
+    class Meta:
+        label = 'list'
+        stack_on = 'base'
+        description = 'List load tests.'
+        config_defaults = dict()
+
+        arguments = [
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            (['--team_name'], dict(help='The name of the team that owns the project to list load tests', required=False)),
+            (['--project_name'], dict(help='The name of the project to list load tests', required=False)),
+        ]
+
+    @controller.expose(hide=False, aliases=["list"], help='List a load tests.')
+    @WightBaseController.authenticated
+    def default(self):
+        self.load_conf()
+        # target = self.app.user_data.target
+        team_name = self.arguments.team_name
+        # project_name = self.arguments.project_name
+        teams_names = []
+
+        if team_name:
+            teams_names.append(team_name)
+        else:
+            user_info = self.get("/user/info")
+            user_info = loads(user_info)
+            teams_names = [team["name"] for team in user_info["user"]["teams"]]
+
+        teams_projects = []
+        for team_name in teams_names:
+            team_info = self.get("/teams/%s" % team_name)
+            team_info = loads(team_info)
+            teams_projects.extend([(team_name, project["name"]) for project in team_info["projects"]])
+
+        load_tests = []
+        for team_project in teams_projects:
+            load_test_info = self.get("/teams/%s/projects/%s/load_tests/" % team_project)
+

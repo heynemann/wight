@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from tests.factories import TeamFactory
 
 from wight.errors import UnauthenticatedError
 
@@ -15,15 +16,58 @@ try:
 except ImportError:
     from io import StringIO
 
-from mock import patch, Mock
+from mock import patch, Mock, call
 
 from preggy import expect
 
-from wight.cli.load_test import ScheduleLoadTestController
+from wight.cli.load_test import ScheduleLoadTestController, ListLoadTestController
 
 from wight.models import UserData
 from wight.cli.base import requests
 from tests.unit.base import TestCase
+
+
+def get_mock_side_effect(*args, **kwargs):
+    if args[0] == "/user/info":
+        return """
+        {
+            "user": {
+                "email": "awesome@gmail.com",
+                "teams": [
+                    {"name": "team1", "role": "owner"},
+                    {"name": "team2", "role": "member"}
+                ]
+            }
+        }
+        """
+    elif args[0] == "/teams/team1":
+        return """
+        {
+            "projects": [
+                {"name": "project1"},
+                {"name": "project2"}
+            ]
+        }
+        """
+    elif args[0] == "/teams/team2":
+        return """
+        {
+            "projects": [
+                {"name": "project3"},
+                {"name": "project4"}
+            ]
+        }
+        """
+    elif args[0] == "/teams/nameless":
+        return """
+        {
+            "projects": [
+                {"name": "project-nameless1"},
+                {"name": "project-nameless2"}
+            ]
+        }
+        """
+    return ""
 
 
 class LoadTestControllerTestBase(TestCase):
@@ -76,3 +120,60 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
         self.ctrl.default()
         msg = "Project or team not found at target 'Target'."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
+
+
+class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team_name": None, "project_name": None}
+        self.controller_class = ListLoadTestController
+        super(ListAllLoadTestControllerTest, self).setUp()
+
+    def test_not_work_if_not_authenticated(self):
+        self.ctrl.app.user_data.token = None
+        try:
+            self.ctrl.default()
+        except UnauthenticatedError:
+            assert True
+            return
+
+        assert False, "Should not have gotten this far"
+
+    @patch.object(ListLoadTestController, 'get')
+    def test_get_user_info_to_use_team_as_filter(self, get_mock):
+        get_mock.side_effect = get_mock_side_effect
+        self.ctrl.default()
+        get_mock.assert_any_call("/user/info")
+
+    @patch.object(ListLoadTestController, 'get')
+    def test_get_all_teams_for_user_and_get_info_for_it(self, get_mock):
+        get_mock.side_effect = get_mock_side_effect
+        self.ctrl.default()
+        get_mock.assert_any_call("/user/info")
+        get_mock.assert_any_call("/teams/team1")
+        get_mock.assert_any_call("/teams/team2")
+
+    @patch.object(ListLoadTestController, 'get')
+    def test_get_load_tests_for_team_and_project(self, get_mock):
+        get_mock.side_effect = get_mock_side_effect
+        self.ctrl.default()
+        get_mock.assert_any_call("/teams/team1/projects/project1/load_tests/")
+        get_mock.assert_any_call("/teams/team1/projects/project2/load_tests/")
+        get_mock.assert_any_call("/teams/team2/projects/project3/load_tests/")
+        get_mock.assert_any_call("/teams/team2/projects/project4/load_tests/")
+
+
+class ListTeamLoadTestControllerTest(LoadTestControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team_name": "nameless", "project_name": None}
+        self.controller_class = ListLoadTestController
+        super(ListTeamLoadTestControllerTest, self).setUp()
+
+    @patch.object(ListLoadTestController, 'get')
+    def test_dont_get_teams_if_team_name_is_passed(self, get_mock):
+        get_mock.side_effect = get_mock_side_effect
+        self.ctrl.default()
+        calls = get_mock.call_args_list
+        expect(calls).not_to_include(call("/user/info"))
+        get_mock.assert_any_call("/teams/nameless")
+        get_mock.assert_any_call("/teams/nameless/projects/project-nameless1/load_tests/")
+        get_mock.assert_any_call("/teams/nameless/projects/project-nameless2/load_tests/")
