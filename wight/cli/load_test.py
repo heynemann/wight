@@ -83,9 +83,10 @@ class ListLoadTestController(WightBaseController):
         self.load_conf()
         team_name = self.arguments.team_name
         teams_names = []
-
+        quantity = "3"
         if team_name:
             teams_names.append(team_name)
+            quantity = "5"
         else:
             user_info = self.get("/user/info")
             user_info = loads(user_info)
@@ -98,12 +99,14 @@ class ListLoadTestController(WightBaseController):
             team_info = loads(team_info)
             if project_name:
                 teams_projects.append((team_name, project_name))
+                quantity = "20"
             else:
                 teams_projects.extend([(team_name, project["name"]) for project in team_info["projects"]])
 
         load_tests = []
         for team_project in teams_projects:
-            load_test_info = self.get("/teams/%s/projects/%s/load_tests/" % team_project)
+            team, project = team_project
+            load_test_info = self.get("/teams/%s/projects/%s/load_tests/?quantity=%s" % (team, project, quantity))
             load_tests.append({"header": team_project, "load_tests": loads(load_test_info)})
 
         self.__print_load_tests(load_tests)

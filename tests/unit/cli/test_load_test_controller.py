@@ -69,19 +69,19 @@ def get_mock_side_effect(*args, **kwargs):
             ]
         }
         """
-    elif args[0] == "/teams/nameless/projects/project-nameless1/load_tests/":
+    elif args[0] == "/teams/nameless/projects/project-nameless1/load_tests/?quantity=5":
         return generate_fake_load_you_know_what(2, "nameless", "project-nameless1")
-    elif args[0] == "/teams/nameless/projects/project-nameless2/load_tests/":
+    elif args[0] == "/teams/nameless/projects/project-nameless2/load_tests/?quantity=5":
         return generate_fake_load_you_know_what(1, "nameless", "project-nameless2")
-    elif args[0] == "/teams/team1/projects/project1/load_tests/":
+    elif args[0] == "/teams/team1/projects/project1/load_tests/?quantity=3":
         return generate_fake_load_you_know_what(1, "team1", "project1")
-    elif args[0] == "/teams/team1/projects/project2/load_tests/":
+    elif args[0] == "/teams/team1/projects/project2/load_tests/?quantity=3":
         return generate_fake_load_you_know_what(1, "team1", "project1")
-    elif args[0] == "/teams/team2/projects/project3/load_tests/":
+    elif args[0] == "/teams/team2/projects/project3/load_tests/?quantity=3":
         return generate_fake_load_you_know_what(3, "team1", "project1")
-    elif args[0] == "/teams/team2/projects/project4/load_tests/":
+    elif args[0] == "/teams/team2/projects/project4/load_tests/?quantity=3":
         return generate_fake_load_you_know_what(1, "team1", "project1")
-    elif args[0] == "/teams/nameless/projects/project-nany/load_tests/":
+    elif args[0] == "/teams/nameless/projects/project-nany/load_tests/?quantity=20":
         return generate_fake_load_you_know_what(1, "nameless", "project-nany")
 
     return ""
@@ -189,10 +189,10 @@ class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
     def test_get_load_tests_for_team_and_project(self, get_mock):
         get_mock.side_effect = get_mock_side_effect
         self.ctrl.default()
-        get_mock.assert_any_call("/teams/team1/projects/project1/load_tests/")
-        get_mock.assert_any_call("/teams/team1/projects/project2/load_tests/")
-        get_mock.assert_any_call("/teams/team2/projects/project3/load_tests/")
-        get_mock.assert_any_call("/teams/team2/projects/project4/load_tests/")
+        get_mock.assert_any_call("/teams/team1/projects/project1/load_tests/?quantity=3")
+        get_mock.assert_any_call("/teams/team1/projects/project2/load_tests/?quantity=3")
+        get_mock.assert_any_call("/teams/team2/projects/project3/load_tests/?quantity=3")
+        get_mock.assert_any_call("/teams/team2/projects/project4/load_tests/?quantity=3")
 
     @patch('sys.stdout', new_callable=StringIO)
     @patch.object(ListLoadTestController, 'get')
@@ -247,8 +247,8 @@ class ListTeamLoadTestControllerTest(LoadTestControllerTestBase):
         calls = get_mock.call_args_list
         expect(calls).not_to_include(call("/user/info"))
         get_mock.assert_any_call("/teams/nameless")
-        get_mock.assert_any_call("/teams/nameless/projects/project-nameless1/load_tests/")
-        get_mock.assert_any_call("/teams/nameless/projects/project-nameless2/load_tests/")
+        get_mock.assert_any_call("/teams/nameless/projects/project-nameless1/load_tests/?quantity=5")
+        get_mock.assert_any_call("/teams/nameless/projects/project-nameless2/load_tests/?quantity=5")
 
 
 class ListTeamAndProjectLoadTestControllerTest(LoadTestControllerTestBase):
@@ -263,7 +263,7 @@ class ListTeamAndProjectLoadTestControllerTest(LoadTestControllerTestBase):
         self.ctrl.default()
         calls = get_mock.call_args_list
         expect(calls).not_to_include(call("/user/info"))
-        expect(calls).not_to_include(call("/teams/nameless/projects/project-nameless1/load_tests/"))
-        expect(calls).not_to_include(call("/teams/nameless/projects/project-nameless2/load_tests/"))
+        expect(calls).not_to_include(call("/teams/nameless/projects/project-nameless1/load_tests/?quantity=20"))
+        expect(calls).not_to_include(call("/teams/nameless/projects/project-nameless2/load_tests/?quantity=20"))
         get_mock.assert_any_call("/teams/nameless")
-        get_mock.assert_any_call("/teams/nameless/projects/project-nany/load_tests/")
+        get_mock.assert_any_call("/teams/nameless/projects/project-nany/load_tests/?quantity=20")
