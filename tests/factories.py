@@ -13,7 +13,7 @@ from uuid import uuid4
 
 import factory
 
-from wight.models import User, Team, Project, LoadTest
+from wight.models import User, Team, Project, LoadTest, TestConfiguration, TestResult
 
 
 class UserFactory(factory.Factory):
@@ -89,6 +89,38 @@ class ProjectFactory(factory.Factory):
     tests = []
 
 
+class TestConfigurationFactory(factory.Factory):
+    FACTORY_FOR = TestConfiguration
+
+    title = factory.LazyAttributeSequence(lambda user, index: 'test-config-%d' % index)
+    description = factory.LazyAttributeSequence(lambda user, index: 'test-config-desc-%d' % index)
+
+    module = factory.LazyAttributeSequence(lambda user, index: 'module-test-%d' % index)
+    class_name = factory.LazyAttributeSequence(lambda user, index: 'ModuleTest%d' % index)
+    test_name = factory.LazyAttributeSequence(lambda user, index: 'test-config-name-%d' % index)
+    target_server = factory.LazyAttributeSequence(lambda user, index: 'target-%d' % index)
+    cycles = "[10,20,50,100]"
+    cycle_duration = 30
+    test_date = factory.LazyAttribute(lambda user: datetime.now())
+    funkload_version = "1.0.0"
+
+    sleep_time = 2
+    sleep_time_min = 1
+    sleep_time_max = 5
+
+    startup_delay = 10
+    apdex_default = 0.8
+
+
+class TestResultFactory(factory.Factory):
+    FACTORY_FOR = TestResult
+
+    tests_executed = 100
+    pages_visited = factory.LazyAttributeSequence(lambda result, i: result * i)
+    requests_made = factory.LazyAttributeSequence(lambda result, i: result ** i)
+    config = factory.SubFactory(TestConfigurationFactory)
+
+
 class LoadTestFactory(factory.Factory):
     FACTORY_FOR = LoadTest
 
@@ -100,6 +132,7 @@ class LoadTestFactory(factory.Factory):
     status = "Scheduled"
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())
+    results = [factory.SubFactory(TestResultFactory)]
 
     @classmethod
     def _prepare(cls, create, **kwargs):
