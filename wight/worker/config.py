@@ -20,7 +20,9 @@ except ImportError:
 
 
 class TestConfig(object):
-    def __init__(self, module, class_name, test_name):
+    def __init__(self, title, description, module, class_name, test_name):
+        self.title = title
+        self.description = description
         self.module = module
         self.class_name = class_name
         self.test_name = test_name
@@ -34,6 +36,8 @@ class WightConfig(object):
 
         for test in result.get('tests', []):
             test_obj = TestConfig(
+                test.get('title', None),
+                test.get('description', None),
                 test.get('module', None),
                 test.get('class', None),
                 test.get('test', None)
