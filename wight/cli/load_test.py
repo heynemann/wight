@@ -10,6 +10,7 @@
 from json import loads
 
 from cement.core import controller
+from prettytable import PrettyTable
 
 from wight.cli.base import WightBaseController, ConnectedController
 
@@ -80,9 +81,7 @@ class ListLoadTestController(WightBaseController):
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
-        # target = self.app.user_data.target
         team_name = self.arguments.team_name
-        # project_name = self.arguments.project_name
         teams_names = []
 
         if team_name:
@@ -92,13 +91,41 @@ class ListLoadTestController(WightBaseController):
             user_info = loads(user_info)
             teams_names = [team["name"] for team in user_info["user"]["teams"]]
 
+        project_name = self.arguments.project_name
         teams_projects = []
         for team_name in teams_names:
             team_info = self.get("/teams/%s" % team_name)
             team_info = loads(team_info)
-            teams_projects.extend([(team_name, project["name"]) for project in team_info["projects"]])
+            if project_name:
+                teams_projects.append((team_name, project_name))
+            else:
+                teams_projects.extend([(team_name, project["name"]) for project in team_info["projects"]])
 
         load_tests = []
         for team_project in teams_projects:
             load_test_info = self.get("/teams/%s/projects/%s/load_tests/" % team_project)
+            load_tests.append({"header": team_project, "load_tests": loads(load_test_info)})
 
+        self.__print_load_tests(load_tests)
+
+    def __print_load_tests(self, load_tests):
+        for load_test in load_tests:
+            self.line_break()
+            self.write("%sTeam%s: %s%s%s ---- %sProject%s: %s%s%s" % (
+                self.title_color, self.reset,
+                self.keyword_color, load_test["header"][0], self.reset,
+                self.title_color, self.reset,
+                self.keyword_color, load_test["header"][1], self.reset,
+            ))
+            headers = [
+                "%suuid%s" % (self.commands_color, self.reset),
+                "%sstatus%s" % (self.commands_color, self.reset),
+                ""
+            ]
+            table = PrettyTable(headers)
+            table.align[headers[0]] = "l"
+            table.align[headers[2]] = "l"
+
+            for test in load_test["load_tests"]:
+                table.add_row([test["uuid"], test["scheduled"], "wight show %s" % test["uuid"]])
+            self.puts(table)
