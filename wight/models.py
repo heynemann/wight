@@ -267,7 +267,7 @@ class TestCycleTests(EmbeddedDocument):
 
 
 class TestCyclePages(EmbeddedDocument):
-    apdex = FloatField(Required=True)
+    apdex = FloatField(required=True)
     successful_pages_per_second = FloatField(required=True)
     maximum_successful_pages_per_second = FloatField(required=True)
 
@@ -285,7 +285,7 @@ class TestCyclePages(EmbeddedDocument):
 
 
 class TestCycleRequests(EmbeddedDocument):
-    apdex = FloatField(Required=True)
+    apdex = FloatField(required=True)
     successful_requests_per_second = FloatField(required=True)
     maximum_successful_requests_per_second = FloatField(required=True)
     total_requests = IntField(required=True)
