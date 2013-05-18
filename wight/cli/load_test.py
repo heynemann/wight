@@ -95,18 +95,26 @@ class ListLoadTestController(WightBaseController):
         project_name = self.arguments.project
         teams_projects = []
         for team_name in teams_names:
-            team_info = self.get("/teams/%s" % team_name)
-            team_info = loads(team_info.content)
             if project_name:
                 teams_projects.append((team_name, project_name))
                 quantity = "20"
             else:
+                team_info = self.get("/teams/%s" % team_name)
+                team_info = loads(team_info.content)
                 teams_projects.extend([(team_name, project["name"]) for project in team_info["projects"]])
 
         load_tests = []
         for team_project in teams_projects:
             team, project = team_project
             load_test_info = self.get("/teams/%s/projects/%s/load_tests/?quantity=%s" % (team, project, quantity))
+            if load_test_info.status_code == 403:
+                target = self.app.user_data.target
+                self.puterror(
+                    "Your are not the owner or team member for the team '%s%s%s' and cannot list its tests in target '%s%s%s'." % (
+                        self.keyword_color, team, self.reset_error,
+                        self.keyword_color, target, self.reset_error
+                    ))
+                return
             load_tests.append({"header": team_project, "load_tests": loads(load_test_info.content)})
 
         self.__print_load_tests(load_tests)

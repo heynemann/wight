@@ -11,11 +11,19 @@
 from preggy import expect
 
 from tests.acceptance.base import AcceptanceTest
-from tests.factories import TeamFactory, LoadTestFactory
+from tests.factories import TeamFactory, LoadTestFactory, UserFactory
 from wight.models import LoadTest
 
 
 class TestLoadTest(AcceptanceTest):
+
+    def test_list_gets_403_if_not_team_member(self):
+        team = TeamFactory.create(owner=UserFactory.create())
+        TeamFactory.add_projects(team, 1)
+        project = team.projects[0]
+        LoadTestFactory.add_to_project(25, user=self.user, team=team, project=project)
+        result = self.execute("list", team=team.name)
+        expect(result).to_be_like("Your are not the owner or team member for the team '%s' and cannot list its tests in target '%s'." % (team.name, self.target))
 
     def test_list_load_tests_by_team_and_project(self):
         team = TeamFactory.create(owner=self.user)

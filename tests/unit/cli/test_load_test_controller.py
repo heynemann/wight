@@ -10,6 +10,7 @@
 from datetime import datetime
 from json import dumps
 from uuid import uuid4
+from tests.factories import UserFactory
 
 from wight.errors import UnauthenticatedError
 
@@ -85,7 +86,8 @@ def get_mock_side_effect(*args, **kwargs):
         response.content = generate_fake_load_you_know_what(1, "team1", "project1")
     elif args[0] == "/teams/nameless/projects/project-nany/load_tests/?quantity=20":
         response.content = generate_fake_load_you_know_what(1, "nameless", "project-nany")
-
+    elif args[0] == "/teams/not-your-team/projects/project/load_tests/?quantity=20":
+        response.status_code = 403
     return response
 
 
@@ -265,7 +267,21 @@ class ListTeamAndProjectLoadTestControllerTest(LoadTestControllerTestBase):
         self.ctrl.default()
         calls = get_mock.call_args_list
         expect(calls).not_to_include(call("/user/info"))
+        expect(calls).not_to_include(call("/teams/nameless"))
         expect(calls).not_to_include(call("/teams/nameless/projects/project-nameless1/load_tests/?quantity=20"))
         expect(calls).not_to_include(call("/teams/nameless/projects/project-nameless2/load_tests/?quantity=20"))
-        get_mock.assert_any_call("/teams/nameless")
         get_mock.assert_any_call("/teams/nameless/projects/project-nany/load_tests/?quantity=20")
+
+
+class ListLoadTestController403Test(LoadTestControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team": "not-your-team", "project": "project"}
+        self.controller_class = ListLoadTestController
+        super(ListLoadTestController403Test, self).setUp()
+
+    @patch('sys.stdout', new_callable=StringIO)
+    @patch.object(ListLoadTestController, 'get')
+    def test_get_treat_403_for_invalid_team(self, get_mock, mock_stdout):
+        get_mock.side_effect = get_mock_side_effect
+        self.ctrl.default()
+        expect(mock_stdout.getvalue()).to_be_like("Your are not the owner or team member for the team 'not-your-team' and cannot list its tests in target 'Target'")
