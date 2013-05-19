@@ -110,7 +110,7 @@ class ListLoadTestController(WightBaseController):
             if load_test_info.status_code == 403:
                 target = self.app.user_data.target
                 self.puterror(
-                    "Your are not the owner or team member for the team '%s%s%s' and cannot list its tests in target '%s%s%s'." % (
+                    "You are not the owner or a team member for '%s%s%s' and thus can't list its tests in target '%s%s%s'." % (
                         self.keyword_color, team, self.reset_error,
                         self.keyword_color, target, self.reset_error
                     ))

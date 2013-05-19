@@ -284,4 +284,5 @@ class ListLoadTestController403Test(LoadTestControllerTestBase):
     def test_get_treat_403_for_invalid_team(self, get_mock, mock_stdout):
         get_mock.side_effect = get_mock_side_effect
         self.ctrl.default()
-        expect(mock_stdout.getvalue()).to_be_like("Your are not the owner or team member for the team 'not-your-team' and cannot list its tests in target 'Target'")
+        topic = mock_stdout.getvalue()
+        expect(topic).to_be_like("You are not the owner or a team member for 'not-your-team' and thus can't list its tests in target 'Target'.")
