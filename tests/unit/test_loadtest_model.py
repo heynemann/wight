@@ -198,22 +198,26 @@ class TestLoadFromFunkloadResult(ModelTestCase):
 
         expect(result.cycles).to_length(4)
 
-        #expect(cfg.title).to_equal(config['class_title'])
-        #expect(cfg.description).to_equal(config['class_description'])
+        cycle = result.cycles[0]
 
-        #expect(cfg.module).to_equal(config['module'])
-        #expect(cfg.class_name).to_equal(config['class'])
-        #expect(cfg.test_name).to_equal(config['method'])
+        expect(cycle.test.successful_tests_per_second).to_equal(20.30394)
+        expect(cycle.test.total_tests).to_equal(200)
+        expect(cycle.test.successful_tests).to_equal(300)
+        expect(cycle.test.failed_tests).to_equal(0)
+        expect(cycle.test.failed_tests_percentage).to_equal(0)
 
-        #expect(cfg.target_server).to_equal(config['server_url'])
-        #expect(cfg.cycles).to_equal(config['cycles'])
-        #expect(cfg.cycle_duration).to_equal(int(config['duration']))
+        expect(cycle.page.apdex).to_equal(0.993)
+        expect(cycle.page.successful_pages_per_second).to_equal(35.2)
+        expect(cycle.page.maximum_successful_pages_per_second).to_equal(44.0)
 
-        #expect(cfg.sleep_time).to_equal(float(config['sleep_time']))
-        #expect(cfg.sleep_time_min).to_equal(float(config['sleep_time_min']))
-        #expect(cfg.sleep_time_max).to_equal(float(config['sleep_time_max']))
+        expect(cycle.page.total_pages).to_equal(200)
+        expect(cycle.page.successful_pages).to_equal(300)
+        expect(cycle.page.failed_pages).to_equal(0)
 
-        #expect(cfg.startup_delay).to_equal(float(config['startup_delay']))
-
-        #expect(cfg.test_date.isoformat()[:20]).to_equal(config['time'][:20])
-        #expect(cfg.funkload_version).to_equal(config['version'])
+        expect(cycle.page.minimum).to_equal(0.123)
+        expect(cycle.page.average).to_equal(0.234)
+        expect(cycle.page.maximum).to_equal(0.384)
+        expect(cycle.page.p10).to_equal(1.0)
+        expect(cycle.page.p50).to_equal(1.0)
+        expect(cycle.page.p90).to_equal(1.0)
+        expect(cycle.page.p95).to_equal(1.0)
