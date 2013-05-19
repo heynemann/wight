@@ -154,7 +154,7 @@ class TestLoadFromFunkloadResult(ModelTestCase):
 
         expect(loaded_test).not_to_be_null()
 
-        expect(loaded_test.results).to_length(4)
+        expect(loaded_test.results).to_length(1)
 
         result = loaded_test.results[0]
 
@@ -179,3 +179,41 @@ class TestLoadFromFunkloadResult(ModelTestCase):
 
         expect(cfg.test_date.isoformat()[:20]).to_equal(config['time'][:20])
         expect(cfg.funkload_version).to_equal(config['version'])
+
+    def test_can_parse_stats_from_funkload_result(self):
+        test = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+
+        config = FunkLoadTestResultFactory.get_config()
+        cycles = FunkLoadTestResultFactory.get_result(4)
+
+        test.add_result(config, cycles)
+
+        loaded_test = LoadTest.objects(uuid=test.uuid).first()
+
+        expect(loaded_test).not_to_be_null()
+
+        expect(loaded_test.results).to_length(1)
+
+        result = loaded_test.results[0]
+
+        expect(result.cycles).to_length(4)
+
+        #expect(cfg.title).to_equal(config['class_title'])
+        #expect(cfg.description).to_equal(config['class_description'])
+
+        #expect(cfg.module).to_equal(config['module'])
+        #expect(cfg.class_name).to_equal(config['class'])
+        #expect(cfg.test_name).to_equal(config['method'])
+
+        #expect(cfg.target_server).to_equal(config['server_url'])
+        #expect(cfg.cycles).to_equal(config['cycles'])
+        #expect(cfg.cycle_duration).to_equal(int(config['duration']))
+
+        #expect(cfg.sleep_time).to_equal(float(config['sleep_time']))
+        #expect(cfg.sleep_time_min).to_equal(float(config['sleep_time_min']))
+        #expect(cfg.sleep_time_max).to_equal(float(config['sleep_time_max']))
+
+        #expect(cfg.startup_delay).to_equal(float(config['startup_delay']))
+
+        #expect(cfg.test_date.isoformat()[:20]).to_equal(config['time'][:20])
+        #expect(cfg.funkload_version).to_equal(config['version'])

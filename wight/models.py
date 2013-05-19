@@ -385,19 +385,83 @@ class LoadTest(Document):
             startup_delay=float(config['startup_delay'])
         )
 
+        result = TestResult(
+            tests_executed=0,
+            pages_visited=0,
+            requests_made=0,
+            config=cfg
+        )
+
+        self.results.append(result)
+
         for key, value in stats.items():
             value['test'].finalize()
             value['page'].finalize()
             value['response'].finalize()
 
-            result = TestResult(
-                tests_executed=value['test'].count,
-                pages_visited=value['page'].count,
-                requests_made=value['response'].count,
-                config=cfg
+            result.tests_executed += int(value['test'].count)
+            result.pages_visited += int(value['page'].count)
+            result.requests_made += int(value['response'].count)
+
+            cycle = TestCycle(
+                cycle_number=int(key),
+                concurrent_users=value['test'].cvus
             )
 
-            self.results.append(result)
+            test = value['test']
+            cycle.test = TestCycleTests(
+                successful_tests_per_second=float(test.tps),
+                total_tests=int(test.count),
+                successful_tests=int(test.success),
+                failed_tests=int(test.error),
+                failed_tests_percentage=float(float(test.error) / float(test.count)) * 100
+            )
+
+            page = value['page']
+
+            page.percentiles.calcPercentiles()
+
+            cycle.page = TestCyclePages(
+                apdex=float(page.apdex_score),
+                successful_pages_per_second=float(page.rps),
+                maximum_successful_pages_per_second=float(page.rps_max),
+
+                total_pages=int(page.count),
+                successful_pages=int(page.success),
+                failed_pages=int(page.error),
+
+                minimum=float(page.min),
+                average=float(page.avg),
+                maximum=float(page.max),
+                p10=float(page.percentiles.perc10),
+                p50=float(page.percentiles.perc50),
+                p90=float(page.percentiles.perc90),
+                p95=float(page.percentiles.perc95)
+            )
+
+            response = value['response']
+
+            response.percentiles.calcPercentiles()
+
+            cycle.request = TestCycleRequests(
+                apdex=float(response.apdex_score),
+                successful_requests_per_second=float(response.rps),
+                maximum_successful_requests_per_second=float(response.rps_max),
+
+                total_requests=int(response.count),
+                successful_requests=int(response.success),
+                failed_requests=int(response.error),
+
+                minimum=float(response.min),
+                average=float(response.avg),
+                maximum=float(response.max),
+                p10=float(response.percentiles.perc10),
+                p50=float(response.percentiles.perc50),
+                p90=float(response.percentiles.perc90),
+                p95=float(response.percentiles.perc95)
+            )
+
+            result.cycles.append(cycle)
 
         self.save()
 
