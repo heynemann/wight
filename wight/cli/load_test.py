@@ -83,41 +83,52 @@ class ListLoadTestController(WightBaseController):
         self.load_conf()
         team_name = self.arguments.team
         teams_names = []
-        quantity = "3"
         if team_name:
             teams_names.append(team_name)
-            quantity = "5"
         else:
             user_info = self.get("/user/info")
             user_info = loads(user_info.content)
             teams_names = [team["name"] for team in user_info["user"]["teams"]]
 
         project_name = self.arguments.project
-        teams_projects = []
-        for team_name in teams_names:
-            if project_name:
-                teams_projects.append((team_name, project_name))
-                quantity = "20"
-            else:
-                team_info = self.get("/teams/%s" % team_name)
-                team_info = loads(team_info.content)
-                teams_projects.extend([(team_name, project["name"]) for project in team_info["projects"]])
-
+        teams_and_projects = self.__get_teams_and_projects_names(project_name, team_name, teams_names)
         load_tests = []
-        for team_project in teams_projects:
-            team, project = team_project
+        quantity = self.__define_quantity(team_name, project_name)
+        for team_and_project in teams_and_projects:
+            team, project = team_and_project
             load_test_info = self.get("/teams/%s/projects/%s/load_tests/?quantity=%s" % (team, project, quantity))
             if load_test_info.status_code == 403:
-                target = self.app.user_data.target
                 self.puterror(
                     "You are not the owner or a team member for '%s%s%s' and thus can't list its tests in target '%s%s%s'." % (
                         self.keyword_color, team, self.reset_error,
-                        self.keyword_color, target, self.reset_error
+                        self.keyword_color, self.app.user_data.target, self.reset_error
                     ))
                 return
-            load_tests.append({"header": team_project, "load_tests": loads(load_test_info.content)})
+            load_tests.append({"header": team_and_project, "load_tests": loads(load_test_info.content)})
 
         self.__print_load_tests(load_tests)
+
+    def __get_teams_and_projects_names(self, project_name, team_name, teams_names):
+        teams_projects = []
+        if project_name and team_name:
+            teams_projects.append((team_name, project_name))
+        else:
+            for name in teams_names:
+                team_info = self.get("/teams/%s" % name)
+                team_info = loads(team_info.content)
+                teams_projects.extend([
+                    (name, project["name"])
+                    for project in team_info["projects"]
+                    if not project_name or project_name == project["name"]
+                ])
+        return teams_projects
+
+    def __define_quantity(self, team_name, project_name):
+        if project_name:
+            return "20"
+        if team_name:
+            return "5"
+        return "3"
 
     def __print_load_tests(self, load_tests):
         for load_test in load_tests:

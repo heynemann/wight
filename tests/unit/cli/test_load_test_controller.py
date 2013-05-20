@@ -40,6 +40,7 @@ def get_mock_side_effect(*args, **kwargs):
                 "email": "awesome@gmail.com",
                 "teams": [
                     {"name": "team1", "role": "owner"},
+                    {"name": "another-team", "role": "owner"},
                     {"name": "team2", "role": "member"}
                 ]
             }
@@ -51,6 +52,16 @@ def get_mock_side_effect(*args, **kwargs):
             "projects": [
                 {"name": "project1"},
                 {"name": "project2"}
+            ]
+        }
+        """
+    elif args[0] == "/teams/another-team":
+        response.content = """
+        {
+            "projects": [
+                {"name": "project-x"},
+                {"name": "project-z"},
+                {"name": "project-y"}
             ]
         }
         """
@@ -76,16 +87,28 @@ def get_mock_side_effect(*args, **kwargs):
         response.content = generate_fake_load_you_know_what(2, "nameless", "project-nameless1")
     elif args[0] == "/teams/nameless/projects/project-nameless2/load_tests/?quantity=5":
         response.content = generate_fake_load_you_know_what(1, "nameless", "project-nameless2")
+    elif args[0] == "/teams/nameless/projects/project-nany/load_tests/?quantity=20":
+        response.content = generate_fake_load_you_know_what(1, "nameless", "project-nany")
+
     elif args[0] == "/teams/team1/projects/project1/load_tests/?quantity=3":
         response.content = generate_fake_load_you_know_what(1, "team1", "project1")
     elif args[0] == "/teams/team1/projects/project2/load_tests/?quantity=3":
         response.content = generate_fake_load_you_know_what(1, "team1", "project1")
+
     elif args[0] == "/teams/team2/projects/project3/load_tests/?quantity=3":
         response.content = generate_fake_load_you_know_what(3, "team1", "project1")
     elif args[0] == "/teams/team2/projects/project4/load_tests/?quantity=3":
         response.content = generate_fake_load_you_know_what(1, "team1", "project1")
-    elif args[0] == "/teams/nameless/projects/project-nany/load_tests/?quantity=20":
-        response.content = generate_fake_load_you_know_what(1, "nameless", "project-nany")
+
+    elif args[0] == "/teams/another-team/projects/project-z/load_tests/?quantity=20":
+        response.content = generate_fake_load_you_know_what(1, "another-team", "project-z")
+    elif args[0] == "/teams/another-team/projects/project-z/load_tests/?quantity=3":
+        response.content = generate_fake_load_you_know_what(1, "another-team", "project-z")
+    elif args[0] == "/teams/another-team/projects/project-x/load_tests/?quantity=3":
+        response.content = generate_fake_load_you_know_what(1, "another-team", "project-x")
+    elif args[0] == "/teams/another-team/projects/project-y/load_tests/?quantity=3":
+        response.content = generate_fake_load_you_know_what(1, "another-team", "project-y")
+
     elif args[0] == "/teams/not-your-team/projects/project/load_tests/?quantity=20":
         response.status_code = 403
     return response
@@ -203,6 +226,7 @@ class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
     def test_get_show_right_stuff(self, get_mock, mock_stdout):
         get_mock.side_effect = get_mock_side_effect
         self.ctrl.default()
+
         expect(mock_stdout.getvalue()).to_be_like(
             """
                 Team: team1 ---- Project: project1
@@ -213,6 +237,27 @@ class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
                 +---------------+--------+--------------------------+
 
                 Team: team1 ---- Project: project2
+                +---------------+--------+--------------------------+
+                | uuid          | status |                          |
+                +---------------+--------+--------------------------+
+                | um-uuid-legal |  True  | wight show um-uuid-legal |
+                +---------------+--------+--------------------------+
+
+                Team: another-team ---- Project: project-x
+                +---------------+--------+--------------------------+
+                | uuid          | status |                          |
+                +---------------+--------+--------------------------+
+                | um-uuid-legal |  True  | wight show um-uuid-legal |
+                +---------------+--------+--------------------------+
+
+                Team: another-team ---- Project: project-z
+                +---------------+--------+--------------------------+
+                | uuid          | status |                          |
+                +---------------+--------+--------------------------+
+                | um-uuid-legal |  True  | wight show um-uuid-legal |
+                +---------------+--------+--------------------------+
+
+                Team: another-team ---- Project: project-y
                 +---------------+--------+--------------------------+
                 | uuid          | status |                          |
                 +---------------+--------+--------------------------+
@@ -262,15 +307,32 @@ class ListTeamAndProjectLoadTestControllerTest(LoadTestControllerTestBase):
         super(ListTeamAndProjectLoadTestControllerTest, self).setUp()
 
     @patch.object(ListLoadTestController, 'get')
-    def test_dont_get_dont_load_projects_names(self, get_mock):
+    def test_get_dont_load_projects_names(self, get_mock):
         get_mock.side_effect = get_mock_side_effect
         self.ctrl.default()
         calls = get_mock.call_args_list
         expect(calls).not_to_include(call("/user/info"))
-        expect(calls).not_to_include(call("/teams/nameless"))
         expect(calls).not_to_include(call("/teams/nameless/projects/project-nameless1/load_tests/?quantity=20"))
         expect(calls).not_to_include(call("/teams/nameless/projects/project-nameless2/load_tests/?quantity=20"))
         get_mock.assert_any_call("/teams/nameless/projects/project-nany/load_tests/?quantity=20")
+
+
+class ListProjectLoadTestControllerTest(LoadTestControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team": None, "project": "project-z"}
+        self.controller_class = ListLoadTestController
+        super(ListProjectLoadTestControllerTest, self).setUp()
+
+    @patch.object(ListLoadTestController, 'get')
+    def test_get_only_by_project_name(self, get_mock):
+        get_mock.side_effect = get_mock_side_effect
+        self.ctrl.default()
+        calls = get_mock.call_args_list
+        expect(calls).not_to_include(call("/teams/another-team/projects/project-x/load_tests/?quantity=20"))
+        expect(calls).not_to_include(call("/teams/another-team/projects/project-y/load_tests/?quantity=20"))
+        get_mock.assert_any_call("/user/info")
+        get_mock.assert_any_call("/teams/another-team")
+        get_mock.assert_any_call("/teams/another-team/projects/project-z/load_tests/?quantity=20")
 
 
 class ListLoadTestController403Test(LoadTestControllerTestBase):

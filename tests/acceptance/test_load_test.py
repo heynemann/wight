@@ -45,6 +45,28 @@ class TestLoadTest(AcceptanceTest):
         """ % (team.name, project.name, "".join(uuids))
         )
 
+    def test_list_load_tests_by_project_only(self):
+        team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_projects(team, 2)
+        project1 = team.projects[0]
+        project2 = team.projects[1]
+        LoadTestFactory.add_to_project(25, user=self.user, team=team, project=project1)
+        LoadTestFactory.add_to_project(25, user=self.user, team=team, project=project2)
+
+        load_tests = LoadTest.get_sliced_by_team_and_project_name(team, project1.name, 20)
+        uuids = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests]
+
+        result = self.execute("list", project=project1.name)
+        expect(result).to_be_like("""
+            Team: %s ---- Project: %s
+            +--------------------------------------+-----------+-------------------------------------------------+
+            | uuid                                 |   status  |                                                 |
+            +--------------------------------------+-----------+-------------------------------------------------+
+            %s
+            +--------------------------------------+-----------+-------------------------------------------------+
+        """ % (team.name, project1.name, "".join(uuids))
+        )
+
     def test_list_load_tests_by_team_only(self):
         team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(team, 2)
