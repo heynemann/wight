@@ -30,7 +30,7 @@ class TestShowTestResultModel(ModelTestCase):
     def test_can_get_load_test_by_test_result_uuid(self):
         self.load_test.results.append(TestResultFactory.build())
         result = self.load_test.results[0]
-        test_result = LoadTest.get_test_result(result.uuid)
+        test_result = LoadTest.get_test_result(str(result.uuid))
         expect(str(test_result.uuid)).to_equal(str(result.uuid))
 
     def test_should_raise_not_found_if_no_load_test_found(self):
