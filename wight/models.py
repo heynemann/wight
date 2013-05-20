@@ -329,7 +329,7 @@ class TestResult(EmbeddedDocument):
 
 class LoadTest(Document):
     uuid = UUIDField(required=True, default=uuid4())
-    status = StringField(required=True, choices=("Scheduled", "Running", "Finished"))
+    status = StringField(required=True, choices=("Scheduled", "Running", "Failed", "Finished"))
     team = ReferenceField(Team, required=True)
     created_by = ReferenceField(User, required=True)
     project_name = StringField(max_length=2000, required=True)

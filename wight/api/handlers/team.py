@@ -12,7 +12,7 @@ from json import dumps
 try:
     from urlparse import parse_qs
 except ImportError:
-    from urllib.parse import parse_qs
+    from urllib.parse import parse_qs  # NOQA
 
 import tornado.web
 import six
@@ -43,12 +43,6 @@ class TeamHandler(BaseHandler):
     @BaseHandler.authenticated
     def post(self, team_name):
         name = self.get_argument("name").strip()
-
-        if not name.strip():
-            self.set_status(400)
-            self.finish()
-            return
-
         team = Team.create(name, owner=self.current_user)
 
         if team is None:
@@ -137,7 +131,6 @@ class TeamMembersHandler(BaseHandler):
         self.set_status(200)
         self.write("OK")
         self.finish()
-
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated

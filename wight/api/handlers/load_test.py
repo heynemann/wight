@@ -8,12 +8,9 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-import json
 import re
-import datetime
-
-from json import dumps
-from bson import json_util
+from json import dumps, loads
+from uuid import UUID
 
 import tornado.web
 
@@ -67,4 +64,49 @@ class LoadTestHandler(BaseHandler):
         self.set_status(200)
         response = dumps([load_test.to_dict() for load_test in load_tests])
         self.write(response)
+        self.finish()
+
+
+class LoadTestResultHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    @BaseHandler.team_member
+    def post(self, team, project_name, test_uuid):
+        load_test = LoadTest.objects(uuid=UUID(test_uuid)).first()
+
+        result = self.get_argument("result").strip()
+
+        if not load_test or not result:
+            self.set_status(400)
+            self.finish()
+            return
+
+        load_test.add_result(loads(result))
+        load_test.status = "Finished"
+        load_test.save()
+
+        self.set_status(200)
+        self.write("OK")
+        self.finish()
+
+
+class StartLoadTestHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    @BaseHandler.team_member
+    def post(self, team, project_name, test_uuid):
+        load_test = LoadTest.objects(uuid=UUID(test_uuid)).first()
+
+        if not load_test:
+            self.set_status(400)
+            self.finish()
+            return
+
+        load_test.status = "Running"
+        load_test.save()
+
+        self.set_status(200)
+        self.write("OK")
         self.finish()

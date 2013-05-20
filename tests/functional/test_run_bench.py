@@ -8,11 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-import re
 from os.path import abspath, join, dirname
 
 from preggy import expect
 
+from wight.models import LoadTest
 from wight.worker.config import WightConfig
 from wight.worker.runners import FunkLoadBenchRunner
 from tests.functional.base import FunkLoadBaseTest
@@ -44,6 +44,8 @@ class TestCanRunFunkloadBench(FunkLoadBaseTest):
         expect(result.result).not_to_be_null()
         expect(result.config).not_to_be_null()
 
-        load_test.add_result(result.config, result.result)
+        result = LoadTest.get_data_from_funkload_results(result.config, result.result)
+
+        load_test.add_result(result)
 
         expect(load_test.results).to_length(1)
