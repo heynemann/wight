@@ -3,7 +3,6 @@ import six
 from preggy import expect
 from tests.unit.base import FullTestCase
 from tests.factories import TeamFactory, UserFactory, LoadTestFactory, TestResultFactory
-from nose.plugins.attrib import attr
 from uuid import uuid4
 
 
@@ -15,7 +14,6 @@ class InstanceLoadTestsTest(FullTestCase):
         self.project = self.team.add_project("schedule-test-project-1", "repo", self.user)
         self.load_test = LoadTestFactory.create(created_by=self.team.owner, team=self.team, project_name=self.project.name)
 
-    @attr('focus')
     def test_get_instance_load_test(self):
         result1 = TestResultFactory.build()
         result2 = TestResultFactory.build()
@@ -33,7 +31,6 @@ class InstanceLoadTestsTest(FullTestCase):
             obj = obj.decode('utf-8')
 
         obj = loads(obj)
-        print obj
 
         result1_last_cycle = result1.cycles[-1]
         result2_last_cycle = result2.cycles[-1]
@@ -53,7 +50,6 @@ class InstanceLoadTestsTest(FullTestCase):
         expect(obj['results'][1]['failed_requests']).to_equal(result2_last_cycle.request.failed_requests)
         expect(obj['results'][1]['p95']).to_equal(result2_last_cycle.request.p95)
 
-    @attr('focus')
     def test_get_instance_load_test_404(self):
         url = '/teams/%s/projects/%s/load_tests/%s' % (self.team.name, self.project.name, uuid4())
 
