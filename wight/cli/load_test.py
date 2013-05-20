@@ -151,3 +151,30 @@ class ListLoadTestController(WightBaseController):
             for test in load_test["load_tests"]:
                 table.add_row([test["uuid"], test["status"], "wight show %s" % test["uuid"]])
             self.puts(table)
+
+class InstanceLoadTestController(WightBaseController):
+    class Meta:
+        label = 'load test'
+        stack_on = 'base'
+        description = 'Show load tests.'
+        config_defaults = dict()
+
+        arguments = [
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            (['--team'], dict(help='The name of the team that owns the project load tests', required=True)),
+            (['--project'], dict(help='The name of the project load tests', required=True)),
+            (['--load_test_uuid'], dict(help='Load test uuid', required=True)),
+        ]
+
+    @controller.expose(hide=False, aliases=["show"], help='Show load tests.')
+    @WightBaseController.authenticated
+    def default(self):
+        self.load_conf()
+        with ConnectedController(self):
+
+            url = '/teams/%s/projects/%s/load_tests/%s' % \
+                (self.arguments.team, self.arguments.project, self.arguments.load_test_uuid)
+
+            response = self.get(url)
+            if response.status_code == 404:
+                self.write("Load test %s doesn't exist" % self.arguments.load_test_uuid)

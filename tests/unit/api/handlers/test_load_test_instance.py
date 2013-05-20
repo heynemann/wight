@@ -50,6 +50,7 @@ class LoadTestsInstanceTest(FullTestCase):
         expect(obj['results'][1]['failed_requests']).to_equal(result2_last_cycle.request.failed_requests)
         expect(obj['results'][1]['p95']).to_equal(result2_last_cycle.request.p95)
 
+
     def test_get_instance_load_test_404(self):
         url = '/teams/%s/projects/%s/load_tests/%s' % (self.team.name, self.project.name, uuid4())
 

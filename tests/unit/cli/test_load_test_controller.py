@@ -23,7 +23,7 @@ from mock import patch, Mock, call
 
 from preggy import expect
 
-from wight.cli.load_test import ScheduleLoadTestController, ListLoadTestController
+from wight.cli.load_test import ScheduleLoadTestController, ListLoadTestController, InstanceLoadTestController
 
 from wight.models import UserData
 from wight.cli.base import requests
@@ -348,3 +348,20 @@ class ListLoadTestController403Test(LoadTestControllerTestBase):
         self.ctrl.default()
         topic = mock_stdout.getvalue()
         expect(topic).to_be_like("You are not the owner or a team member for 'not-your-team' and thus can't list its tests in target 'Target'.")
+
+class InstanceLoadTestControllerTest(LoadTestControllerTestBase):
+# {"uuid": "9d3dc1be-9af4-480c-912a-441d25caa7c6", "results": [{"uuid": "aaf81f79-3eef-4fe1-9ffe-6189f4534212", "title": "test-config-0", "p95": 0.3, "requests_per_second": 6.0, "concurrent_users": 100, "failed_requests": 30}, {"uuid": "aaf81f79-3eef-4fe1-9ffe-6189f4534212", "title": "test-config-1", "p95": 0.3, "requests_per_second": 14.0, "concurrent_users": 100, "failed_requests": 70}]}
+
+    def setUp(self):
+        self.uuid = "9d3dc1be-9af4-480c-912a-441d25caa7c6"
+        self.controller_kwargs = {"team": "my-team", "project": "project", "load_test_uuid": self.uuid}
+        self.controller_class = InstanceLoadTestController
+        super(InstanceLoadTestControllerTest, self).setUp()
+
+    @patch.object(InstanceLoadTestController, 'get')
+    @patch.object(InstanceLoadTestController, 'write')
+    def test_non_existent_test(self, write_mock, get_mock):
+        response = Mock(status_code=404)
+        get_mock.return_value = response
+        self.ctrl.default()
+        write_mock.assert_called_with("Load test %s doesn't exist" % self.uuid)
