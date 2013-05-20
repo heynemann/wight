@@ -142,6 +142,7 @@ class TestCyclePagesFactory(factory.Factory):
     p90 = .4
     p95 = .3
 
+
 class TestCycleRequestsFactory(factory.Factory):
     FACTORY_FOR = TestCycleRequests
 
@@ -161,6 +162,7 @@ class TestCycleRequestsFactory(factory.Factory):
     p90 = .4
     p95 = .3
 
+
 class TestCycleFactory(factory.Factory):
     FACTORY_FOR = TestCycle
 
@@ -170,6 +172,7 @@ class TestCycleFactory(factory.Factory):
     test = factory.SubFactory(TestCycleTestsFactory)
     page = factory.SubFactory(TestCyclePagesFactory)
     request = factory.SubFactory(TestCycleRequestsFactory)
+
 
 class TestResultFactory(factory.Factory):
     FACTORY_FOR = TestResult
@@ -224,6 +227,15 @@ class LoadTestFactory(factory.Factory):
             test = LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
 
         return test
+
+    @classmethod
+    def add_test_result(cls, load_test, test_results=1):
+        test_result = None
+        for i in range(test_results):
+            config = TestConfigurationFactory.create()
+            test_result = TestResultFactory.create(config=config)
+            load_test.results.append(test_result)
+        return test_result
 
 
 class FunkLoadTestResultPercentiles(object):

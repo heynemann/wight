@@ -587,3 +587,13 @@ class LoadTest(Document):
         for team in teams:
             results.extend(cls.get_by_team(team, quantity=3))
         return results
+
+    @classmethod
+    def get_test_result(cls, test_result_uuid):
+        load_test = LoadTest.objects(results__uuid=test_result_uuid)
+        if not load_test.count():
+            raise DoesNotExist("There is no Load Test with a Test Result with uuid '%s'" % test_result_uuid)
+        load_test = load_test.first()
+        for result in load_test.results:
+            if result.uuid == test_result_uuid:
+                return result
