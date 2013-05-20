@@ -7,12 +7,67 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from json import loads
 
 from preggy import expect
+import six
 
 from wight.models import Team
 from tests.unit.base import FullTestCase
 from tests.factories import TeamFactory, UserFactory, ProjectFactory
+
+
+class ShowTeamProjectTest(FullTestCase):
+    def setUp(self):
+        super(ShowTeamProjectTest, self).setUp()
+
+        self.user = UserFactory.create(with_token=True)
+        self.team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_members(self.team, 2)
+
+    def test_cant_get_if_not_authenticated(self):
+        self.user = None
+        response = self.fetch_with_headers("/teams/%s/projects/%s" % (self.team.name, "whatever"))
+        expect(response.code).to_equal(401)
+
+    def test_cant_get_if_not_team_member(self):
+        self.user = UserFactory(with_token=True)
+        response = self.fetch_with_headers("/teams/%s/projects/%s" % (self.team.name, "whatever"))
+        expect(response.code).to_equal(403)
+
+    def test_get_project_by_team_and_name_return_200_if_no_errors(self):
+        TeamFactory.add_projects(self.team, 2)
+        project = self.team.projects[1]
+        response = self.fetch_with_headers("/teams/%s/projects/%s" % (self.team.name, project.name))
+        expect(response.code).to_equal(200)
+
+    def test_get_project_by_team_should_be_a_json(self):
+        TeamFactory.add_projects(self.team, 2)
+        project = self.team.projects[1]
+        response = self.fetch_with_headers("/teams/%s/projects/%s" % (self.team.name, project.name))
+        expect(response.code).to_equal(200)
+        obj = response.body
+        if isinstance(obj, six.binary_type):
+            obj = obj.decode('utf-8')
+        try:
+            loads(obj)
+            assert True
+        except ValueError:
+            raise AssertionError("Should be possible to load a json from response")
+
+    def test_get_project_by_team_should_be_a_equal_to_project_dict(self):
+        TeamFactory.add_projects(self.team, 2)
+        project = self.team.projects[1]
+        response = self.fetch_with_headers("/teams/%s/projects/%s" % (self.team.name, project.name))
+        expect(response.code).to_equal(200)
+        obj = response.body
+        if isinstance(obj, six.binary_type):
+            obj = obj.decode('utf-8')
+        expect(loads(obj)).to_be_like(project.to_dict())
+
+    def test_should_return_404_if_project_not_in_team(self):
+        response = self.fetch_with_headers("/teams/%s/projects/%s" % (self.team.name, "whatever"))
+        expect(response.code).to_equal(404)
 
 
 class CreateTeamProjectTest(FullTestCase):

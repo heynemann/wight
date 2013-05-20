@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from json import dumps
 from mongoengine import DoesNotExist
 import six
 
@@ -21,6 +22,18 @@ from wight.api.handlers.base import BaseHandler
 
 
 class ProjectHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    @BaseHandler.team_member
+    def get(self, team, project_name):
+        project = [project for project in team.projects if project.name == project_name]
+        if len(project) > 0:
+            self.write(dumps(project[0].to_dict()))
+            self.set_status(200)
+        else:
+            self.set_status(404)
+        self.finish()
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated
