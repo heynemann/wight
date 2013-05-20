@@ -6,7 +6,7 @@ from json import dumps
 from mongoengine import DoesNotExist
 
 
-class InstanceLoadTestHandler(BaseHandler):
+class LoadTestInstanceHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated

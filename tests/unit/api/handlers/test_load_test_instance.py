@@ -6,9 +6,9 @@ from tests.factories import TeamFactory, UserFactory, LoadTestFactory, TestResul
 from uuid import uuid4
 
 
-class InstanceLoadTestsTest(FullTestCase):
+class LoadTestsInstanceTest(FullTestCase):
     def setUp(self):
-        super(InstanceLoadTestsTest, self).setUp()
+        super(LoadTestsInstanceTest, self).setUp()
         self.user = UserFactory.create(with_token=True)
         self.team = TeamFactory.create(owner=self.user)
         self.project = self.team.add_project("schedule-test-project-1", "repo", self.user)
