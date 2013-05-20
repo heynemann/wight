@@ -166,7 +166,7 @@ class TestCycleRequestsFactory(factory.Factory):
 class TestCycleFactory(factory.Factory):
     FACTORY_FOR = TestCycle
 
-    cycle_number = factory.LazyAttributeSequence(lambda cycle, i: 10 * i)
+    cycle_number = factory.LazyAttributeSequence(lambda cycle, i: i)
     concurrent_users = factory.LazyAttributeSequence(lambda cycle, i: 5 * i)
 
     test = factory.SubFactory(TestCycleTestsFactory)
@@ -186,7 +186,9 @@ class TestResultFactory(factory.Factory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         test_result = super(TestResultFactory, cls)._prepare(create, **kwargs)
-        test_result.cycles.append(TestCycleFactory.build())
+        cycles = test_result.config.cycles.replace('[','').replace(']', '').split(',')
+        for cycle in cycles:
+            test_result.cycles.append(TestCycleFactory.build(concurrent_users=cycle))
         return test_result
 
 
