@@ -216,7 +216,9 @@ class TestLoadFromFunkloadResult(ModelTestCase):
         config = FunkLoadTestResultFactory.get_config()
         cycles = FunkLoadTestResultFactory.get_result(4)
 
-        test.add_result(config, cycles)
+        result = LoadTest.get_data_from_funkload_results(config, cycles)
+
+        test.add_result(result)
 
         loaded_test = LoadTest.objects(uuid=test.uuid).first()
 
@@ -254,7 +256,9 @@ class TestLoadFromFunkloadResult(ModelTestCase):
         config = FunkLoadTestResultFactory.get_config()
         cycles = FunkLoadTestResultFactory.get_result(4)
 
-        test.add_result(config, cycles)
+        result = LoadTest.get_data_from_funkload_results(config, cycles)
+
+        test.add_result(result)
 
         loaded_test = LoadTest.objects(uuid=test.uuid).first()
 

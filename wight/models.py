@@ -20,7 +20,7 @@ import six
 from mongoengine import (
     Document, EmbeddedDocument,  # documents
 
-    UUIDField, StringField, IntField, FloatField, DateTimeField, BooleanField, ListField,
+    UUIDField, StringField, IntField, FloatField, DateTimeField, ListField,
     URLField, ReferenceField, EmbeddedDocumentField,  # fields
 
     DoesNotExist, Q)
@@ -363,102 +363,92 @@ class LoadTest(Document):
             "lastModified": self.date_modified.isoformat()[:19],
         }
 
-    def add_result(self, config, stats):
+    def add_result(self, result):
+        config, stats = result['config'], result['results']
+
         cfg = TestConfiguration(
-            title=config['class_title'],
-            description=config['class_description'],
-            test_date=datetime.datetime.strptime(config['time'], "%Y-%m-%dT%H:%M:%S.%f"),
-            funkload_version=config['version'],
+            title=config['title'],
+            description=config['description'],
+            test_date=datetime.datetime.strptime(config['test_date'], "%Y-%m-%dT%H:%M:%S.%f"),
+            funkload_version=config['funkload_version'],
 
             module=config['module'],
-            class_name=config['class'],
-            test_name=config['method'],
+            class_name=config['class_name'],
+            test_name=config['test_name'],
 
-            target_server=config['server_url'],
+            target_server=config['target_server'],
             cycles=config['cycles'],
-            cycle_duration=config['duration'],
+            cycle_duration=config['cycle_duration'],
 
-            sleep_time=float(config['sleep_time']),
-            sleep_time_min=float(config['sleep_time_min']),
-            sleep_time_max=float(config['sleep_time_max']),
+            sleep_time=config['sleep_time'],
+            sleep_time_min=config['sleep_time_min'],
+            sleep_time_max=config['sleep_time_max'],
 
-            startup_delay=float(config['startup_delay'])
+            startup_delay=config['startup_delay']
         )
 
         result = TestResult(
-            tests_executed=0,
-            pages_visited=0,
-            requests_made=0,
+            tests_executed=stats['tests_executed'],
+            pages_visited=stats['tests_executed'],
+            requests_made=stats['requests_made'],
             config=cfg
         )
 
         self.results.append(result)
 
-        for key, value in stats.items():
-            value['test'].finalize()
-            value['page'].finalize()
-            value['response'].finalize()
-
-            result.tests_executed += int(value['test'].count)
-            result.pages_visited += int(value['page'].count)
-            result.requests_made += int(value['response'].count)
-
+        for value in stats['cycles']:
             cycle = TestCycle(
-                cycle_number=int(key),
-                concurrent_users=value['test'].cvus
+                cycle_number=value['cycle_number'],
+                concurrent_users=value['concurrent_users']
             )
 
             test = value['test']
             cycle.test = TestCycleTests(
-                successful_tests_per_second=float(test.tps),
-                total_tests=int(test.count),
-                successful_tests=int(test.success),
-                failed_tests=int(test.error),
-                failed_tests_percentage=float(float(test.error) / float(test.count)) * 100
+                successful_tests_per_second=test['successful_tests_per_second'],
+                total_tests=test['total_tests'],
+                successful_tests=test['successful_tests'],
+                failed_tests=test['failed_tests'],
+                failed_tests_percentage=test['failed_tests_percentage']
             )
 
             page = value['page']
 
-            page.percentiles.calcPercentiles()
-
             cycle.page = TestCyclePages(
-                apdex=float(page.apdex_score),
-                successful_pages_per_second=float(page.rps),
-                maximum_successful_pages_per_second=float(page.rps_max),
+                apdex=page['apdex'],
+                successful_pages_per_second=page['successful_pages_per_second'],
+                maximum_successful_pages_per_second=page['maximum_successful_pages_per_second'],
 
-                total_pages=int(page.count),
-                successful_pages=int(page.success),
-                failed_pages=int(page.error),
+                total_pages=page['total_pages'],
+                successful_pages=page['successful_pages'],
+                failed_pages=page['failed_pages'],
 
-                minimum=float(page.min),
-                average=float(page.avg),
-                maximum=float(page.max),
-                p10=float(page.percentiles.perc10),
-                p50=float(page.percentiles.perc50),
-                p90=float(page.percentiles.perc90),
-                p95=float(page.percentiles.perc95)
+                minimum=page['minimum'],
+                average=page['average'],
+                maximum=page['maximum'],
+                p10=page['p10'],
+                p50=page['p50'],
+                p90=page['p90'],
+                p95=page['p95']
             )
 
-            response = value['response']
-
-            response.percentiles.calcPercentiles()
+            request = value['request']
 
             cycle.request = TestCycleRequests(
-                apdex=float(response.apdex_score),
-                successful_requests_per_second=float(response.rps),
-                maximum_successful_requests_per_second=float(response.rps_max),
+                apdex=request['apdex'],
+                successful_requests_per_second=request['successful_requests_per_second'],
+                maximum_successful_requests_per_second=request['maximum_successful_requests_per_second'],
 
-                total_requests=int(response.count),
-                successful_requests=int(response.success),
-                failed_requests=int(response.error),
+                total_requests=request['total_requests'],
+                successful_requests=request['successful_requests'],
+                failed_requests=request['failed_requests'],
 
-                minimum=float(response.min),
-                average=float(response.avg),
-                maximum=float(response.max),
-                p10=float(response.percentiles.perc10),
-                p50=float(response.percentiles.perc50),
-                p90=float(response.percentiles.perc90),
-                p95=float(response.percentiles.perc95)
+                minimum=request['minimum'],
+                average=request['average'],
+                maximum=request['maximum'],
+                p10=request['p10'],
+                p50=request['p50'],
+                p90=request['p90'],
+                p95=request['p95']
             )
 
             result.cycles.append(cycle)
