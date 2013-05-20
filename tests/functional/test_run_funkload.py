@@ -55,3 +55,13 @@ class TestCanRunFunkloadTest(FunkLoadBaseTest):
         """)
 
         expect(result.xml).not_to_be_null()
+
+    def test_can_report_failure(self):
+        test_path = join(root_path, 'tests', 'functional')
+        conf = WightConfig.load(join(test_path, 'failures.yml'))
+        test = conf.tests[0]
+        result = FunkLoadTestRunner.run(test_path, test.module, test.class_name, test.test_name, self.base_url)
+
+        expect(result).not_to_be_null()
+        expect(result.exit_code).to_equal(1)
+        expect(result.text).to_include("ImportError: No module named fail")

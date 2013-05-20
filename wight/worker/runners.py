@@ -8,10 +8,11 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+import sys
 from tempfile import mkdtemp
 from os.path import join
 
-from sh import Command
+from sh import Command, ErrorReturnCode
 from funkload.ReportBuilder import FunkLoadXmlParser
 
 from wight.worker.bench_configuration import BenchConfiguration
@@ -36,17 +37,29 @@ class FunkLoadTestRunner(object):
     @classmethod
     def run(cls, root_path, module, class_name, test_name, base_url):
         temp_path = mkdtemp()
-        result = fl_run_test(module, "%s.%s" % (class_name, test_name), u=base_url, _env={
-            "PYTHONPATH": '$PYTHONPATH:%s' % join(root_path.rstrip('/'), "bench")
-        }, simple_fetch=True, _cwd=temp_path)
 
-        with open(join(temp_path, 'funkload.log')) as fl_log:
-            log = fl_log.read()
+        try:
+            result = fl_run_test(module, "%s.%s" % (class_name, test_name), u=base_url, _env={
+                "PYTHONPATH": '$PYTHONPATH:%s' % join(root_path.rstrip('/'), "bench")
+            }, simple_fetch=True, _cwd=temp_path)
 
-        with open(join(temp_path, 'funkload.xml')) as fl_xml:
-            xml = fl_xml.read()
+            exit_code = result.exit_code
+            text = result.stdout + result.stderr
 
-        return FunkLoadTestRunResult(result.exit_code, result.stdout + result.stderr, log, xml)
+            with open(join(temp_path, 'funkload.log')) as fl_log:
+                log = fl_log.read()
+
+            with open(join(temp_path, 'funkload.xml')) as fl_xml:
+                xml = fl_xml.read()
+
+        except ErrorReturnCode:
+            err = sys.exc_info()[1]
+            text = err.stderr
+            exit_code = 1
+            log = err.stdout + err.stderr
+            xml = None
+
+        return FunkLoadTestRunResult(exit_code, text, log, xml)
 
 
 class FunkLoadBenchRunner(object):

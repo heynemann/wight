@@ -1,0 +1,6 @@
+tests:
+  -
+    title: Failed Test
+    module: fail.py
+    class: Fail
+    test: failure
