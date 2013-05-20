@@ -13,7 +13,7 @@ from uuid import uuid4
 
 import factory
 
-from wight.models import User, Team, Project, LoadTest, TestConfiguration, TestResult
+from wight.models import User, Team, Project, LoadTest, TestConfiguration, TestResult, TestCycle, TestCycleTests, TestCyclePages, TestCycleRequests
 
 
 class UserFactory(factory.Factory):
@@ -112,13 +112,79 @@ class TestConfigurationFactory(factory.Factory):
     apdex_default = 0.8
 
 
+class TestCycleTestsFactory(factory.Factory):
+    FACTORY_FOR = TestCycleTests
+
+    successful_tests = factory.LazyAttributeSequence(lambda cycle, i: 10 * i)
+    failed_tests = factory.LazyAttributeSequence(lambda cycle, i: i + 1)
+    total_tests = factory.LazyAttribute(lambda cycle: cycle.successful_tests + cycle.failed_tests)
+    failed_tests_percentage = factory.LazyAttribute(lambda c: c.failed_tests * 100 / c.total_tests )
+    successful_tests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * i)
+
+
+class TestCyclePagesFactory(factory.Factory):
+    FACTORY_FOR = TestCyclePages
+    apdex = .7
+
+    total_pages = factory.LazyAttributeSequence(lambda cycle, i: 100 * i)
+    successful_pages_per_second = factory.LazyAttributeSequence(lambda cycle, i: i)
+
+    maximum_successful_pages_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * i)
+
+    successful_pages = factory.LazyAttributeSequence(lambda cycle, i: cycle.total_pages / 7)
+    failed_pages = factory.LazyAttributeSequence(lambda cycle, i: cycle.total_pages - cycle.successful_pages)
+
+    minimum = .2
+    average = .5
+    maximum = .8
+    p10 = .9
+    p50 = .8
+    p90 = .4
+    p95 = .3
+
+class TestCycleRequestsFactory(factory.Factory):
+    FACTORY_FOR = TestCycleRequests
+
+    apdex = .7
+
+    successful_requests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * i)
+    maximum_successful_requests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * i)
+    successful_requests = factory.LazyAttributeSequence(lambda cycle, i: 100 * i)
+    failed_requests = factory.LazyAttributeSequence(lambda cycle, i: 10 * i)
+    total_requests = factory.LazyAttribute(lambda c: c.successful_requests + c.failed_requests)
+
+    minimum = .2
+    average = .5
+    maximum = .8
+    p10 = .9
+    p50 = .8
+    p90 = .4
+    p95 = .3
+
+class TestCycleFactory(factory.Factory):
+    FACTORY_FOR = TestCycle
+
+    cycle_number = factory.LazyAttributeSequence(lambda cycle, i: 10 * i)
+    concurrent_users = factory.LazyAttributeSequence(lambda cycle, i: 5 * i)
+
+    test = factory.SubFactory(TestCycleTestsFactory)
+    page = factory.SubFactory(TestCyclePagesFactory)
+    request = factory.SubFactory(TestCycleRequestsFactory)
+
 class TestResultFactory(factory.Factory):
     FACTORY_FOR = TestResult
 
     tests_executed = 100
-    pages_visited = factory.LazyAttributeSequence(lambda result, i: result * i)
-    requests_made = factory.LazyAttributeSequence(lambda result, i: result ** i)
+    pages_visited = factory.LazyAttributeSequence(lambda result, i: result.tests_executed * i)
+    requests_made = factory.LazyAttributeSequence(lambda result, i: result.tests_executed * i + 1)
     config = factory.SubFactory(TestConfigurationFactory)
+    cycles = []
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        test_result = super(TestResultFactory, cls)._prepare(create, **kwargs)
+        test_result.cycles.append(TestCycleFactory.build())
+        return test_result
 
 
 class LoadTestFactory(factory.Factory):
@@ -132,7 +198,7 @@ class LoadTestFactory(factory.Factory):
     status = "Scheduled"
     date_modified = factory.LazyAttribute(lambda user: datetime.now())
     date_created = factory.LazyAttribute(lambda user: datetime.now())
-    results = [factory.SubFactory(TestResultFactory)]
+    results = []
 
     @classmethod
     def _prepare(cls, create, **kwargs):
