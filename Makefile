@@ -67,11 +67,11 @@ mongo_test: kill_mongo_test
 	@rm -rf /tmp/wight/mongotestdata && mkdir -p /tmp/wight/mongotestdata
 	@mongod --dbpath /tmp/wight/mongotestdata --logpath /tmp/wight/mongotestlog --port 7778 --quiet &
 
-run: mongo redis
+run: kill_app mongo redis
 	@sleep 3
 	@python wight/api/server.py --port 2367 --bind 0.0.0.0 --conf ./wight/api/local.conf -vvv --debug
 
-web: mongo redis
+web: kill_app mongo redis
 	@sleep 3
 	@python wight/web/server.py --port 2368 --bind 0.0.0.0 --conf ./wight/api/local.conf -vvv --debug
 

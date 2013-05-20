@@ -58,3 +58,60 @@ body {
     margin-bottom: 30px;
     text-align: right;
 }
+
+.diff .hero-unit h3 {
+    margin-top: 40px;
+}
+
+.diff .hero-container {
+    margin-top: -26px;
+    margin-bottom: 30px;
+    font-size: 0;
+}
+
+.diff .half {
+    width: 50%;
+    display: inline-block;
+    vertical-align: top;
+    font-size: 18px;
+}
+
+.diff .request-rps svg {
+    height: 400px;
+}
+
+.diff .request-percentage {
+    margin-top: -58px;
+}
+
+.diff .request-percentage svg {
+    height: 200px;
+}
+
+.diff .request-average {
+    margin-top: 30px;
+    margin-right: 40px;
+}
+
+.diff .request-average svg {
+    height: 400px;
+}
+
+.diff .request-average-percentage {
+    margin-top: -58px;
+    margin-right: 40px;
+}
+
+.diff .request-average-percentage svg {
+    height: 250px;
+}
+
+.diff .request-median svg,
+.diff .request-p90 svg,
+.diff .request-max svg {
+    height: 210px;
+}
+
+.diff .page-pps svg {
+    height: 400px;
+}
