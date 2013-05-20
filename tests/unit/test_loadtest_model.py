@@ -142,6 +142,74 @@ class TestLoadFromFunkloadResult(ModelTestCase):
         TeamFactory.add_projects(self.team, 2)
         self.project = self.team.projects[0]
 
+    def test_can_get_config_in_json_from_funkload_result(self):
+        config = FunkLoadTestResultFactory.get_config()
+        cycles = FunkLoadTestResultFactory.get_result(4)
+
+        result_json = LoadTest.get_data_from_funkload_results(config, cycles)
+
+        expect(result_json['config']).not_to_be_null()
+
+        cfg = result_json['config']
+
+        expect(cfg['title']).to_equal(config['class_title'])
+        expect(cfg['description']).to_equal(config['class_description'])
+
+        expect(cfg['module']).to_equal(config['module'])
+        expect(cfg['class_name']).to_equal(config['class'])
+        expect(cfg['test_name']).to_equal(config['method'])
+
+        expect(cfg['target_server']).to_equal(config['server_url'])
+        expect(cfg['cycles']).to_equal(config['cycles'])
+        expect(cfg['cycle_duration']).to_equal(int(config['duration']))
+
+        expect(cfg['sleep_time']).to_equal(float(config['sleep_time']))
+        expect(cfg['sleep_time_min']).to_equal(float(config['sleep_time_min']))
+        expect(cfg['sleep_time_max']).to_equal(float(config['sleep_time_max']))
+
+        expect(cfg['startup_delay']).to_equal(float(config['startup_delay']))
+
+        expect(cfg['test_date'][:20]).to_equal(config['time'][:20])
+        expect(cfg['funkload_version']).to_equal(config['version'])
+
+    def test_can_get_cycles_in_json_from_funkload_result(self):
+        config = FunkLoadTestResultFactory.get_config()
+        cycles = FunkLoadTestResultFactory.get_result(4)
+
+        result = LoadTest.get_data_from_funkload_results(config, cycles)
+        expect(result['results']).not_to_be_null()
+
+        result = result['results']
+        expect(result['cycles']).to_length(4)
+
+        expect(result['tests_executed']).to_equal(800)
+        expect(result['pages_visited']).to_equal(800)
+        expect(result['requests_made']).to_equal(800)
+
+        cycle = result['cycles'][0]
+
+        expect(cycle['test']['successful_tests_per_second']).to_equal(20.30394)
+        expect(cycle['test']['total_tests']).to_equal(200)
+        expect(cycle['test']['successful_tests']).to_equal(300)
+        expect(cycle['test']['failed_tests']).to_equal(0)
+        expect(cycle['test']['failed_tests_percentage']).to_equal(0)
+
+        expect(cycle['page']['apdex']).to_equal(0.993)
+        expect(cycle['page']['successful_pages_per_second']).to_equal(35.2)
+        expect(cycle['page']['maximum_successful_pages_per_second']).to_equal(44.0)
+
+        expect(cycle['page']['total_pages']).to_equal(200)
+        expect(cycle['page']['successful_pages']).to_equal(300)
+        expect(cycle['page']['failed_pages']).to_equal(0)
+
+        expect(cycle['page']['minimum']).to_equal(0.123)
+        expect(cycle['page']['average']).to_equal(0.234)
+        expect(cycle['page']['maximum']).to_equal(0.384)
+        expect(cycle['page']['p10']).to_equal(1.0)
+        expect(cycle['page']['p50']).to_equal(1.0)
+        expect(cycle['page']['p90']).to_equal(1.0)
+        expect(cycle['page']['p95']).to_equal(1.0)
+
     def test_can_parse_configuration_from_funkload_result(self):
         test = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
 

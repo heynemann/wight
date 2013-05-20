@@ -466,6 +466,116 @@ class LoadTest(Document):
         self.save()
 
     @classmethod
+    def get_data_from_funkload_results(cls, config, cycles):
+        return {
+            'config': cls.parse_config(config),
+            'results': cls.parse_cycles(cycles)
+        }
+
+    @classmethod
+    def parse_config(cls, config):
+        return {
+            'title': config['class_title'],
+            'description': config['class_description'],
+            'test_date': config['time'],
+            'funkload_version': config['version'],
+
+            'module': config['module'],
+            'class_name': config['class'],
+            'test_name': config['method'],
+
+            'target_server': config['server_url'],
+            'cycles': config['cycles'],
+            'cycle_duration': int(config['duration']),
+
+            'sleep_time': float(config['sleep_time']),
+            'sleep_time_min': float(config['sleep_time_min']),
+            'sleep_time_max': float(config['sleep_time_max']),
+
+            'startup_delay': float(config['startup_delay'])
+        }
+
+    @classmethod
+    def parse_cycles(cls, cycles):
+        result = {
+            'tests_executed': 0,
+            'pages_visited': 0,
+            'requests_made': 0,
+            'cycles': []
+        }
+
+        for key, value in cycles.items():
+            value['test'].finalize()
+            value['page'].finalize()
+            value['response'].finalize()
+
+            result['tests_executed'] += int(value['test'].count)
+            result['pages_visited'] += int(value['page'].count)
+            result['requests_made'] += int(value['response'].count)
+
+            cycle = {
+                'cycle_number': int(key),
+                'concurrent_users': int(value['test'].cvus)
+            }
+
+            test = value['test']
+            cycle['test'] = {
+                'successful_tests_per_second': float(test.tps),
+                'total_tests': int(test.count),
+                'successful_tests': int(test.success),
+                'failed_tests': int(test.error),
+                'failed_tests_percentage': float(float(test.error) / float(test.count)) * 100
+            }
+
+            page = value['page']
+
+            page.percentiles.calcPercentiles()
+
+            cycle['page'] = {
+                'apdex': float(page.apdex_score),
+                'successful_pages_per_second': float(page.rps),
+                'maximum_successful_pages_per_second': float(page.rps_max),
+
+                'total_pages': int(page.count),
+                'successful_pages': int(page.success),
+                'failed_pages': int(page.error),
+
+                'minimum': float(page.min),
+                'average': float(page.avg),
+                'maximum': float(page.max),
+                'p10': float(page.percentiles.perc10),
+                'p50': float(page.percentiles.perc50),
+                'p90': float(page.percentiles.perc90),
+                'p95': float(page.percentiles.perc95)
+            }
+
+            response = value['response']
+
+            response.percentiles.calcPercentiles()
+
+            cycle['request'] = {
+                'apdex': float(response.apdex_score),
+                'successful_requests_per_second': float(response.rps),
+                'maximum_successful_requests_per_second': float(response.rps_max),
+
+                'total_requests': int(response.count),
+                'successful_requests': int(response.success),
+                'failed_requests': int(response.error),
+
+                'minimum': float(response.min),
+                'average': float(response.avg),
+                'maximum': float(response.max),
+                'p10': float(response.percentiles.perc10),
+                'p50': float(response.percentiles.perc50),
+                'p90': float(response.percentiles.perc90),
+                'p95': float(response.percentiles.perc95)
+            }
+
+            result['cycles'].append(cycle)
+
+        return result
+
+    @classmethod
     def get_by_team_and_project_name(cls, team, project_name):
         return cls.get_sliced_by_team_and_project_name(team, project_name, 20)
 
