@@ -36,6 +36,7 @@ class LoadTestsInstanceTest(FullTestCase):
         result2_last_cycle = result2.cycles[-1]
 
         expect(obj['uuid']).to_equal(str(self.load_test.uuid))
+        expect(obj['status']).to_equal(self.load_test.status)
         expect(obj['results'][0]['uuid']).to_equal(str(result1.uuid))
         expect(obj['results'][0]['concurrent_users']).to_equal(result1_last_cycle.concurrent_users)
         expect(obj['results'][0]['title']).to_equal(result1.config.title)

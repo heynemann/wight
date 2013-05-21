@@ -14,7 +14,7 @@ class LoadTestInstanceHandler(BaseHandler):
     def get(self, team, project_name, test_uuid):
         try:
             load_test = LoadTest.objects.get(uuid=test_uuid)
-            response = {'uuid': str(load_test.uuid), 'results': []}
+            response = {'uuid': str(load_test.uuid), 'results': [], 'status': load_test.status}
             for result in load_test.results:
                 last_cycle = result.cycles[-1]
                 partial_result = {}
