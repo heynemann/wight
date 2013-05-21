@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Diff between #123912932 and #123912931293 - Wight v0.1.0{% end %}
+
+{% block contents %}
+<div class="diff container">
+    <div class="hero-unit">
+        <h1>my-funky-project #diff</h1>
+
+        <h3>Diff between:</h1>
+        <div class="hero-container">
+            <div class="half">
+                <p class="lead"><a href="#">Testando api de geolocation</a></p>
+                <p><small>Reference Report</small></p>
+            </div>
+            <div class="half">
+                <p class="lead"><a href="#">Testando api de geolocation</a></p>
+                <p><small>Challenger Report</small></p>
+            </div>
+        </div>
+        <div class="toolbar">
+            <div><a href="#"><i class="icon-file"></i>Permalink for this diff</a></div>
+            <div><a href="#"><i class="icon-circle-arrow-left"></i>Testando api de geolocation 10/10/12 10:10</a></div>
+            <div><a href="#"><i class="icon-circle-arrow-right"></i>Testando api de geolocation 14/10/12 10:10</a></div>
+            <div><a href="#"><i class="icon-fullscreen"></i>Trend for this project</a></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-header">
+          <h1>Requests <small>details for requests concerning scalability and performance</small></h1>
+        </div>
+
+        <h3>Requests per second - Scalability</h3>
+        <div class="chart request-rps"><svg></svg></div>
+        <div class="chart request-percentage"><svg></svg></div>
+
+        <h3>Requests response time - Velocity</h3>
+        <div class="hero-container">
+            <div class="half">
+                <div class="chart request-average"><svg></svg></div>
+                <div class="chart request-average-percentage"><svg></svg></div>
+            </div>
+            <div class="half">
+                <div class="chart request-median"><svg></svg></div>
+                <div class="chart request-p90"><svg></svg></div>
+                <div class="chart request-max"><svg></svg></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="page-header">
+            <h1>Pages <small>number of pages per second</small></h1>
+            <div class="chart page-pps"><svg></svg></div>
+        </div>
+    </div>
+
+    <p class="text-center"><small>Report generated at 12/12/13 10:32:23.</small></p>
+</div>
+{% end %}
+
+{% block scripts %}
+<script>
+var rpsData = [
+    {
+        key: 'Reference Report',
+        color: '#5c8800',
+        values: [
+            { x: 1, y: 3 },
+            { x: 20, y: 30 },
+            { x: 40, y: 70 },
+            { x: 60, y: 110 },
+            { x: 80, y: 125 },
+            { x: 100, y: 120 },
+            { x: 120, y: 118 },
+            { x: 140, y: 125 }
+        ]
+    },
+    {
+        key: 'Challenger Report',
+        color: '#ff7f00',
+        values: [
+            { x: 1, y: 3 },
+            { x: 20, y: 28 },
+            { x: 40, y: 60 },
+            { x: 60, y: 140 },
+            { x: 80, y: 180 },
+            { x: 100, y: 115 },
+            { x: 120, y: 118 },
+            { x: 140, y: 115 }
+        ]
+    }
+];
+
+var getPercentage = function(index) {
+    return ((rpsData[1].values[index].y - rpsData[0].values[index].y) / rpsData[0].values[index].y) * 100;
+};
+
+var percentageData = [
+    {
+        key: "Percentage of Improvement",
+        values: []
+    }
+];
+
+for (var i=0; i < 8; i++) {
+    percentageData[0].values.push({
+        label: rpsData[0].values[i].x,
+        value: getPercentage(i)
+    })
+}
+
+var floatFormat = function(num) {
+    return Math.round(num * 100) / 100;
+};
+
+// Requests per second
+nv.addGraph(function() {
+    var chart = nv.models.lineChart();
+
+    chart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    chart.xAxis
+        .tickFormat(function(d) { return d.toString() + " users" });
+
+    chart.yAxis
+        .axisLabel('Requests per second')
+        .tickFormat(function(d) { return floatFormat(d).toString() + "rps" });
+
+    d3.select('.request-rps svg')
+        .datum(rpsData)
+        .transition().duration(500)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+// Improvement percentage
+nv.addGraph(function() {
+    var chart = nv.models.discreteBarChart()
+        .x(function(d) { return d.label })
+        .y(function(d) { return d.value })
+        .staggerLabels(true)
+        .tooltips(false)
+        .showValues(true);
+
+    chart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    chart.xAxis
+        .tickFormat(function(d) { return d.toString() + " users" });
+
+    chart.yAxis
+        .tickFormat(function(d) { return floatFormat(d).toString() + "%" })
+        .axisLabel('Improvement %');
+
+    d3.select('.request-percentage svg')
+        .datum(percentageData)
+        .transition().duration(500)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+// Requests per second
+nv.addGraph(function() {
+    var chart = nv.models.lineChart();
+
+    chart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    chart.xAxis
+        .tickFormat(function(d) { return d.toString() + " users" });
+
+    chart.yAxis
+        .axisLabel('Response time - Average')
+        .tickFormat(function(d) { return floatFormat(d).toString() + "sec" });
+
+    d3.select('.request-average svg')
+        .datum(rpsData)
+        .transition().duration(500)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+// Improvement percentage
+nv.addGraph(function() {
+    var chart = nv.models.discreteBarChart()
+        .x(function(d) { return d.label })
+        .y(function(d) { return d.value })
+        .staggerLabels(true)
+        .tooltips(false)
+        .showValues(false);
+
+    chart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    chart.xAxis
+        .tickFormat(function(d) { return d.toString() + " users" });
+
+    chart.yAxis
+        .tickFormat(function(d) { return floatFormat(d).toString() + "%" })
+        .axisLabel('Improvement %');
+
+    d3.select('.request-average-percentage svg')
+        .datum(percentageData)
+        .transition().duration(500)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+// median
+nv.addGraph(function() {
+    var chart = nv.models.lineChart();
+
+    chart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    chart.xAxis
+        .tickFormat(function(d) { return d.toString() + " users" });
+
+    chart.yAxis
+        .axisLabel('Response time - Median')
+        .tickFormat(function(d) { return floatFormat(d).toString() + "sec" });
+
+    d3.select('.request-median svg')
+        .datum(rpsData)
+        .transition().duration(500)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+// P90
+nv.addGraph(function() {
+    var chart = nv.models.lineChart();
+
+    chart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    chart.xAxis
+        .tickFormat(function(d) { return d.toString() + " users" });
+
+    chart.yAxis
+        .axisLabel('Response time - P90')
+        .tickFormat(function(d) { return floatFormat(d).toString() + "sec" });
+
+    d3.select('.request-p90 svg')
+        .datum(rpsData)
+        .transition().duration(500)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+// Max
+nv.addGraph(function() {
+    var chart = nv.models.lineChart();
+
+    chart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    chart.xAxis
+        .tickFormat(function(d) { return d.toString() + " users" });
+
+    chart.yAxis
+        .axisLabel('Response time - Max')
+        .tickFormat(function(d) { return floatFormat(d).toString() + "sec" });
+
+    d3.select('.request-max svg')
+        .datum(rpsData)
+        .transition().duration(500)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+// Requests per second
+nv.addGraph(function() {
+    var chart = nv.models.lineChart();
+
+    chart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    chart.xAxis
+        .tickFormat(function(d) { return d.toString() + " users" });
+
+    chart.yAxis
+        .axisLabel('Pages per second')
+        .tickFormat(function(d) { return floatFormat(d).toString() + "pps" });
+
+    d3.select('.page-pps svg')
+        .datum(rpsData)
+        .transition().duration(500)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+
+</script>
+{% end %}

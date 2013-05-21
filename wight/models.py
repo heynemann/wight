@@ -323,6 +323,16 @@ class TestResult(EmbeddedDocument):
     config = EmbeddedDocumentField(TestConfiguration)
     cycles = ListField(EmbeddedDocumentField(TestCycle))
 
+    def to_dict(self):
+        return {
+            "uuid": str(self.uuid),
+            "testExecuted": self.tests_executed,
+            "pageVisited": self.pages_visited,
+            "requestMade": self.requests_made,
+            "created": self.date_created.isoformat()[:19],
+            "lastModified": self.date_modified.isoformat()[:19],
+        }
+
     def clean(self):
         self.date_modified = datetime.datetime.now()
 
@@ -595,5 +605,5 @@ class LoadTest(Document):
             raise DoesNotExist("There is no Load Test with a Test Result with uuid '%s'" % test_result_uuid)
         load_test = load_test.first()
         for result in load_test.results:
-            if result.uuid == test_result_uuid:
+            if str(result.uuid) == test_result_uuid:
                 return result

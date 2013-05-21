@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>{% block title %}{% end %}</title>
+        <link rel="stylesheet" href="{{ static_url('css/bootstrap.min.css') }}" type="text/css" />
+        <link rel="stylesheet" href="{{ static_url('css/nv.d3.css') }}" type="text/css" />
+        <link rel="stylesheet" href="{{ static_url('css/wight.css') }}" type="text/css" />
+    </head>
+
+    <body>
+        {% block contents %}{% end %}
+
+        <script src="{{ static_url('js/jquery-2.0.0.min.js') }}"></script>
+        <script src="{{ static_url('js/bootstrap.min.js') }}"></script>
+        <script src="{{ static_url('js/d3.v2.min.js') }}"></script>
+        <script src="{{ static_url('js/fisheye.js') }}"></script>
+        <script src="{{ static_url('js/nv.d3.min.js') }}"></script>
+
+        {% block scripts %}{% end %}
+    </body>
+</html>
+

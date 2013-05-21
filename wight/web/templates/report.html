@@ -1,514 +1,500 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html>
-    <head>
-        <title>Report #123912932 - 10/10/2010 18:20 - Wight v0.1.0</title>
-        <link rel="stylesheet" href="{{ static_url('css/bootstrap.min.css') }}" type="text/css" />
-        <link rel="stylesheet" href="{{ static_url('css/nv.d3.css') }}" type="text/css" />
-        <link rel="stylesheet" href="{{ static_url('css/wight.css') }}" type="text/css" />
-    </head>
+{% block title %}Report #123912932 - 10/10/2010 18:20 - Wight v0.1.0{% end %}
 
-    <body>
-        <div class="container">
-            <div class="hero-unit">
-                <h1>my-funky-project</h1>
-                <p>Testando api de geolocation Bench result of GeoTests.test_geo: No test description</p>
-                <p><small>This report details the test run at <span class="text-info">10/10/2012 10:10:10</span>, scheduled by user <span class="text-info">heynemann@gmail.com</span>.</small></p>
-                <div class="toolbar">
-                    <div><a href="#"><i class="icon-file"></i>Permalink for this test</a></div>
-                    <div><a href="#"><i class="icon-minus-sign"></i>Difference to the previous test</a></div>
-                    <div><a href="#"><i class="icon-fullscreen"></i>Trend for this project</a></div>
-                </div>
-            </div>
-
-            <div class="page-header">
-              <h1>Bench Configuration <small>details of the configuration for this test</small></h1>
-            </div>
-
-            <div class="row">
-                <div class="span6">
-                    <dl class="dl-horizontal">
-                      <dt>Launched</dt>
-                      <dd>2008-11-07 16:03:28</dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt>Test File</dt>
-                      <dd><code>test_SeamBooking.py</code></dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt>Test Method</dt>
-                      <dd><code>SeamBooking.test_seam_booking</code></dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt>Target server</dt>
-                      <dd><a href="http://joyeux:8080">http://joyeux:8080</a></dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt title="Cycles of concurrent users">Cycles of concurrent users</dt>
-                      <dd><code>[1, 20, 40, 60, 80, 100, 120, 140]</code></dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt title="Cycle duration">Cycle duration</dt>
-                      <dd>30 seconds</dd>
-                    </dl>
-                </div>
-                <div class="span6">
-                    <dl class="dl-horizontal">
-                      <dt title="Sleeptime between request">Sleeptime between request</dt>
-                      <dd>from <span class="text-info">0.01s</span> to <span class="text-info">2.0s</span></dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt title="Sleeptime between test case">Sleeptime between test case</dt>
-                      <dd><span class="text-info">1.0s</span></dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt title="Startup delay between thread">Startup delay between thread</dt>
-                      <dd><span class="text-info">0.2s</span></dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt title="Apdex">Apdex</dt>
-                      <dd>1.5</dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                      <dt title="FunkLoad version">FunkLoad version</dt>
-                      <dd>1.9.0b-r53028</dd>
-                    </dl>
-                </div>
-            </div>
-
-            <div class="page-header">
-              <h1>Test Results <small>details for tests, pages and requests</small></h1>
-            </div>
-
-            <div class="row">
-                <div class="span3">
-                    <h4>contents</h4>
-                    <ul class="inline stats">
-                        <li><i class="icon-home"></i><span class="text-info">12</span> pages</li>
-                        <li><i class="icon-retweet"></i><span class="text-info">7</span> redirects</li>
-                        <li><i class="icon-globe"></i><span class="text-info">2</span> links</li>
-                        <li><i class="icon-picture"></i><span class="text-info">3</span> images</li>
-                        <li><i class="icon-upload"></i><span class="text-info">0</span> xmlrpc</li>
-                    </ul>
-
-                    <h4>activity</h4>
-                    <ul class="inline totals">
-                        <li><i class="icon-home"></i><span class="text-info">823</span> tests</li>
-                        <li><i class="icon-retweet"></i><span class="text-info">10417</span> pages</li>
-                        <li><i class="icon-globe"></i><span class="text-info">20772</span> requests</li>
-                    </ul>
-                </div>
-                <div class="span9 test-results">
-                    <h2>Test results <small>test statistics per test suite</small></h2>
-                    <div class="chart test-stats"><svg></svg></div>
-
-                    <table class="test-result-table table table-hover table-condensed">
-                        <thead>
-                            <th>Concurrent users</th>
-                            <th>Successful tests per second</th>
-                            <th>Total</th>
-                            <th>Success</th>
-                            <th>Error</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>0.067</td>
-                                <td>2</td>
-                                <td>2</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>20</td>
-                                <td>1.300</td>
-                                <td>39</td>
-                                <td>39</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>40</td>
-                                <td>2.667</td>
-                                <td>80</td>
-                                <td>80</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>60</td>
-                                <td>4.233</td>
-                                <td>127</td>
-                                <td>127</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>80</td>
-                                <td>4.933</td>
-                                <td>148</td>
-                                <td>148</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>100</td>
-                                <td>4.567</td>
-                                <td>137</td>
-                                <td>137</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>120</td>
-                                <td>4.800</td>
-                                <td>144</td>
-                                <td>144</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>140</td>
-                                <td>4.867</td>
-                                <td>146</td>
-                                <td>146</td>
-                                <td>0.00%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h2>Page results <small>test statistics per page</small></h2>
-                    <div class="chart page-stats"><svg></svg></div>
-                    <div class="chart page-apdex"><svg></svg></div>
-                    <div class="chart page-response-time"><svg></svg></div>
-
-
-                    <table class="page-stats-table test-result-table table table-hover table-condensed">
-                        <thead>
-                            <th>CUs</th>
-                            <th>Apdex</th>
-                            <th>SPPS</th>
-                            <th>MaxSPPS</th>
-                            <th>Total</th>
-                            <th>Succ</th>
-                            <th>Err</th>
-                            <th>Min</th>
-                            <th>P10</th>
-                            <th>Med</th>
-                            <th>Avg</th>
-                            <th>P90</th>
-                            <th>P95</th>
-                            <th>Max</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Excellent</td>
-                                <td>0.83</td>
-                                <td>2.00</td>
-                                <td>25</td>
-                                <td>25</td>
-                                <td>0.00%</td>
-                                <td>0.019</td>
-                                <td>0.064</td>
-                                <td>0.149</td>
-                                <td>0.025</td>
-                                <td>0.066</td>
-                                <td>0.112</td>
-                                <td>0.114</td>
-                            </tr>
-                            <tr>
-                                <td>20</td>
-                                <td>Excellent</td>
-                                <td>17.00</td>
-                                <td>26.00</td>
-                                <td>510</td>
-                                <td>510</td>
-                                <td>0.00%</td>
-                                <td>0.012</td>
-                                <td>0.055</td>
-                                <td>0.240</td>
-                                <td>0.016</td>
-                                <td>0.047</td>
-                                <td>0.104</td>
-                                <td>0.133</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p class="legend"><small><i>Min, P10, Med, Avg, P90, P95 and Max values measured in seconds.</i></small></p>
-
-                    <h2>Request results <small>test statistics per request</small></h2>
-                    <div class="chart request-stats"><svg></svg></div>
-
-                    <table class="test-result-table table table-hover table-condensed">
-                        <thead>
-                            <th>Concurrent users</th>
-                            <th>Successful tests per second</th>
-                            <th>Total</th>
-                            <th>Success</th>
-                            <th>Error</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>0.067</td>
-                                <td>2</td>
-                                <td>2</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>20</td>
-                                <td>1.300</td>
-                                <td>39</td>
-                                <td>39</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>40</td>
-                                <td>2.667</td>
-                                <td>80</td>
-                                <td>80</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>60</td>
-                                <td>4.233</td>
-                                <td>127</td>
-                                <td>127</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>80</td>
-                                <td>4.933</td>
-                                <td>148</td>
-                                <td>148</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>100</td>
-                                <td>4.567</td>
-                                <td>137</td>
-                                <td>137</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>120</td>
-                                <td>4.800</td>
-                                <td>144</td>
-                                <td>144</td>
-                                <td>0.00%</td>
-                            </tr>
-                            <tr>
-                                <td>140</td>
-                                <td>4.867</td>
-                                <td>146</td>
-                                <td>146</td>
-                                <td>0.00%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
+{% block contents %}
+<div class="container">
+    <div class="hero-unit">
+        <h1>my-funky-project</h1>
+        <p>Testando api de geolocation Bench result of GeoTests.test_geo: No test description</p>
+        <p><small>This report details the test run at <span class="text-info">10/10/2012 10:10:10</span>, scheduled by user <span class="text-info">heynemann@gmail.com</span>.</small></p>
+        <div class="toolbar">
+            <div><a href="#"><i class="icon-file"></i>Permalink for this test</a></div>
+            <div><a href="#"><i class="icon-minus-sign"></i>Difference to the previous test</a></div>
+            <div><a href="#"><i class="icon-fullscreen"></i>Trend for this project</a></div>
         </div>
+    </div>
 
-        <script src="{{ static_url('js/jquery-2.0.0.min.js') }}"></script>
-        <script src="{{ static_url('js/bootstrap.min.js') }}"></script>
-        <script src="{{ static_url('js/d3.v2.min.js') }}"></script>
-        <script src="{{ static_url('js/fisheye.js') }}"></script>
-        <script src="{{ static_url('js/nv.d3.min.js') }}"></script>
-        <!--<script src="{{ static_url('js/legend.js') }}"></script>-->
-        <!--<script src="{{ static_url('js/line.js') }}"></script>-->
+    <div class="page-header">
+      <h1>Bench Configuration <small>details of the configuration for this test</small></h1>
+    </div>
 
-        <script>
-            var testData = [{
-                values: [
-                    { x: 1, y: 0.067 },
-                    { x: 20, y: 1.300 },
-                    { x: 40, y: 2.667 },
-                    { x: 60, y: 4.233 },
-                    { x: 80, y: 4.933 },
-                    { x: 100, y: 4.567 },
-                    { x: 120, y: 4.800 },
-                    { x: 140, y: 4.867 }
-                ],
-                key: "Successful tests per second",
-                color: "#597800"
-            }, {
-                values: [
+    <div class="row">
+        <div class="span6">
+            <dl class="dl-horizontal">
+              <dt>Launched</dt>
+              <dd>2008-11-07 16:03:28</dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt>Test File</dt>
+              <dd><code>test_SeamBooking.py</code></dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt>Test Method</dt>
+              <dd><code>SeamBooking.test_seam_booking</code></dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt>Target server</dt>
+              <dd><a href="http://joyeux:8080">http://joyeux:8080</a></dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt title="Cycles of concurrent users">Cycles of concurrent users</dt>
+              <dd><code>[1, 20, 40, 60, 80, 100, 120, 140]</code></dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt title="Cycle duration">Cycle duration</dt>
+              <dd>30 seconds</dd>
+            </dl>
+        </div>
+        <div class="span6">
+            <dl class="dl-horizontal">
+              <dt title="Sleeptime between request">Sleeptime between request</dt>
+              <dd>from <span class="text-info">0.01s</span> to <span class="text-info">2.0s</span></dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt title="Sleeptime between test case">Sleeptime between test case</dt>
+              <dd><span class="text-info">1.0s</span></dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt title="Startup delay between thread">Startup delay between thread</dt>
+              <dd><span class="text-info">0.2s</span></dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt title="Apdex">Apdex</dt>
+              <dd>1.5</dd>
+            </dl>
+            <dl class="dl-horizontal">
+              <dt title="FunkLoad version">FunkLoad version</dt>
+              <dd>1.9.0b-r53028</dd>
+            </dl>
+        </div>
+    </div>
 
-                ],
-                key: "Failed tests per second",
-                color: "#ca0000"
-            }];
+    <div class="page-header">
+      <h1>Test Results <small>details for tests, pages and requests</small></h1>
+    </div>
 
-            var drawGraph = function(element, data, xLabel, yLabel) {
-                nv.addGraph(function() {  
-                    var chart = nv.models.lineChart();
+    <div class="row">
+        <div class="span3">
+            <h4>contents</h4>
+            <ul class="inline stats">
+                <li><i class="icon-home"></i><span class="text-info">12</span> pages</li>
+                <li><i class="icon-retweet"></i><span class="text-info">7</span> redirects</li>
+                <li><i class="icon-globe"></i><span class="text-info">2</span> links</li>
+                <li><i class="icon-picture"></i><span class="text-info">3</span> images</li>
+                <li><i class="icon-upload"></i><span class="text-info">0</span> xmlrpc</li>
+            </ul>
 
-                    chart.margin({
-                        left: 100,
-                        bottom: 80
-                    });
+            <h4>activity</h4>
+            <ul class="inline totals">
+                <li><i class="icon-home"></i><span class="text-info">823</span> tests</li>
+                <li><i class="icon-retweet"></i><span class="text-info">10417</span> pages</li>
+                <li><i class="icon-globe"></i><span class="text-info">20772</span> requests</li>
+            </ul>
+        </div>
+        <div class="span9 test-results">
+            <h2>Test results <small>test statistics per test suite</small></h2>
+            <div class="chart test-stats"><svg></svg></div>
 
-                    chart.xAxis
-                        .tickFormat(d3.format(',r'));
+            <table class="test-result-table table table-hover table-condensed">
+                <thead>
+                    <th>Concurrent users</th>
+                    <th>Successful tests per second</th>
+                    <th>Total</th>
+                    <th>Success</th>
+                    <th>Error</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>0.067</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td>1.300</td>
+                        <td>39</td>
+                        <td>39</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>40</td>
+                        <td>2.667</td>
+                        <td>80</td>
+                        <td>80</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>60</td>
+                        <td>4.233</td>
+                        <td>127</td>
+                        <td>127</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>80</td>
+                        <td>4.933</td>
+                        <td>148</td>
+                        <td>148</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>100</td>
+                        <td>4.567</td>
+                        <td>137</td>
+                        <td>137</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>120</td>
+                        <td>4.800</td>
+                        <td>144</td>
+                        <td>144</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>140</td>
+                        <td>4.867</td>
+                        <td>146</td>
+                        <td>146</td>
+                        <td>0.00%</td>
+                    </tr>
+                </tbody>
+            </table>
 
-                    if (xLabel != null) {
-                        chart.xAxis.axisLabel(xLabel);
-                    }
+            <h2>Page results <small>test statistics per page</small></h2>
+            <div class="chart page-stats"><svg></svg></div>
+            <div class="chart page-apdex"><svg></svg></div>
+            <div class="chart page-response-time"><svg></svg></div>
 
-                    chart.yAxis
-                        .axisLabel(yLabel)
-                        .tickFormat(d3.format('.02f'));
 
-                    d3.select(element)
-                        .datum(data)
-                        .transition().duration(500)
-                        .call(chart);
+            <table class="page-stats-table test-result-table table table-hover table-condensed">
+                <thead>
+                    <th>CUs</th>
+                    <th>Apdex</th>
+                    <th>SPPS</th>
+                    <th>MaxSPPS</th>
+                    <th>Total</th>
+                    <th>Succ</th>
+                    <th>Err</th>
+                    <th>Min</th>
+                    <th>P10</th>
+                    <th>Med</th>
+                    <th>Avg</th>
+                    <th>P90</th>
+                    <th>P95</th>
+                    <th>Max</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Excellent</td>
+                        <td>0.83</td>
+                        <td>2.00</td>
+                        <td>25</td>
+                        <td>25</td>
+                        <td>0.00%</td>
+                        <td>0.019</td>
+                        <td>0.064</td>
+                        <td>0.149</td>
+                        <td>0.025</td>
+                        <td>0.066</td>
+                        <td>0.112</td>
+                        <td>0.114</td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td>Excellent</td>
+                        <td>17.00</td>
+                        <td>26.00</td>
+                        <td>510</td>
+                        <td>510</td>
+                        <td>0.00%</td>
+                        <td>0.012</td>
+                        <td>0.055</td>
+                        <td>0.240</td>
+                        <td>0.016</td>
+                        <td>0.047</td>
+                        <td>0.104</td>
+                        <td>0.133</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="legend"><small><i>Min, P10, Med, Avg, P90, P95 and Max values measured in seconds.</i></small></p>
 
-                    nv.utils.windowResize(function() { d3.select(element).call(chart) });
-                    return chart;
-                });
-            };
+            <h2>Request results <small>test statistics per request</small></h2>
+            <div class="chart request-stats"><svg></svg></div>
 
-            drawGraph('.test-stats svg', testData, 'Concurrent users', 'Tests per second');
-            drawGraph('.page-stats svg', testData, null, 'Pages per second');
-            drawGraph('.request-stats svg', testData, 'Concurrent users', 'Requests per second');
+            <table class="test-result-table table table-hover table-condensed">
+                <thead>
+                    <th>Concurrent users</th>
+                    <th>Successful tests per second</th>
+                    <th>Total</th>
+                    <th>Success</th>
+                    <th>Error</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>0.067</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td>1.300</td>
+                        <td>39</td>
+                        <td>39</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>40</td>
+                        <td>2.667</td>
+                        <td>80</td>
+                        <td>80</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>60</td>
+                        <td>4.233</td>
+                        <td>127</td>
+                        <td>127</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>80</td>
+                        <td>4.933</td>
+                        <td>148</td>
+                        <td>148</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>100</td>
+                        <td>4.567</td>
+                        <td>137</td>
+                        <td>137</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>120</td>
+                        <td>4.800</td>
+                        <td>144</td>
+                        <td>144</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td>140</td>
+                        <td>4.867</td>
+                        <td>146</td>
+                        <td>146</td>
+                        <td>0.00%</td>
+                    </tr>
+                </tbody>
+            </table>
 
-            var apdexData = [
-                {
-                    key: "Concurrent Users",
-                    values: [
-                        { 
-                            "label" : "1",
-                            "value" : 1.0
-                        } , 
-                        { 
-                            "label" : "20", 
-                            "value" : 1.0
-                        } , 
-                        { 
-                            "label" : "40", 
-                            "value" : 1.0
-                        } , 
-                        { 
-                            "label" : "60", 
-                            "value" : 1.0
-                        } , 
-                        { 
-                            "label" : "80",
-                            "value" : 1.0
-                        } , 
-                        { 
-                            "label" : "100",
-                            "value" : 0.977
-                        } , 
-                        { 
-                            "label" : "120", 
-                            "value" : 0.977
-                        } , 
-                        { 
-                            "label" : "140", 
-                            "value" : 0.956
-                        }
-                    ]
-                }
-            ];
+        </div>
+    </div>
+</div>
+{% end %}
 
-            nv.addGraph(function() {
-                var chart = nv.models.discreteBarChart()
-                    .x(function(d) { return d.label })
-                    .y(function(d) { return d.value })
-                    .staggerLabels(true)
-                    .tooltips(false)
-                    .showValues(true);
+{% block scripts %}
+<script>
+    var testData = [{
+        values: [
+            { x: 1, y: 0.067 },
+            { x: 20, y: 1.300 },
+            { x: 40, y: 2.667 },
+            { x: 60, y: 4.233 },
+            { x: 80, y: 4.933 },
+            { x: 100, y: 4.567 },
+            { x: 120, y: 4.800 },
+            { x: 140, y: 4.867 }
+        ],
+        key: "Successful tests per second",
+        color: "#597800"
+    }, {
+        values: [
 
-                chart.margin({
-                    left: 100,
-                    bottom: 80
-                });
+        ],
+        key: "Failed tests per second",
+        color: "#ca0000"
+    }];
 
-                chart.xAxis
-                    .axisLabel("Concurrent users");
- 
-                chart.yAxis
-                    .axisLabel("Apdex 1.5")
-                    .showMaxMin(false)
-                    .tickFormat(d3.format('.02f'));
+    var drawGraph = function(element, data, xLabel, yLabel) {
+        nv.addGraph(function() {  
+            var chart = nv.models.lineChart();
 
-                d3.select('.page-apdex svg')
-                    .datum(apdexData)
-                    .transition().duration(500)
-                    .call(chart);
-
-                nv.utils.windowResize(chart.update);
-
-                return chart;
+            chart.margin({
+                left: 100,
+                bottom: 80
             });
 
-            var getResponseTimeData = function(data) {
-                var results = [
-                    { key: "Min", values: [] },
-                    { key: "p10", values: [] },
-                    { key: "Median", values: [] },
-                    { key: "Average", values: [] },
-                    { key: "p90", values: [] },
-                    { key: "p95", values: [] },
-                    { key: "Max", values: [] }
-                ];
-                var fields = ["min", "p10", "med", "avg", "p90", "p95", "max"];
+            chart.xAxis
+                .tickFormat(d3.format(',r'));
 
-                for (var i=0; i<data.length; i++) {
-                    var cu = data[i][0];
+            if (xLabel != null) {
+                chart.xAxis.axisLabel(xLabel);
+            }
 
-                    for (var fieldIndex=0; fieldIndex < fields.length; fieldIndex++) {
-                        results[fieldIndex].values.push({
-                            x: cu,
-                            y: data[i][fieldIndex + 1]
-                        });
-                    }
+            chart.yAxis
+                .axisLabel(yLabel)
+                .tickFormat(d3.format('.02f'));
+
+            d3.select(element)
+                .datum(data)
+                .transition().duration(500)
+                .call(chart);
+
+            nv.utils.windowResize(function() { d3.select(element).call(chart) });
+            return chart;
+        });
+    };
+
+    drawGraph('.test-stats svg', testData, 'Concurrent users', 'Tests per second');
+    drawGraph('.page-stats svg', testData, null, 'Pages per second');
+    drawGraph('.request-stats svg', testData, 'Concurrent users', 'Requests per second');
+
+    var apdexData = [
+        {
+            key: "Concurrent Users",
+            values: [
+                { 
+                    "label" : "1",
+                    "value" : 1.0
+                } , 
+                { 
+                    "label" : "20", 
+                    "value" : 1.0
+                } , 
+                { 
+                    "label" : "40", 
+                    "value" : 1.0
+                } , 
+                { 
+                    "label" : "60", 
+                    "value" : 1.0
+                } , 
+                { 
+                    "label" : "80",
+                    "value" : 1.0
+                } , 
+                { 
+                    "label" : "100",
+                    "value" : 0.977
+                } , 
+                { 
+                    "label" : "120", 
+                    "value" : 0.977
+                } , 
+                { 
+                    "label" : "140", 
+                    "value" : 0.956
                 }
+            ]
+        }
+    ];
 
-                return results;
-            };
+    nv.addGraph(function() {
+        var chart = nv.models.discreteBarChart()
+            .x(function(d) { return d.label })
+            .y(function(d) { return d.value })
+            .staggerLabels(true)
+            .tooltips(false)
+            .showValues(true);
 
-            var responseTimeData = [
-                [1, 0.019, 0.025, 0.066, 0.064,  0.112, 0.114, 0.149],
-                [20, 0.012, 0.016, 0.047, 0.055, 0.104, 0.133, 0.240],
-                [40, 0.011, 0.018, 0.049, 0.064, 0.123, 0.163, 0.418],
-                [60, 0.011, 0.026, 0.069, 0.097, 0.194, 0.255, 0.869],
-                [80, 0.011, 0.048, 0.155, 0.198, 0.410, 0.506, 0.967],
-                [100, 0.011, 0.120, 0.448, 0.516, 1.011, 1.222, 2.186],
-                [120, 0.011, 0.227, 0.811, 0.898, 1.710, 2.067, 3.687],
-                [140, 0.014, 0.300, 1.093, 1.189, 2.214, 2.543, 5.068]
-            ];
+        chart.margin({
+            left: 100,
+            bottom: 80
+        });
 
-            nv.addGraph(function() {
-                var chart = nv.models.multiBarChart()
-                    .showControls(false)
-                    .reduceXTicks(false);
+        chart.xAxis
+            .axisLabel("Concurrent users");
 
-                chart.margin({
-                    left: 100,
-                    bottom: 80
+        chart.yAxis
+            .axisLabel("Apdex 1.5")
+            .showMaxMin(false)
+            .tickFormat(d3.format('.02f'));
+
+        d3.select('.page-apdex svg')
+            .datum(apdexData)
+            .transition().duration(500)
+            .call(chart);
+
+        nv.utils.windowResize(chart.update);
+
+        return chart;
+    });
+
+    var getResponseTimeData = function(data) {
+        var results = [
+            { key: "Min", values: [] },
+            { key: "p10", values: [] },
+            { key: "Median", values: [] },
+            { key: "Average", values: [] },
+            { key: "p90", values: [] },
+            { key: "p95", values: [] },
+            { key: "Max", values: [] }
+        ];
+        var fields = ["min", "p10", "med", "avg", "p90", "p95", "max"];
+
+        for (var i=0; i<data.length; i++) {
+            var cu = data[i][0];
+
+            for (var fieldIndex=0; fieldIndex < fields.length; fieldIndex++) {
+                results[fieldIndex].values.push({
+                    x: cu,
+                    y: data[i][fieldIndex + 1]
                 });
+            }
+        }
 
-                chart.xAxis
-                    .axisLabel("Concurrent users")
-                    .showMaxMin(true)
-                    .tickFormat(d3.format(',f'));
+        return results;
+    };
 
-                chart.yAxis
-                    .axisLabel("Duration (s)")
-                    .showMaxMin(true)
-                    .tickFormat(d3.format(',.1f'));
+    var responseTimeData = [
+        [1, 0.019, 0.025, 0.066, 0.064,  0.112, 0.114, 0.149],
+        [20, 0.012, 0.016, 0.047, 0.055, 0.104, 0.133, 0.240],
+        [40, 0.011, 0.018, 0.049, 0.064, 0.123, 0.163, 0.418],
+        [60, 0.011, 0.026, 0.069, 0.097, 0.194, 0.255, 0.869],
+        [80, 0.011, 0.048, 0.155, 0.198, 0.410, 0.506, 0.967],
+        [100, 0.011, 0.120, 0.448, 0.516, 1.011, 1.222, 2.186],
+        [120, 0.011, 0.227, 0.811, 0.898, 1.710, 2.067, 3.687],
+        [140, 0.014, 0.300, 1.093, 1.189, 2.214, 2.543, 5.068]
+    ];
 
-                var results = getResponseTimeData(responseTimeData);
+    nv.addGraph(function() {
+        var chart = nv.models.multiBarChart()
+            .showControls(false)
+            .reduceXTicks(false);
 
-                d3.select('.page-response-time svg')
-                    .datum(results)
-                    .transition().duration(500).call(chart);
+        chart.margin({
+            left: 100,
+            bottom: 80
+        });
 
-                nv.utils.windowResize(chart.update);
+        chart.xAxis
+            .axisLabel("Concurrent users")
+            .showMaxMin(true)
+            .tickFormat(d3.format(',f'));
 
-                return chart;
-            });
+        chart.yAxis
+            .axisLabel("Duration (s)")
+            .showMaxMin(true)
+            .tickFormat(d3.format(',.1f'));
 
-        </script>
-    </body>
-</html>
+        var results = getResponseTimeData(responseTimeData);
 
+        d3.select('.page-response-time svg')
+            .datum(results)
+            .transition().duration(500).call(chart);
+
+        nv.utils.windowResize(chart.update);
+
+        return chart;
+    });
+
+</script>
+{% end %}

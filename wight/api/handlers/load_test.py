@@ -11,6 +11,7 @@
 import re
 from json import dumps, loads
 from uuid import UUID
+from mongoengine import DoesNotExist
 
 import tornado.web
 
@@ -72,7 +73,35 @@ class LoadTestResultHandler(BaseHandler):
     @tornado.web.asynchronous
     @BaseHandler.authenticated
     @BaseHandler.team_member
-    def post(self, team, project_name, test_uuid):
+    def get(self, team, project_name, test_uuid, result_uuid=None):
+        project = [project for project in team.projects if project.name == project_name]
+        if not project:
+            self.set_status(404)
+            self.finish()
+            return
+        load_test = [
+            load_test
+            for load_test in
+            LoadTest.get_sliced_by_team_and_project_name(team, project_name, 1)
+            if str(load_test.uuid) == test_uuid
+        ]
+        if not load_test:
+            self.set_status(404)
+            self.finish()
+            return
+
+        try:
+            test_result = LoadTest.get_test_result(result_uuid)
+            self.write(dumps(test_result.to_dict()))
+            self.set_status(200)
+        except DoesNotExist:
+            self.set_status(404)
+        self.finish()
+
+    @tornado.web.asynchronous
+    @BaseHandler.authenticated
+    @BaseHandler.team_member
+    def post(self, team, project_name, test_uuid, result_uuid=None):
         load_test = LoadTest.objects(uuid=UUID(test_uuid)).first()
 
         result = self.get_argument("result").strip()

@@ -48,7 +48,11 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/auth/token/?', AuthenticationWithTokenHandler, name="auth_token"),
         url(r'/auth/register/?', RegisterUserHandler, name="register_user"),
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load-tests/(?P<test_uuid>.+?)/start/?', StartLoadTestHandler, name='load_test_start'),
-        url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load-tests/(?P<test_uuid>.+?)/result/?', LoadTestResultHandler, name='load_test_result'),
+        url(
+            r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load-tests/(?P<test_uuid>.+?)/results(?:/(?P<result_uuid>.+?))?/?',
+            LoadTestResultHandler,
+            name='load_test_result'
+        ),
         url(r'/teams/(?P<team_name>.+?)/projects/(?P<project_name>.+?)/load_tests/(?P<test_uuid>.+)/?', LoadTestInstanceHandler, name='team_projects_load_test_result'),
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load_tests/?', LoadTestHandler, name='team_projects_load_tests'),
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)?', ProjectHandler, name='team_projects'),

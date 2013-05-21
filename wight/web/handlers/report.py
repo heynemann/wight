@@ -18,3 +18,10 @@ class ReportHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self, report_hash):
         self.render('report.html')
+
+
+class DiffHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    def get(self, from_report_hash, to_report_hash):
+        self.render('diff.html')
