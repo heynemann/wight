@@ -115,3 +115,23 @@ body {
 .diff .page-pps svg {
     height: 400px;
 }
+
+.trend .apdex svg {
+    height: 400px;
+}
+
+.trend .legend {
+    margin-top: -30px;
+    margin-bottom: 30px;
+    text-align: right;
+    margin-right: 28px;
+}
+
+.trend .apdex-cycles {
+    margin-bottom: 20px;
+}
+
+.trend .response-time svg,
+.trend .pps svg {
+    height: 600px;
+}

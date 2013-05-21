@@ -25,3 +25,10 @@ class DiffHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self, from_report_hash, to_report_hash):
         self.render('diff.html')
+
+
+class TrendHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    def get(self, team_name, project_name, test_full_name):
+        self.render('trend.html')

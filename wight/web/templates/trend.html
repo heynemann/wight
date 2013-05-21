@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Trend for project GloboAPI - GeoTests.test_geo - Wight v0.1.0{% end %}
+
+{% block contents %}
+<div class="trend container">
+    <div class="hero-unit">
+        <h1>my-funky-project</h1>
+        <p>Trend results for GeoTests.test_geo</p>
+        <p><small>This report details the trend results for the last 37 bench runs for the <span class="text-info">GloboAPI</span> project, running the <span class="text-info">GeoTests.test_geo</span> test.</small></p>
+        <div class="toolbar">
+            <div><a href="#"><i class="icon-file"></i>Permalink for this test</a></div>
+            <div><a href="/report/1293913912931293"><i class="icon-circle-arrow-left"></i>Last test report for this trend</a></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-header">
+          <h1>Trends <small>trends for apdex, pages per second and average response time</small></h1>
+        </div>
+
+        <h3>Apdex</h3>
+        <div class="text-center">
+            <div class="btn-group apdex-cycles">
+              <button data-cycles="20" class="btn">20 Users</button>
+              <button data-cycles="40" class="btn">40 Users</button>
+              <button data-cycles="60" class="btn">60 Users</button>
+              <button data-cycles="80" class="btn">80 Users</button>
+              <button data-cycles="100" class="btn">100 Users</button>
+              <button data-cycles="120" class="btn">120 Users</button>
+              <button data-cycles="140" class="btn active">140 Users</button>
+            </div>
+        </div>
+        <div class="chart apdex"><svg></svg></div>
+        <p class="legend"><small><i>apdex ranges from 0.0 to 1.0, with 1.0 being a perfect score</i></small></p>
+
+        <h3>Pages per second</h3>
+        <div class="chart pps"><svg></svg></div>
+
+        <h3>Average response time</h3>
+        <div class="chart response-time"><svg></svg></div>
+    </div>
+
+    <p class="text-center"><small>Report generated at 12/12/13 10:32:23.</small></p>
+</div>
+{% end %}
+
+{% block scripts %}
+<script>
+var floatFormat = function(num) {
+    return Math.round(num * 100) / 100;
+};
+
+
+/* START OF APDEX CHART */
+
+var getData = function() {
+    var apdexData = [
+        {
+            key: "0.0-0.2",
+            values: [],
+            color: "#ca0000"
+        },
+        {
+            key: "0.2-0.4",
+            values: [],
+            color: "#c04c74"
+        },
+        {
+            key: "0.4-0.6",
+            values: [],
+            color: "#ff7f00"
+        },
+        {
+            key: "0.6-0.8",
+            values: [],
+            color: "#5c8800"
+        },
+        {
+            key: "0.8-1.0",
+            values: [],
+            color: "#87b169"
+        }
+    ];
+
+    for (var i=0; i < 5; i++) {
+        for (var test=0; test < 50; test++) {
+            apdexData[i].values.push({
+                x: test,
+                y: Math.random()
+            })
+        }
+    }
+
+    return apdexData;
+};
+
+apdexData = {
+    20: getData(20),
+    40: getData(40),
+    60: getData(60),
+    80: getData(80),
+    100: getData(100),
+    120: getData(120),
+    140: getData(140)
+};
+
+var apdexChart = null;
+nv.addGraph(function() {
+    apdexChart = nv.models.stackedAreaChart()
+                          .x(function(d) { return d.x })
+                          .y(function(d) { return d.y })
+                          .showControls(false)
+                          .style('expand')
+                          .clipEdge(true);
+
+    apdexChart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    apdexChart.xAxis
+              .axisLabel("Bench")
+              .tickFormat(function(d) { return "Test #" + d; })
+              .showMaxMin(false);
+
+    apdexChart.yAxis
+              .tickFormat(function(d) { return floatFormat(d * 100) + "%"; });
+
+    d3.select('.apdex svg')
+      .datum(apdexData[140])
+      .transition().duration(500).call(apdexChart);
+
+    nv.utils.windowResize(apdexChart.update);
+
+    return apdexChart;
+});
+
+var buttons = $('.apdex-cycles .btn');
+
+$('.apdex-cycles .btn').on('click', function(ev) {
+    var target = $(ev.currentTarget);
+
+    buttons.removeClass('active');
+    target.addClass('active');
+
+    var cycles = target.attr('data-cycles');
+
+    d3.select('.apdex svg')
+      .datum(apdexData[parseInt(cycles, 10)])
+      .call(apdexChart);
+});
+
+/* END OF APDEX CHART */
+
+/* START OF PAGES PER SECOND CHART */
+var getPPSTestData = function() {
+    var testData = [];
+
+    for (var cu=20; cu < 160; cu += 20) {
+        var cycle = {
+            key: cu + " Concurrent Users",
+            values:[]
+        };
+        testData.push(cycle);
+
+        for (var test=1; test < 37; test++) {
+            cycle.values.push({
+                x: test,
+                y: cu + 10 * Math.random()
+            });
+        }
+    }
+
+    return testData;
+};
+
+var ppsChart = null;
+nv.addGraph(function() {  
+    ppsChart = nv.models.lineChart();
+
+    ppsChart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    ppsChart.xAxis
+        .tickFormat(d3.format(',r'));
+
+    ppsChart.yAxis
+        .tickFormat(d3.format('.02f'));
+
+    d3.select(".pps svg")
+        .datum(getPPSTestData())
+        .transition().duration(500)
+        .call(ppsChart);
+
+    nv.utils.windowResize(ppsChart.update);
+    return ppsChart;
+});
+/* END OF PAGES PER SECOND CHART */
+
+/* START OF AVERAGE RESPONSE TIME CHART */
+var getResponseTimeTestData = function() {
+    var testData = [];
+
+    for (var cu=20; cu < 160; cu += 20) {
+        var cycle = {
+            key: cu + " Concurrent Users",
+            values:[]
+        };
+        testData.push(cycle);
+
+        for (var test=1; test < 37; test++) {
+            cycle.values.push({
+                x: test,
+                y: 0.2 + Math.random() + cu / 100
+            });
+        }
+    }
+
+    return testData;
+};
+
+var avgTimeChart = null;
+nv.addGraph(function() {  
+    avgTimeChart = nv.models.lineChart();
+
+    avgTimeChart.margin({
+        left: 100,
+        bottom: 80
+    });
+
+    avgTimeChart.xAxis
+        .tickFormat(function(d) { return "Test #" + d; });
+
+    avgTimeChart.yAxis
+        .tickFormat(function(d) { return floatFormat(d) + " secs"; });
+
+    d3.select(".response-time svg")
+        .datum(getResponseTimeTestData())
+        .transition().duration(500)
+        .call(avgTimeChart);
+
+    nv.utils.windowResize(avgTimeChart.update);
+    return avgTimeChart;
+});
+/* END OF PAGES PER SECOND CHART */
+
+</script>
+{% end %}

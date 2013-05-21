@@ -10,18 +10,18 @@
         <h3>Diff between:</h1>
         <div class="hero-container">
             <div class="half">
-                <p class="lead"><a href="#">Testando api de geolocation</a></p>
+                <p class="lead"><a href="/report/1230410421/2103221321">Testando api de geolocation</a></p>
                 <p><small>Reference Report</small></p>
             </div>
             <div class="half">
-                <p class="lead"><a href="#">Testando api de geolocation</a></p>
+                <p class="lead"><a href="/report/129391294921412492149">Testando api de geolocation</a></p>
                 <p><small>Challenger Report</small></p>
             </div>
         </div>
         <div class="toolbar">
             <div><a href="#"><i class="icon-file"></i>Permalink for this diff</a></div>
-            <div><a href="#"><i class="icon-circle-arrow-left"></i>Testando api de geolocation 10/10/12 10:10</a></div>
-            <div><a href="#"><i class="icon-circle-arrow-right"></i>Testando api de geolocation 14/10/12 10:10</a></div>
+            <div><a href="/report/1293913912931293"><i class="icon-circle-arrow-left"></i>Testando api de geolocation 10/10/12 10:10</a></div>
+            <div><a href="/report/1293123912931222"><i class="icon-circle-arrow-right"></i>Testando api de geolocation 14/10/12 10:10</a></div>
             <div><a href="#"><i class="icon-fullscreen"></i>Trend for this project</a></div>
         </div>
     </div>
@@ -185,7 +185,7 @@ nv.addGraph(function() {
 
     chart.yAxis
         .axisLabel('Response time - Average')
-        .tickFormat(function(d) { return floatFormat(d).toString() + "sec" });
+        .tickFormat(function(d) { return floatFormat(d).toString() + " sec" });
 
     d3.select('.request-average svg')
         .datum(rpsData)
@@ -242,7 +242,7 @@ nv.addGraph(function() {
 
     chart.yAxis
         .axisLabel('Response time - Median')
-        .tickFormat(function(d) { return floatFormat(d).toString() + "sec" });
+        .tickFormat(function(d) { return floatFormat(d).toString() + " sec" });
 
     d3.select('.request-median svg')
         .datum(rpsData)
@@ -268,7 +268,7 @@ nv.addGraph(function() {
 
     chart.yAxis
         .axisLabel('Response time - P90')
-        .tickFormat(function(d) { return floatFormat(d).toString() + "sec" });
+        .tickFormat(function(d) { return floatFormat(d).toString() + " sec" });
 
     d3.select('.request-p90 svg')
         .datum(rpsData)
@@ -294,7 +294,7 @@ nv.addGraph(function() {
 
     chart.yAxis
         .axisLabel('Response time - Max')
-        .tickFormat(function(d) { return floatFormat(d).toString() + "sec" });
+        .tickFormat(function(d) { return floatFormat(d).toString() + " sec" });
 
     d3.select('.request-max svg')
         .datum(rpsData)
@@ -320,7 +320,7 @@ nv.addGraph(function() {
 
     chart.yAxis
         .axisLabel('Pages per second')
-        .tickFormat(function(d) { return floatFormat(d).toString() + "pps" });
+        .tickFormat(function(d) { return floatFormat(d).toString() + " pps" });
 
     d3.select('.page-pps svg')
         .datum(rpsData)
@@ -331,7 +331,5 @@ nv.addGraph(function() {
 
     return chart;
 });
-
-
 </script>
 {% end %}

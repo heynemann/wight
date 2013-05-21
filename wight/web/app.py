@@ -19,7 +19,7 @@ from tornado.web import url
 #from raven import Client
 
 from wight.web.handlers.healthcheck import HealthCheckHandler
-from wight.web.handlers.report import ReportHandler, DiffHandler
+from wight.web.handlers.report import ReportHandler, DiffHandler, TrendHandler
 
 #class FakeSentry(object):
     #def __init__(self, dsn):
@@ -41,6 +41,7 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/healthcheck(?:/|\.html)?', HealthCheckHandler, name="healthcheck"),
         url(r'/report/(?P<report_hash>.+?)(?:/|\.html)?', ReportHandler, name="report"),
         url(r'/diff/(?P<from_report_hash>.+?)/(?P<to_report_hash>.+?)/?', DiffHandler, name="diff"),
+        url(r'/trend/(?P<team_name>.+?)/(?P<project_name>.+?)/(?P<test_full_name>.+?)/?', TrendHandler, name="trend"),
     ]
 
     logging.info("Connecting to redis on {0}:{1}/{2}".format(self.config.REDIS_HOST, self.config.REDIS_PORT, self.config.REDIS_DB_COUNT))
