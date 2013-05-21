@@ -350,11 +350,10 @@ class ListLoadTestController403Test(LoadTestControllerTestBase):
         expect(topic).to_be_like("You are not the owner or a team member for 'not-your-team' and thus can't list its tests in target 'Target'.")
 
 class InstanceLoadTestControllerTest(LoadTestControllerTestBase):
-# {"uuid": "9d3dc1be-9af4-480c-912a-441d25caa7c6", "results": [{"uuid": "aaf81f79-3eef-4fe1-9ffe-6189f4534212", "title": "test-config-0", "p95": 0.3, "requests_per_second": 6.0, "concurrent_users": 100, "failed_requests": 30}, {"uuid": "aaf81f79-3eef-4fe1-9ffe-6189f4534212", "title": "test-config-1", "p95": 0.3, "requests_per_second": 14.0, "concurrent_users": 100, "failed_requests": 70}]}
 
     def setUp(self):
-        self.uuid = "9d3dc1be-9af4-480c-912a-441d25caa7c6"
-        self.controller_kwargs = {"team": "my-team", "project": "project", "load_test_uuid": self.uuid}
+        self.uuid = '9d3dc1be-9af4-480c-912a-441d25caa7c6'
+        self.controller_kwargs = {'team': 'my-team', 'project': 'project', 'load_test_uuid': self.uuid}
         self.controller_class = InstanceLoadTestController
         super(InstanceLoadTestControllerTest, self).setUp()
 
@@ -365,3 +364,38 @@ class InstanceLoadTestControllerTest(LoadTestControllerTestBase):
         get_mock.return_value = response
         self.ctrl.default()
         write_mock.assert_called_with("Load test %s doesn't exist" % self.uuid)
+
+    @patch.object(InstanceLoadTestController, 'get')
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_load_test_top_results(self, mock_stdout, get_mock):
+        content = {'uuid': '9d3dc1be-9af4-480c-912a-441d25caa7c6',
+                   'status': 'scheduled',
+                   'results': [
+                       {'uuid': 'aaf81f79-3eef-4fe1-9ffe-6189f4534212',
+                        'title': 'test-config-0',
+                        'p95': 0.3,
+                        'requests_per_second': 6.0,
+                        'concurrent_users': 100,
+                        'failed_requests': 30},
+                       {'uuid': 'aaf81f79-3eef-4fe1-9ffe-6189f4534212',
+                        'title': 'test-config-1',
+                        'p95': 0.3,
+                        'requests_per_second': 14.0,
+                        'concurrent_users': 100,
+                        'failed_requests': 70}
+                   ]}
+
+        response = Mock(status_code=200, content=dumps(content))
+        get_mock.return_value = response
+        self.ctrl.default()
+        expect(mock_stdout.getvalue()).to_be_like("""
+            Load test: 9d3dc1be-9af4-480c-912a-441d25caa7c6
+
+            Status: scheduled
+            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
+            |     title     |                 uuid                 | concurrent_users | requests_per_second | p95 | failed_requests |                                                        |
+            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
+            | test-config-0 | aaf81f79-3eef-4fe1-9ffe-6189f4534212 |       100        |         6.0         | 0.3 |        30       | wight show-result aaf81f79-3eef-4fe1-9ffe-6189f4534212 |
+            | test-config-1 | aaf81f79-3eef-4fe1-9ffe-6189f4534212 |       100        |         14.0        | 0.3 |        70       | wight show-result aaf81f79-3eef-4fe1-9ffe-6189f4534212 |
+            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
+        """)

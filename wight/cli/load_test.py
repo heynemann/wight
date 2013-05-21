@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+import six
 from json import loads
 
 from cement.core import controller
@@ -154,7 +155,7 @@ class ListLoadTestController(WightBaseController):
 
 class InstanceLoadTestController(WightBaseController):
     class Meta:
-        label = 'load test'
+        label = 'show'
         stack_on = 'base'
         description = 'Show load tests.'
         config_defaults = dict()
@@ -163,7 +164,7 @@ class InstanceLoadTestController(WightBaseController):
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
             (['--team'], dict(help='The name of the team that owns the project load tests', required=True)),
             (['--project'], dict(help='The name of the project load tests', required=True)),
-            (['--load_test_uuid'], dict(help='Load test uuid', required=True)),
+            (['load_test_uuid'], dict(help='Load test uuid')),
         ]
 
     @controller.expose(hide=False, aliases=["show"], help='Show load tests.')
@@ -171,10 +172,43 @@ class InstanceLoadTestController(WightBaseController):
     def default(self):
         self.load_conf()
         with ConnectedController(self):
-
             url = '/teams/%s/projects/%s/load_tests/%s' % \
                 (self.arguments.team, self.arguments.project, self.arguments.load_test_uuid)
 
             response = self.get(url)
+
             if response.status_code == 404:
-                self.write("Load test %s doesn't exist" % self.arguments.load_test_uuid)
+                return self.write("Load test %s doesn't exist" % self.arguments.load_test_uuid)
+
+            content = response.content
+            if isinstance(content, six.binary_type):
+                content = content.decode('utf-8')
+            content = loads(content)
+
+            self._print_response(content)
+
+    def _print_response(self, load_test):
+        self.write("%sLoad test%s: %s%s%s" % (
+            self.title_color, self.reset,
+            self.keyword_color, load_test["uuid"], self.reset,
+        ))
+
+        self.line_break()
+
+        self.write("%sStatus%s: %s%s%s" % (
+            self.title_color, self.reset,
+            self.keyword_color, load_test["status"], self.reset,
+        ))
+
+        headers = ['title', 'uuid', 'concurrent_users', 'requests_per_second', 'p95', 'failed_requests']
+
+        table = PrettyTable(headers + [''])
+
+        for result in load_test['results']:
+            row = []
+            for header in headers:
+                row.append(result[header])
+            row.append("%swight show-result %s%s" % (self.commands_color, result['uuid'], self.reset))
+            table.add_row(row)
+
+        self.write(table)

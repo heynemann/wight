@@ -11,7 +11,7 @@
 from preggy import expect
 
 from tests.acceptance.base import AcceptanceTest
-from tests.factories import TeamFactory, LoadTestFactory, UserFactory
+from tests.factories import TeamFactory, LoadTestFactory, UserFactory, TestResultFactory
 from wight.models import LoadTest
 
 
@@ -177,3 +177,35 @@ class TestLoadTest(AcceptanceTest):
             team2.name, project5.name, "".join(uuids5)
         )
         )
+
+    def test_load_test_instance(self):
+        team = TeamFactory.create(owner=self.user)
+        project = team.add_project("load-test-instace-acc-1", "repo", self.user)
+        load_test = LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
+        result1 = TestResultFactory.build()
+        result2 = TestResultFactory.build()
+        load_test.results.append(result1)
+        load_test.results.append(result2)
+        load_test.save()
+
+        result = self.execute("show", load_test.uuid, team=team.name, project=project.name)
+
+        expect(result).to_be_like("""
+            Load test: %s
+
+            Status: %s
+            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
+            |     title     |                 uuid                 | concurrent_users | requests_per_second | p95 | failed_requests |                                                        |
+            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
+            | %s | %s |       %s        |         %s         | %s |        %s       | %s |
+            | %s | %s |       %s        |         %s        | %s |        %s       | %s |
+            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
+        """ % (load_test.uuid, load_test.status,
+               result1.config.title, result1.uuid, result1.cycles[-1].concurrent_users,
+               result1.cycles[-1].request.successful_requests_per_second,
+               result1.cycles[-1].request.p95, result1.cycles[-1].request.failed_requests,
+               "wight show-result %s" % result1.uuid,
+               result2.config.title, result2.uuid, result2.cycles[-1].concurrent_users,
+               result2.cycles[-1].request.successful_requests_per_second,
+               result2.cycles[-1].request.p95, result2.cycles[-1].request.failed_requests,
+               "wight show-result %s" % result2.uuid))
