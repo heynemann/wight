@@ -14,7 +14,18 @@ class LoadTestInstanceHandler(BaseHandler):
     def get(self, team, project_name, test_uuid):
         try:
             load_test = LoadTest.objects.get(uuid=test_uuid)
-            response = {'uuid': str(load_test.uuid), 'results': [], 'status': load_test.status}
+
+            response = {
+                'uuid': str(load_test.uuid),
+                'results': [],
+                'status': load_test.status,
+                'baseUrl': load_test.base_url,
+                'teamName': load_test.team.name,
+                'projectName': load_test.project_name,
+                'createdBy': load_test.created_by.email,
+                'repository': load_test.project.repository
+            }
+
             for result in load_test.results:
                 last_cycle = result.cycles[-1]
                 partial_result = {}

@@ -16,7 +16,7 @@ class BaseHandler(tornado.web.RequestHandler):
     @staticmethod
     def authenticated(fn):
         def handle(decorated_self, *args, **kw):
-            if not 'X-Wight-Auth' in decorated_self.request.headers:
+            if not 'X-Wight-Auth' in decorated_self.request.headers or not decorated_self.current_user:
                 decorated_self.set_status(401)
                 decorated_self.finish()
                 return

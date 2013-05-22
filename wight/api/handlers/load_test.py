@@ -9,7 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 import re
-from json import dumps, loads
+from json import dumps
 from uuid import UUID
 from mongoengine import DoesNotExist
 
@@ -96,27 +96,6 @@ class LoadTestResultHandler(BaseHandler):
             self.set_status(200)
         except DoesNotExist:
             self.set_status(404)
-        self.finish()
-
-    @tornado.web.asynchronous
-    @BaseHandler.authenticated
-    @BaseHandler.team_member
-    def post(self, team, project_name, test_uuid, result_uuid=None):
-        load_test = LoadTest.objects(uuid=UUID(test_uuid)).first()
-
-        result = self.get_argument("result").strip()
-
-        if not load_test or not result:
-            self.set_status(400)
-            self.finish()
-            return
-
-        load_test.add_result(loads(result))
-        load_test.status = "Finished"
-        load_test.save()
-
-        self.set_status(200)
-        self.write("OK")
         self.finish()
 
 

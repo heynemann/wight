@@ -218,7 +218,7 @@ class TestLoadFromFunkloadResult(ModelTestCase):
 
         result = LoadTest.get_data_from_funkload_results(config, cycles)
 
-        test.add_result(result)
+        test.add_result(result, xml="xml", log="log")
 
         loaded_test = LoadTest.objects(uuid=test.uuid).first()
 
@@ -227,6 +227,9 @@ class TestLoadFromFunkloadResult(ModelTestCase):
         expect(loaded_test.results).to_length(1)
 
         result = loaded_test.results[0]
+
+        expect(result.xml).to_equal("xml")
+        expect(result.log).to_equal("log")
 
         cfg = result.config
 
@@ -258,7 +261,7 @@ class TestLoadFromFunkloadResult(ModelTestCase):
 
         result = LoadTest.get_data_from_funkload_results(config, cycles)
 
-        test.add_result(result)
+        test.add_result(result, xml="xml", log="log")
 
         loaded_test = LoadTest.objects(uuid=test.uuid).first()
 

@@ -36,6 +36,7 @@ body {
     height: 400px;
 }
 
+.request-response-time svg,
 .page-response-time svg {
     height: 550px;
 }
@@ -134,4 +135,20 @@ body {
 .trend .response-time svg,
 .trend .pps svg {
     height: 600px;
+}
+
+.trend .report-list {
+    column-count: 3;
+    -webkit-column-count: 3;
+    -moz-column-count: 3;
+
+    text-align: center;
+
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+    border-bottom: solid 1px #eee;
+}
+
+.trend .report-list a {
+    display: block;
 }

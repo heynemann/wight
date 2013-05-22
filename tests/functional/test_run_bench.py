@@ -31,21 +31,21 @@ class TestCanRunFunkloadBench(FunkLoadBaseTest):
 
         conf = WightConfig.load(join(root_path, 'bench', 'wight.yml'))
         test = conf.tests[0]
-        result = FunkLoadBenchRunner.run(root_path, test, self.base_url, cycles=[10, 20], duration=5)
+        fl_result = FunkLoadBenchRunner.run(root_path, test, self.base_url, cycles=[10, 20], duration=5)
 
-        expect(result).not_to_be_null()
-        expect(result.exit_code).to_equal(0)
+        expect(fl_result).not_to_be_null()
+        expect(fl_result.exit_code).to_equal(0)
 
-        expect(result.text).to_include("SUCCESSFUL")
+        expect(fl_result.text).to_include("SUCCESSFUL")
 
-        expect(result.log).to_be_empty()
+        expect(fl_result.log).to_be_empty()
 
-        expect(result.xml).not_to_be_null()
-        expect(result.result).not_to_be_null()
-        expect(result.config).not_to_be_null()
+        expect(fl_result.xml).not_to_be_null()
+        expect(fl_result.result).not_to_be_null()
+        expect(fl_result.config).not_to_be_null()
 
-        result = LoadTest.get_data_from_funkload_results(result.config, result.result)
+        result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
 
-        load_test.add_result(result)
+        load_test.add_result(result, xml=fl_result.xml, log=fl_result.text)
 
         expect(load_test.results).to_length(1)

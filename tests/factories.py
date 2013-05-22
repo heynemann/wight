@@ -118,7 +118,7 @@ class TestCycleTestsFactory(factory.Factory):
     successful_tests = factory.LazyAttributeSequence(lambda cycle, i: 10 * i)
     failed_tests = factory.LazyAttributeSequence(lambda cycle, i: i + 1)
     total_tests = factory.LazyAttribute(lambda cycle: cycle.successful_tests + cycle.failed_tests)
-    failed_tests_percentage = factory.LazyAttribute(lambda c: c.failed_tests * 100 / c.total_tests )
+    failed_tests_percentage = factory.LazyAttribute(lambda c: c.failed_tests * 100 / c.total_tests)
     successful_tests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * i)
 
 
@@ -183,10 +183,14 @@ class TestResultFactory(factory.Factory):
     config = factory.SubFactory(TestConfigurationFactory)
     cycles = []
 
+    xml = "xml"
+    log = "log"
+    status = "Successful"
+
     @classmethod
     def _prepare(cls, create, **kwargs):
         test_result = super(TestResultFactory, cls)._prepare(create, **kwargs)
-        cycles = test_result.config.cycles.replace('[','').replace(']', '').split(',')
+        cycles = test_result.config.cycles.replace('[', '').replace(']', '').split(',')
         for cycle in cycles:
             test_result.cycles.append(TestCycleFactory.build(concurrent_users=cycle))
         return test_result
@@ -213,7 +217,7 @@ class LoadTestFactory(factory.Factory):
         return load_test
 
     @classmethod
-    def add_to_project(cls, load_tests=1, user=None, team=None, project=None):
+    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None):
         if not user:
             user = UserFactory.create()
 
@@ -226,7 +230,16 @@ class LoadTestFactory(factory.Factory):
 
         test = None
         for i in range(load_tests):
-            test = LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
+            kw = dict(
+                created_by=team.owner,
+                team=team,
+                project_name=project.name
+            )
+
+            if base_url is not None:
+                kw['base_url'] = base_url
+
+            test = LoadTestFactory.create(**kw)
 
         return test
 

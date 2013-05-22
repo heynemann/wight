@@ -320,6 +320,10 @@ class TestResult(EmbeddedDocument):
     pages_visited = IntField(required=True)
     requests_made = IntField(required=True)
 
+    xml = StringField(required=True)
+    log = StringField(required=True)
+    status = StringField(required=True, choices=("Failed", "Successful"))
+
     config = EmbeddedDocumentField(TestConfiguration)
     cycles = ListField(EmbeddedDocumentField(TestCycle))
 
@@ -361,6 +365,12 @@ class LoadTest(Document):
 
         self.date_modified = datetime.datetime.now()
 
+    @property
+    def project(self):
+        prj = [project for project in self.team.projects if project.name.lower() == self.project_name.lower()]
+
+        return prj and prj[0] or None
+
     def to_dict(self):
         return {
             "uuid": str(self.uuid),
@@ -373,7 +383,7 @@ class LoadTest(Document):
             "lastModified": self.date_modified.isoformat()[:19],
         }
 
-    def add_result(self, result):
+    def add_result(self, result, xml, log):
         config, stats = result['config'], result['results']
 
         cfg = TestConfiguration(
@@ -401,7 +411,10 @@ class LoadTest(Document):
             tests_executed=stats['tests_executed'],
             pages_visited=stats['tests_executed'],
             requests_made=stats['requests_made'],
-            config=cfg
+            config=cfg,
+            xml=xml,
+            log=log,
+            status="Successful"
         )
 
         self.results.append(result)

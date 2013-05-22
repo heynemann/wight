@@ -41,6 +41,20 @@
         <div class="chart response-time"><svg></svg></div>
     </div>
 
+    <div class="row">
+        <div class="page-header">
+          <h1>List of Reports <small>all the reports considered for this trend report</small></h1>
+        </div>
+
+        <div class="report-list">
+            {% for i in range(37) %}
+            <a href="/report/129391239123123912">Report for 10/10/12 10:{{ "%02d" % i }}:10</a>
+            {% end %}
+        </div>
+
+    </div>
+
+
     <p class="text-center"><small>Report generated at 12/12/13 10:32:23.</small></p>
 </div>
 {% end %}
@@ -131,8 +145,6 @@ nv.addGraph(function() {
       .datum(apdexData[140])
       .transition().duration(500).call(apdexChart);
 
-    nv.utils.windowResize(apdexChart.update);
-
     return apdexChart;
 });
 
@@ -195,7 +207,6 @@ nv.addGraph(function() {
         .transition().duration(500)
         .call(ppsChart);
 
-    nv.utils.windowResize(ppsChart.update);
     return ppsChart;
 });
 /* END OF PAGES PER SECOND CHART */
@@ -242,7 +253,6 @@ nv.addGraph(function() {
         .transition().duration(500)
         .call(avgTimeChart);
 
-    nv.utils.windowResize(avgTimeChart.update);
     return avgTimeChart;
 });
 /* END OF PAGES PER SECOND CHART */

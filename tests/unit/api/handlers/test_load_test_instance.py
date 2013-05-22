@@ -37,6 +37,12 @@ class LoadTestsInstanceTest(FullTestCase):
 
         expect(obj['uuid']).to_equal(str(self.load_test.uuid))
         expect(obj['status']).to_equal(self.load_test.status)
+        expect(obj['baseUrl']).to_equal(self.load_test.base_url)
+        expect(obj['teamName']).to_equal(self.team.name)
+        expect(obj['projectName']).to_equal(self.project.name)
+        expect(obj['createdBy']).to_equal(self.user.email)
+        expect(obj['repository']).to_equal(self.project.repository)
+
         expect(obj['results'][0]['uuid']).to_equal(str(result1.uuid))
         expect(obj['results'][0]['concurrent_users']).to_equal(result1_last_cycle.concurrent_users)
         expect(obj['results'][0]['title']).to_equal(result1.config.title)
@@ -50,7 +56,6 @@ class LoadTestsInstanceTest(FullTestCase):
         expect(obj['results'][1]['requests_per_second']).to_equal(result2_last_cycle.request.successful_requests_per_second)
         expect(obj['results'][1]['failed_requests']).to_equal(result2_last_cycle.request.failed_requests)
         expect(obj['results'][1]['p95']).to_equal(result2_last_cycle.request.p95)
-
 
     def test_get_instance_load_test_404(self):
         url = '/teams/%s/projects/%s/load_tests/%s' % (self.team.name, self.project.name, uuid4())
