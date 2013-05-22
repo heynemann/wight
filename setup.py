@@ -70,7 +70,8 @@ wight is a load testing scheduling and tracking tool.
     entry_points={
         'console_scripts': [
             'wight=wight.cli:main',
-            'wight-api=wight.api.server:main'
+            'wight-api=wight.api.server:main',
+            'wight-web=wight.web.server:main'
         ],
     },
 )
