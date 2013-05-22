@@ -1,0 +1,1 @@
+recursive-include wight *.html *.css *.js *.png *.jpg *.jpeg *.gif
