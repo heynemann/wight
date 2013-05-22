@@ -1,1 +1,2 @@
-recursive-include wight *.html *.css *.js *.png *.jpg *.jpeg *.gif
+prune *
+recursive-include wight *.py *.html *.css *.js *.png *.jpg *.jpeg *.gif
