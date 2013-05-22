@@ -8,7 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from wight import __version__
 
 tests_require = [
@@ -50,7 +50,7 @@ wight is a load testing scheduling and tracking tool.
         'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Testing'
     ],
-    packages=['wight'],
+    packages=find_packages(),
     install_requires=[
         'argparse',
         'cement',
