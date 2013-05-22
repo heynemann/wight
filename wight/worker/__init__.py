@@ -8,13 +8,27 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+import sys
 from uuid import UUID
 from os.path import join
+import argparse
+import logging
+
+from pyres.worker import Worker
+from pyres import ResQ
 
 from wight.models import LoadTest
 from wight.worker.repository import Repository
-from wight.worker.config import WightConfig
+from wight.worker.config import WightConfig, Config
 from wight.worker.runners import FunkLoadTestRunner, FunkLoadBenchRunner
+
+
+LOGS = {
+    0: 'error',
+    1: 'warning',
+    2: 'info',
+    3: 'debug'
+}
 
 
 class BenchRunner(object):
@@ -49,3 +63,29 @@ class BenchRunner(object):
                 return False
 
         return True
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--conf', '-c', help="Path to configuration file.")
+    parser.add_argument('--verbose', '-v', action='count', default=0, help='Log level: v=warning, vv=info, vvv=debug.')
+    options = parser.parse_args(args)
+
+    log_level = LOGS[options.verbose].upper()
+    logging.basicConfig(level=getattr(logging, log_level), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    cfg = Config.load(options.conf)
+    conn = ResQ(server="%s:%s" % (cfg.REDIS_HOST, cfg.REDIS_PORT), password=cfg.REDIS_PASSWORD)
+
+    print
+    print("--- Wight worker started ---")
+    print
+    Worker.run(['wight'], conn)
+    print
+    print "--- Wight worker killed ---"
+    print
+
+if __name__ == '__main__':
+    main()

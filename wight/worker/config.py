@@ -10,6 +10,7 @@
 
 from os.path import exists
 
+from derpconf.config import Config, generate_config
 from yaml import load
 try:
     # if libyaml is available we use it, since it's a lot faster
@@ -17,6 +18,24 @@ try:
 except ImportError:
     # otherwise use pure python implementation
     from yaml import Loader  # NOQA
+
+MINUTES = 60
+HOURS = 60 * MINUTES
+
+Config.define('MONGO_HOST', '127.0.0.1', 'The host where the Mongo server is running.', 'DB')
+Config.define('MONGO_PORT', 7777, 'The port that the Mongo server is running.', 'DB')
+Config.define('MONGO_DB', 'wight-api', 'The database name we should use for the api in mongo.', 'DB')
+Config.define('MONGO_USER', None, 'The user name to authenticate with mongo.', 'DB')
+Config.define('MONGO_PASS', None, 'The password to authenticate with mongo.', 'DB')
+
+Config.define('REDIS_HOST', '127.0.0.1', 'The host where the Redis server is running.', 'Cache')
+Config.define('REDIS_PORT', 7780, 'The port that Redis server is running.', 'Cache')
+Config.define('REDIS_DB_COUNT', 0, 'The number of redis db.', 'Cache')
+Config.define('REDIS_PASSWORD', '', 'The redis password', 'Cache')
+
+#dsn_url = 'https://726638bb401e4b1580102d1699d07d3e:98c3b4ff108e402abe3ecd2d372e6bb3@app.getsentry.com/4140'
+#Config.define('USE_SENTRY', False, 'Should report error to getsentry.com.', 'Sentry')
+#Config.define('GETSENTRY_DSN_URL', dsn_url , 'DSN url in getsentry.com.', 'Sentry')
 
 
 class TestConfig(object):
@@ -51,3 +70,6 @@ class WightConfig(object):
 
         with open(path, 'r') as yaml_file:
             return cls(yaml_file.read())
+
+if __name__ == '__main__':
+    generate_config()
