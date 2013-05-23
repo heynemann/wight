@@ -27,7 +27,7 @@ from wight.api.handlers.team import TeamHandler, TeamMembersHandler
 from wight.api.handlers.project import ProjectHandler
 from wight.api.handlers.user import UserHandler, UserPasswordHandler
 from wight.api.handlers.load_test import LoadTestHandler, LoadTestResultHandler
-from wight.api.handlers.load_test_instance import LoadTestInstanceHandler
+from wight.api.handlers.load_test_instance import LoadTestInstanceHandler, LoadTestInstanceResultsHandler
 
 #class FakeSentry(object):
     #def __init__(self, dsn):
@@ -54,8 +54,8 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
             name='load_test_result'
         ),
         url(r'/teams/(?P<team_name>.+?)/projects/(?P<project_name>.+?)/load_tests/(?P<test_uuid>.+)/?', LoadTestInstanceHandler, name='team_projects_load_test_result'),
-        url(r'/load_tests/(?P<test_uuid>.+)/?', LoadTestInstanceHandler, name='load_test__directly'),
-        url(r'/load_tests/(?P<test_uuid>.+)/results/?', LoadTestResultsHandler, name='load_test_results_directly'),
+        url(r'/load_tests/(?P<test_uuid>.+)/?', LoadTestInstanceHandler, name='load_test_directly'),
+        url(r'/load_tests/(?P<test_uuid>.+)/results/?', LoadTestInstanceResultsHandler, name='load_test_results_directly'),
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load_tests/?', LoadTestHandler, name='team_projects_load_tests'),
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)?', ProjectHandler, name='team_projects'),
         url(r'/teams/(?P<team_name>.+?)/members/?', TeamMembersHandler, name='team_members'),

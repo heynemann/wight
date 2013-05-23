@@ -154,19 +154,37 @@ class ListLoadTestController(WightBaseController):
             for test in load_test["load_tests"]:
                 dt = test['created'] if test["status"] == "Scheduled" else test["lastModified"]
                 dt = dt.replace("T", " ")
+
                 if test["status"] == "Running":
                     actual_date = datetime.strptime(test['lastModified'], "%Y-%m-%dT%H:%M:%S")
                     dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
+
                 table.add_row(
                     [
                         test["uuid"],
-                        test["status"],
+                        self.get_colored_status(test["status"]),
                         dt if test["status"] in ["Scheduled", "Running"] else spacer,
                         "%swight show %s%s" % (self.commands_color, test["uuid"], self.reset)
                     ]
                 )
 
             self.puts(table)
+
+    def get_colored_status(self, status):
+        color = self.text_color
+
+        if status == "Finished":
+            color = self.success_text_color
+
+        if status == "Failed":
+            color = self.error_text_color
+
+        if status == "Running":
+            color = self.commands_color
+
+        return "%s%s%s" % (
+            color, status, self.reset
+        )
 
 
 class InstanceLoadTestController(WightBaseController):
@@ -217,28 +235,60 @@ class InstanceLoadTestController(WightBaseController):
             self.title_color, self.reset,
             self.keyword_color, load_test["status"], self.reset,
         ))
+
+        if load_test['status'] == "Failed":
+            self.puterror("This test run failed because:")
+            self.line_break()
+            self.write(load_test['error'])
+            self.line_break()
+            return
+
+        if load_test["status"] == "Running":
+            dt = load_test['lastModified'].replace('T', '')
+            actual_date = datetime.strptime(load_test['lastModified'], "%Y-%m-%dT%H:%M:%S")
+            dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
+
+            self.write("%sRunning since%s: %s%s%s" % (
+                self.title_color, self.reset,
+                self.keyword_color, dt, self.reset,
+            ))
+
+        if load_test["status"] == "Scheduled":
+            dt = load_test['created'].replace('T', '')
+            actual_date = datetime.strptime(load_test['created'], "%Y-%m-%dT%H:%M:%S")
+            dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
+
+            self.write("%sScheduled since%s: %s%s%s" % (
+                self.title_color, self.reset,
+                self.keyword_color, dt, self.reset,
+            ))
+
         self.line_break()
 
-        headers = ['title', 'concurrent users', 'rps', 'p95', 'failed']
-        keys = ['title', 'concurrent_users', 'requests_per_second', 'p95', 'failed_requests']
+        if load_test['results']:
+            headers = ['title', 'concurrent users', 'rps', 'p95', 'failed']
+            keys = ['title', 'concurrent_users', 'requests_per_second', 'p95', 'failed_requests']
 
-        table = PrettyTable(headers + [''])
+            table = PrettyTable(headers + [''])
 
-        for result in load_test['results']:
-            row = []
-            for index, header in enumerate(headers):
-                row.append(result[keys[index]])
-            row.append("%swight show-result %s%s" % (self.commands_color, result['uuid'], self.reset))
-            table.add_row(row)
+            for result in load_test['results']:
+                row = []
+                for index, header in enumerate(headers):
+                    row.append(result[keys[index]])
+                row.append("%swight show-result %s%s" % (self.commands_color, result['uuid'], self.reset))
+                table.add_row(row)
 
-        self.write(table)
+            self.write(table)
 
-        line = str(table).split('\n')[0]
+            line = str(table).split('\n')[0]
 
-        msg = "rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests"
-        msg = self.align_right(msg, len(line))
-        self.write("%s%s%s" % (self.comment_color, msg, self.reset))
-        self.line_break()
+            msg = "rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests"
+            msg = self.align_right(msg, len(line))
+            self.write("%s%s%s" % (self.comment_color, msg, self.reset))
+            self.line_break()
+        else:
+            self.puterror("No test results yet.")
+            self.line_break()
 
 
 class ShowResultController(WightBaseController):
@@ -260,7 +310,7 @@ class ShowResultController(WightBaseController):
     def default(self):
         self.load_conf()
         with ConnectedController(self):
-            url = '/load_tests/%s/results' % self.arguments.load_test_uuid
+            url = '/load_tests/%s/results/' % self.arguments.load_test_uuid
 
             response = self.get(url)
 
@@ -271,10 +321,7 @@ class ShowResultController(WightBaseController):
             if isinstance(content, six.binary_type):
                 content = content.decode('utf-8')
             content = loads(content)
-
-            for result in content['results']:
-                result['requests_per_second'] = round(result['requests_per_second'], 2)
-                result['p95'] = round(result['p95'], 2)
+            import ipdb;ipdb.set_trace()
 
             self._print_response(content)
 

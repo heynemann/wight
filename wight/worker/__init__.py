@@ -69,7 +69,14 @@ class BenchRunner(object):
                         base_path, test, load_test.base_url, cycles=cycles, duration=duration
                     )
 
+                    if fl_result.exit_code != 0:
+                        load_test.status = "Failed"
+                        load_test.error = fl_result.text
+                        load_test.save()
+                        return
+
                     result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
+
                     load_test.add_result(result, xml=fl_result.xml, log=fl_result.text)
 
                 load_test.status = "Finished"

@@ -342,7 +342,7 @@ class TestResult(EmbeddedDocument):
 
 
 class LoadTest(Document):
-    uuid = UUIDField(required=True, default=uuid4())
+    uuid = UUIDField(required=True, default=uuid4)
     status = StringField(required=True, choices=("Scheduled", "Running", "Failed", "Finished"))
     team = ReferenceField(Team, required=True)
     created_by = ReferenceField(User, required=True)
@@ -382,6 +382,7 @@ class LoadTest(Document):
             "status": self.status,
             "created": self.date_created.isoformat()[:19],
             "lastModified": self.date_modified.isoformat()[:19],
+            "results": [result.to_dict() for result in self.results]
         }
 
     def add_result(self, result, xml, log):

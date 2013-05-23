@@ -93,7 +93,11 @@ class FunkLoadBenchRunner(object):
 
         cfg.save(join(temp_path, '%s.conf' % test.class_name))
 
-        result = fl_run_bench(*arguments, **keyword_arguments)
+        try:
+            result = fl_run_bench(*arguments, **keyword_arguments)
+        except ErrorReturnCode:
+            err = sys.exc_info()[1]
+            return FunkLoadTestRunResult(1, err.stdout + err.stderr, log=err.stderr, xml=None, result=None, config=None)
 
         with open(join(temp_path, 'funkload.log')) as fl_log:
             log = fl_log.read()

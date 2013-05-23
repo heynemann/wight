@@ -21,7 +21,10 @@ class LoadTestInstanceHandler(BaseHandler):
                 'teamName': load_test.team.name,
                 'projectName': load_test.project_name,
                 'createdBy': load_test.created_by.email,
-                'repository': load_test.project.repository
+                'created': load_test.date_created.isoformat()[:19],
+                'lastModified': load_test.date_modified.isoformat()[:19],
+                'repository': load_test.project.repository,
+                'error': load_test.error,
             }
 
             for result in load_test.results:
@@ -38,6 +41,21 @@ class LoadTestInstanceHandler(BaseHandler):
 
             self.set_status(200)
             self.write(dumps(response))
+        except DoesNotExist:
+            self.set_status(404)
+        finally:
+            self.finish()
+
+
+class LoadTestInstanceResultsHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    def get(self, test_uuid=None):
+        try:
+            load_test = LoadTest.objects.get(uuid=test_uuid)
+
+            self.set_status(200)
+            self.write(load_test.to_dict())
         except DoesNotExist:
             self.set_status(404)
         finally:
