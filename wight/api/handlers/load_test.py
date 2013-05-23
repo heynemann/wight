@@ -27,7 +27,7 @@ URL_RE = re.compile(
     r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
 
-class LoadTestHandler(BaseHandler):
+class AuthLoadTestHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated
@@ -76,7 +76,25 @@ class LoadTestHandler(BaseHandler):
         self.finish()
 
 
-class LoadTestResultHandler(BaseHandler):
+class LoadTestHandler(BaseHandler):
+    @tornado.web.asynchronous
+    def get(self, uuid):
+        try:
+            test_result = LoadTest.get_test_result(uuid)
+            self.write(dumps(test_result.to_dict()))
+            self.set_status(200)
+            return
+        except DoesNotExist:
+            load_test = LoadTest.objects(uuid=uuid)
+            if not load_test.count():
+                self.set_status(404)
+                self.finish()
+                return
+            self.write(dumps(load_test.first().to_dict()))
+        self.finish()
+
+
+class AuthLoadTestResultHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @BaseHandler.authenticated

@@ -27,6 +27,10 @@ from mongoengine import (
 from mongoengine.queryset import NotUniqueError
 
 
+def format_date_to_dict(date):
+    return date.isoformat()[:19]
+
+
 class UserData(object):
     DEFAULT_PATH = expanduser(environ.get('WIGHT_USERDATA_PATH', None) or "~/.wight")
 
@@ -258,6 +262,24 @@ class TestConfiguration(EmbeddedDocument):
 
     startup_delay = FloatField(required=True)
 
+    def to_dict(self):
+        return {
+            "title": self.title,
+            "description": self.description,
+            "testDate": format_date_to_dict(self.test_date),
+            "funkloadVersion": self.funkload_version,
+            "module": self.module,
+            "className": self.class_name,
+            "testName": self.test_name,
+            "targetServer": self.target_server,
+            "cycles": self.cycles,
+            "cycleDuration": self.cycle_duration,
+            "sleepTime": self.sleep_time,
+            "sleepTimeMin": self.sleep_time_min,
+            "sleepTimeMax": self.sleep_time_max,
+            "startupDelay": self.startup_delay
+        }
+
 
 class TestCycleTests(EmbeddedDocument):
     successful_tests_per_second = FloatField(required=True)
@@ -333,8 +355,9 @@ class TestResult(EmbeddedDocument):
             "testExecuted": self.tests_executed,
             "pageVisited": self.pages_visited,
             "requestMade": self.requests_made,
-            "created": self.date_created.isoformat()[:19],
-            "lastModified": self.date_modified.isoformat()[:19],
+            "created": format_date_to_dict(self.date_created),
+            "lastModified": format_date_to_dict(self.date_modified),
+            "config": self.config.to_dict()
         }
 
     def clean(self):
@@ -380,8 +403,8 @@ class LoadTest(Document):
             "project": self.project_name,
             "baseUrl": str(self.base_url),
             "status": self.status,
-            "created": self.date_created.isoformat()[:19],
-            "lastModified": self.date_modified.isoformat()[:19],
+            "created": format_date_to_dict(self.date_created),
+            "lastModified": format_date_to_dict(self.date_modified)
         }
 
     def add_result(self, result, xml, log):

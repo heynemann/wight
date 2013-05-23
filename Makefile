@@ -83,3 +83,7 @@ web: kill_app mongo redis
 
 kill_app:
 	@-ps aux | egrep server.py | egrep -v egrep | awk ' { print $$2 } ' | xargs kill -9
+
+data: mongo
+	@sleep 3
+	@python wight/load_data.py --conf ./wight/api/local.conf

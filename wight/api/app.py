@@ -26,7 +26,7 @@ from wight.api.handlers.authentication import AuthenticationHandler, Authenticat
 from wight.api.handlers.team import TeamHandler, TeamMembersHandler
 from wight.api.handlers.project import ProjectHandler
 from wight.api.handlers.user import UserHandler, UserPasswordHandler
-from wight.api.handlers.load_test import LoadTestHandler, LoadTestResultHandler
+from wight.api.handlers.load_test import AuthLoadTestHandler, AuthLoadTestResultHandler, LoadTestHandler
 from wight.api.handlers.load_test_instance import LoadTestInstanceHandler
 
 #class FakeSentry(object):
@@ -50,15 +50,20 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/auth/register/?', RegisterUserHandler, name="register_user"),
         url(
             r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load-tests/(?P<test_uuid>.+?)/results(?:/(?P<result_uuid>.+?))?/?',
-            LoadTestResultHandler,
-            name='load_test_result'
+            AuthLoadTestResultHandler,
+            name='team_project_load_test_result'
         ),
         url(r'/teams/(?P<team_name>.+?)/projects/(?P<project_name>.+?)/load_tests/(?P<test_uuid>.+)/?', LoadTestInstanceHandler, name='team_projects_load_test_result'),
         url(r'/load_tests/(?P<test_uuid>.+)/?', LoadTestInstanceHandler, name='team_projects_load_test_result_directly'),
-        url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load_tests/?', LoadTestHandler, name='team_projects_load_tests'),
+        url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load_tests/?', AuthLoadTestHandler, name='team_projects_load_tests'),
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)?', ProjectHandler, name='team_projects'),
         url(r'/teams/(?P<team_name>.+?)/members/?', TeamMembersHandler, name='team_members'),
         url(r'/teams/?(?P<team_name>.+?)?', TeamHandler, name='team'),
+        url(
+            r'/load-tests/(?P<uuid>.+?)/?',
+            LoadTestHandler,
+            name='load_test_result'
+        ),
         url(r'/user/info/?(.+?)?', UserHandler, name='user_info'),
         url(r'/user/change-pass/?', UserPasswordHandler, name='change_password'),
     ]
