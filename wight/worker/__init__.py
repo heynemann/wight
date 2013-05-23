@@ -42,8 +42,6 @@ class WorkerJob(object):
         temp_path = mkdtemp()
         runner = BenchRunner()
 
-        import ipdb;ipdb.set_trace()
-
         runner.run_project_tests(
             base_path=temp_path, load_test_uuid=load_test_uuid,
             cycles=WorkerJob.resq.config.CYCLES, duration=WorkerJob.resq.config.CYCLE_DURATION
