@@ -22,6 +22,9 @@ except ImportError:
 MINUTES = 60
 HOURS = 60 * MINUTES
 
+Config.define('CYCLES', [1, 20, 40, 60, 80, 100], 'The cycles to run in funkload.', 'Funkload')
+Config.define('CYCLE_DURATION', 10, 'The cycle duration to run in funkload.', 'Funkload')
+
 Config.define('MONGO_HOST', '127.0.0.1', 'The host where the Mongo server is running.', 'DB')
 Config.define('MONGO_PORT', 7777, 'The port that the Mongo server is running.', 'DB')
 Config.define('MONGO_DB', 'wight-api', 'The database name we should use for the api in mongo.', 'DB')

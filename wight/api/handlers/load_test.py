@@ -10,13 +10,13 @@
 
 import re
 from json import dumps
-from uuid import UUID
-from mongoengine import DoesNotExist
 
+from mongoengine import DoesNotExist
 import tornado.web
 
-from wight.api.handlers.base import BaseHandler
 from wight.models import LoadTest
+from wight.worker import WorkerJob
+from wight.api.handlers.base import BaseHandler
 
 URL_RE = re.compile(
     r'^(?:http|ftp)s?://'  # http:// or https://
@@ -48,8 +48,16 @@ class LoadTestHandler(BaseHandler):
 
         project = project[0]
 
-        test = LoadTest(status="Scheduled", base_url=base_url, team=team, created_by=self.current_user, project_name=project.name)
+        test = LoadTest(
+            status="Scheduled",
+            base_url=base_url,
+            team=team,
+            created_by=self.current_user,
+            project_name=project.name
+        )
         test.save()
+
+        self.application.resq.enqueue(WorkerJob, str(test.uuid))
 
         self.set_status(200)
         self.write("OK")
@@ -96,25 +104,4 @@ class LoadTestResultHandler(BaseHandler):
             self.set_status(200)
         except DoesNotExist:
             self.set_status(404)
-        self.finish()
-
-
-class StartLoadTestHandler(BaseHandler):
-
-    @tornado.web.asynchronous
-    @BaseHandler.authenticated
-    @BaseHandler.team_member
-    def post(self, team, project_name, test_uuid):
-        load_test = LoadTest.objects(uuid=UUID(test_uuid)).first()
-
-        if not load_test:
-            self.set_status(400)
-            self.finish()
-            return
-
-        load_test.status = "Running"
-        load_test.save()
-
-        self.set_status(200)
-        self.write("OK")
         self.finish()

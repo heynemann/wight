@@ -13,9 +13,11 @@ from uuid import UUID
 from os.path import join
 import argparse
 import logging
+from tempfile import mkdtemp
 
 from pyres.worker import Worker
 from pyres import ResQ
+from mongoengine import connect
 
 from wight.models import LoadTest
 from wight.worker.repository import Repository
@@ -29,6 +31,23 @@ LOGS = {
     2: 'info',
     3: 'debug'
 }
+
+
+class WorkerJob(object):
+    queue = 'wight'
+    config = None
+
+    @staticmethod
+    def perform(load_test_uuid):
+        temp_path = mkdtemp()
+        runner = BenchRunner()
+
+        import ipdb;ipdb.set_trace()
+
+        runner.run_project_tests(
+            base_path=temp_path, load_test_uuid=load_test_uuid,
+            cycles=WorkerJob.resq.config.CYCLES, duration=WorkerJob.resq.config.CYCLE_DURATION
+        )
 
 
 class BenchRunner(object):
@@ -78,11 +97,20 @@ def main(args=None):
 
     cfg = Config.load(options.conf)
     conn = ResQ(server="%s:%s" % (cfg.REDIS_HOST, cfg.REDIS_PORT), password=cfg.REDIS_PASSWORD)
+    conn.config = cfg
+
+    connect(
+        cfg.MONGO_DB,
+        host=cfg.MONGO_HOST,
+        port=cfg.MONGO_PORT,
+        username=cfg.MONGO_USER,
+        password=cfg.MONGO_PASS
+    )
 
     print
     print("--- Wight worker started ---")
     print
-    Worker.run(['wight'], conn)
+    Worker.run([WorkerJob.queue], conn)
     print
     print "--- Wight worker killed ---"
     print

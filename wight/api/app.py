@@ -16,6 +16,7 @@ from mongoengine import connect
 import tornado.web
 import tornado.wsgi
 from tornado.web import url
+from pyres import ResQ
 #from raven import Client
 
 #from wight.api.utils.redis_session import RedisSessionStore
@@ -25,7 +26,7 @@ from wight.api.handlers.authentication import AuthenticationHandler, Authenticat
 from wight.api.handlers.team import TeamHandler, TeamMembersHandler
 from wight.api.handlers.project import ProjectHandler
 from wight.api.handlers.user import UserHandler, UserPasswordHandler
-from wight.api.handlers.load_test import LoadTestHandler, LoadTestResultHandler, StartLoadTestHandler
+from wight.api.handlers.load_test import LoadTestHandler, LoadTestResultHandler
 from wight.api.handlers.load_test_instance import LoadTestInstanceHandler
 
 #class FakeSentry(object):
@@ -47,7 +48,6 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/auth/user/?', AuthenticationHandler, name="auth_user"),
         url(r'/auth/token/?', AuthenticationWithTokenHandler, name="auth_token"),
         url(r'/auth/register/?', RegisterUserHandler, name="register_user"),
-        url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load-tests/(?P<test_uuid>.+?)/start/?', StartLoadTestHandler, name='load_test_start'),
         url(
             r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load-tests/(?P<test_uuid>.+?)/results(?:/(?P<result_uuid>.+?))?/?',
             LoadTestResultHandler,
@@ -76,6 +76,11 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         port=self.config.MONGO_PORT,
         username=self.config.MONGO_USER,
         password=self.config.MONGO_PASS
+    )
+
+    self.resq = ResQ(
+        server="%s:%s" % (self.config.REDIS_HOST, self.config.REDIS_PORT),
+        password=self.config.REDIS_PASSWORD
     )
 
     #self.session_store = RedisSessionStore(
