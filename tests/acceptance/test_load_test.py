@@ -15,6 +15,25 @@ from tests.factories import TeamFactory, LoadTestFactory, UserFactory, TestResul
 from wight.models import LoadTest
 
 
+BASE_LOAD_TESTS_TABLE_PRINT = """
+    Team: %s ---- Project: %s
+    +--------------------------------------+-----------+---------------------+-------------------------------------------------+
+    | uuid                                 |   status  |        since        |                                                 |
+    +--------------------------------------+-----------+---------------------+-------------------------------------------------+
+    %s
+    +--------------------------------------+-----------+---------------------+-------------------------------------------------+
+"""
+
+
+def get_print_lines_for_load_tests(load_tests):
+    return [
+        "| %s | Scheduled | %s | wight show %s |" % (
+            load.uuid, load.date_created.isoformat().replace("T", " ")[:19], load.uuid
+        )
+        for load in load_tests
+    ]
+
+
 class TestLoadTest(AcceptanceTest):
 
     def test_list_gets_403_if_not_team_member(self):
@@ -32,18 +51,10 @@ class TestLoadTest(AcceptanceTest):
         LoadTestFactory.add_to_project(25, user=self.user, team=team, project=project)
 
         load_tests = LoadTest.get_sliced_by_team_and_project_name(team, project.name, 20)
-        uuids = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests]
+        uuids = get_print_lines_for_load_tests(load_tests)
 
         result = self.execute("list", team=team.name, project=project.name)
-        expect(result).to_be_like("""
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-        """ % (team.name, project.name, "".join(uuids))
-        )
+        expect(result).to_be_like(BASE_LOAD_TESTS_TABLE_PRINT % (team.name, project.name, "".join(uuids)))
 
     def test_list_load_tests_by_project_only(self):
         team = TeamFactory.create(owner=self.user)
@@ -54,18 +65,10 @@ class TestLoadTest(AcceptanceTest):
         LoadTestFactory.add_to_project(25, user=self.user, team=team, project=project2)
 
         load_tests = LoadTest.get_sliced_by_team_and_project_name(team, project1.name, 20)
-        uuids = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests]
+        uuids = get_print_lines_for_load_tests(load_tests)
 
         result = self.execute("list", project=project1.name)
-        expect(result).to_be_like("""
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-        """ % (team.name, project1.name, "".join(uuids))
-        )
+        expect(result).to_be_like(BASE_LOAD_TESTS_TABLE_PRINT % (team.name, project1.name, "".join(uuids)))
 
     def test_list_load_tests_by_team_only(self):
         team = TeamFactory.create(owner=self.user)
@@ -78,26 +81,15 @@ class TestLoadTest(AcceptanceTest):
         load_tests1 = LoadTest.get_sliced_by_team_and_project_name(team, project1.name, 5)
         load_tests2 = LoadTest.get_sliced_by_team_and_project_name(team, project2.name, 5)
 
-        uuids1 = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests1]
-        uuids2 = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests2]
+        uuids1 = get_print_lines_for_load_tests(load_tests1)
+        uuids2 = get_print_lines_for_load_tests(load_tests2)
 
         result = self.execute("list", team=team.name)
-        expect(result).to_be_like("""
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
 
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-        """ % (team.name, project1.name, "".join(uuids1), team.name, project2.name, "".join(uuids2))
-        )
+        expect(result).to_be_like((BASE_LOAD_TESTS_TABLE_PRINT * 2) % (
+            team.name, project1.name, "".join(uuids1),
+            team.name, project2.name, "".join(uuids2)
+        ))
 
     def test_list_load_tests_by_user_only(self):
         team1 = TeamFactory.create(owner=self.user)
@@ -126,57 +118,22 @@ class TestLoadTest(AcceptanceTest):
         load_tests4 = LoadTest.get_sliced_by_team_and_project_name(team2, project4.name, 3)
         load_tests5 = LoadTest.get_sliced_by_team_and_project_name(team2, project5.name, 3)
 
-        uuids1 = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests1]
-        uuids2 = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests2]
+        uuids1 = get_print_lines_for_load_tests(load_tests1)
+        uuids2 = get_print_lines_for_load_tests(load_tests2)
 
-        uuids3 = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests3]
-        uuids4 = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests4]
-        uuids5 = ["| %s | Scheduled | wight show %s |" % (load.uuid, load.uuid) for load in load_tests5]
+        uuids3 = get_print_lines_for_load_tests(load_tests3)
+        uuids4 = get_print_lines_for_load_tests(load_tests4)
+        uuids5 = get_print_lines_for_load_tests(load_tests5)
 
         result = self.execute("list")
-        expect(result).to_be_like("""
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
 
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-
-            Team: %s ---- Project: %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-            | uuid                                 |   status  |                                                 |
-            +--------------------------------------+-----------+-------------------------------------------------+
-            %s
-            +--------------------------------------+-----------+-------------------------------------------------+
-        """ % (
+        expect(result).to_be_like((BASE_LOAD_TESTS_TABLE_PRINT * 5) % (
             team1.name, project1.name, "".join(uuids1),
             team1.name, project2.name, "".join(uuids2),
             team2.name, project3.name, "".join(uuids3),
             team2.name, project4.name, "".join(uuids4),
             team2.name, project5.name, "".join(uuids5)
-        )
-        )
+        ))
 
     def test_load_test_instance(self):
         team = TeamFactory.create(owner=self.user)
@@ -188,24 +145,37 @@ class TestLoadTest(AcceptanceTest):
         load_test.results.append(result2)
         load_test.save()
 
-        result = self.execute("show", load_test.uuid, team=team.name, project=project.name)
+        result = self.execute("show", load_test.uuid)
+
+        line = "| %s |       %s        | %s  | %s |   %s   | wight show-result %s |"
+
+        line1 = line % (
+            result1.config.title,
+            result1.cycles[-1].concurrent_users,
+            result1.cycles[-1].request.successful_requests_per_second,
+            result1.cycles[-1].request.p95,
+            result1.cycles[-1].request.failed_requests,
+            result1.uuid
+        )
+        line2 = line % (
+            result2.config.title,
+            result2.cycles[-1].concurrent_users,
+            result2.cycles[-1].request.successful_requests_per_second,
+            result2.cycles[-1].request.p95,
+            result2.cycles[-1].request.failed_requests,
+            result2.uuid
+        )
 
         expect(result).to_be_like("""
             Load test: %s
-
             Status: %s
-            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
-            |     title     |                 uuid                 | concurrent_users | requests_per_second | p95 | failed_requests |                                                        |
-            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
-            | %s | %s |       %s        |         %s         | %s |        %s       | %s |
-            | %s | %s |       %s        |         %s        | %s |        %s       | %s |
-            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
-        """ % (load_test.uuid, load_test.status,
-               result1.config.title, result1.uuid, result1.cycles[-1].concurrent_users,
-               result1.cycles[-1].request.successful_requests_per_second,
-               result1.cycles[-1].request.p95, result1.cycles[-1].request.failed_requests,
-               "wight show-result %s" % result1.uuid,
-               result2.config.title, result2.uuid, result2.cycles[-1].concurrent_users,
-               result2.cycles[-1].request.successful_requests_per_second,
-               result2.cycles[-1].request.p95, result2.cycles[-1].request.failed_requests,
-               "wight show-result %s" % result2.uuid))
+            Scheduled since: %s
+
+            +---------------+------------------+------+-----+--------+--------------------------------------------------------+
+            |     title     | concurrent users | rps  | p95 | failed |                                                        |
+            +---------------+------------------+------+-----+--------+--------------------------------------------------------+
+            %s
+            %s
+            +---------------+------------------+------+-----+--------+--------------------------------------------------------+
+            rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests
+            """ % (load_test.uuid, load_test.status, "porra", line1, line2))

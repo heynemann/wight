@@ -197,8 +197,6 @@ class InstanceLoadTestController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            #(['--team'], dict(help='The name of the team that owns the project load tests', required=True)),
-            #(['--project'], dict(help='The name of the project load tests', required=True)),
             (['load_test_uuid'], dict(help='Load test uuid')),
         ]
 
@@ -325,8 +323,6 @@ class ShowResultController(WightBaseController):
             if isinstance(content, six.binary_type):
                 content = content.decode('utf-8')
             content = loads(content)
-            import ipdb;ipdb.set_trace()
-
             self._print_response(content)
 
     def _print_response(self, load_test):

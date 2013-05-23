@@ -18,9 +18,9 @@ from tests.unit.base import FullTestCase
 from tests.factories import TeamFactory, UserFactory, LoadTestFactory, TestResultFactory
 
 
-class ShowLoadTestResultTest(FullTestCase):
+class ShowAuthLoadTestResultTest(FullTestCase):
     def setUp(self):
-        super(ShowLoadTestResultTest, self).setUp()
+        super(ShowAuthLoadTestResultTest, self).setUp()
         self.user = UserFactory.create(with_token=True)
         self.team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(self.team, 1)

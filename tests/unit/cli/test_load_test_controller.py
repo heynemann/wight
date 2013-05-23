@@ -336,6 +336,7 @@ class ListLoadTestController403Test(LoadTestControllerTestBase):
         topic = mock_stdout.getvalue()
         expect(topic).to_be_like("You are not the owner or a team member for 'not-your-team' and thus can't list its tests in target 'Target'.")
 
+
 class InstanceLoadTestControllerTest(LoadTestControllerTestBase):
 
     def setUp(self):
@@ -385,5 +386,5 @@ class InstanceLoadTestControllerTest(LoadTestControllerTestBase):
             | test-config-0 |       100        | 6.0  | 0.3 |   30   | wight show-result aaf81f79-3eef-4fe1-9ffe-6189f4534212 |
             | test-config-1 |       100        | 14.0 | 0.3 |   70   | wight show-result aaf81f79-3eef-4fe1-9ffe-6189f4534212 |
             +---------------+------------------+------+-----+--------+--------------------------------------------------------+
-            rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests
+            rps means requests per second, p95 means the 95 percentile in seconds and failed means request errors
         """)
