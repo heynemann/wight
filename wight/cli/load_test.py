@@ -169,6 +169,7 @@ class ListLoadTestController(WightBaseController):
                 )
 
             self.puts(table)
+            self.line_break()
 
     def get_colored_status(self, status):
         color = self.text_color
@@ -282,8 +283,11 @@ class InstanceLoadTestController(WightBaseController):
 
             line = str(table).split('\n')[0]
 
-            msg = "rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests"
+            msg = "rps means requests per second, p95 means the 95 percentile in seconds and failed means request errors"
             msg = self.align_right(msg, len(line))
+            msg = msg.replace("rps", "%srps%s" % (self.commands_color, self.reset))
+            msg = msg.replace("p95", "%sp95%s" % (self.commands_color, self.reset))
+            msg = msg.replace("failed", "%sfailed%s" % (self.commands_color, self.reset))
             self.write("%s%s%s" % (self.comment_color, msg, self.reset))
             self.line_break()
         else:
