@@ -239,3 +239,75 @@ class InstanceLoadTestController(WightBaseController):
         msg = self.align_right(msg, len(line))
         self.write("%s%s%s" % (self.comment_color, msg, self.reset))
         self.line_break()
+
+
+class ShowResultController(WightBaseController):
+    class Meta:
+        label = 'show-result'
+        stack_on = 'base'
+        description = 'Show load test results.'
+        config_defaults = dict()
+
+        arguments = [
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            #(['--team'], dict(help='The name of the team that owns the project load tests', required=True)),
+            #(['--project'], dict(help='The name of the project load tests', required=True)),
+            (['load_test_uuid'], dict(help='Load test uuid')),
+        ]
+
+    @controller.expose(hide=False, aliases=["show-result"], help='Show load-test result.')
+    @WightBaseController.authenticated
+    def default(self):
+        self.load_conf()
+        with ConnectedController(self):
+            url = '/load_tests/%s/results' % self.arguments.load_test_uuid
+
+            response = self.get(url)
+
+            if response.status_code == 404:
+                return self.write("Load test %s doesn't exist" % self.arguments.load_test_uuid)
+
+            content = response.content
+            if isinstance(content, six.binary_type):
+                content = content.decode('utf-8')
+            content = loads(content)
+
+            for result in content['results']:
+                result['requests_per_second'] = round(result['requests_per_second'], 2)
+                result['p95'] = round(result['p95'], 2)
+
+            self._print_response(content)
+
+    def _print_response(self, load_test):
+        self.line_break()
+
+        self.write("%sLoad test%s: %s%s%s" % (
+            self.title_color, self.reset,
+            self.keyword_color, load_test["uuid"], self.reset,
+        ))
+        self.write("%sStatus%s: %s%s%s" % (
+            self.title_color, self.reset,
+            self.keyword_color, load_test["status"], self.reset,
+        ))
+        self.line_break()
+
+        headers = ['title', 'concurrent users', 'rps', 'p95', 'failed']
+        keys = ['title', 'concurrent_users', 'requests_per_second', 'p95', 'failed_requests']
+
+        table = PrettyTable(headers + [''])
+
+        for result in load_test['results']:
+            row = []
+            for index, header in enumerate(headers):
+                row.append(result[keys[index]])
+            row.append("%swight show-result %s%s" % (self.commands_color, result['uuid'], self.reset))
+            table.add_row(row)
+
+        self.write(table)
+
+        line = str(table).split('\n')[0]
+
+        msg = "rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests"
+        msg = self.align_right(msg, len(line))
+        self.write("%s%s%s" % (self.comment_color, msg, self.reset))
+        self.line_break()
