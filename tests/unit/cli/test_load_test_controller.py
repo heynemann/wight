@@ -227,60 +227,47 @@ class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
         get_mock.side_effect = get_mock_side_effect
         self.ctrl.default()
 
-        expect(mock_stdout.getvalue()).to_be_like(
-            """
-                Team: team1 ---- Project: project1
-                +---------------+--------+--------------------------+
-                | uuid          | status |                          |
-                +---------------+--------+--------------------------+
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                +---------------+--------+--------------------------+
+        teams = [
+            {
+                "name": "team1",
+                "projects": [
+                    {"name": "project1", "tests": 1},
+                    {"name": "project2", "tests": 1}
+                ]
+            },
+            {
+                "name": "another-team",
+                "projects": [
+                    {"name": "project-x", "tests": 1},
+                    {"name": "project-z", "tests": 1},
+                    {"name": "project-y", "tests": 1},
+                ]
+            },
+            {
+                "name": "team2",
+                "projects": [
+                    {"name": "project3", "tests": 3},
+                    {"name": "project4", "tests": 1}
+                ]
+            },
+        ]
+        print_team = """
+                Team: %s ---- Project: %s
+                +---------------+--------+---------------------+--------------------------+
+                | uuid          | status |        since        |                          |
+                +---------------+--------+---------------------+--------------------------+
+                %s
+                +---------------+--------+---------------------+--------------------------+
+        """
+        print_test = "| um-uuid-legal |  True  |          -          | wight show um-uuid-legal |"
+        expected_stdout = []
+        for team in teams:
+            for project in team["projects"]:
+                expected_stdout.append(print_team % (
+                    team["name"], project["name"], print_test * project["tests"]
+                ))
 
-                Team: team1 ---- Project: project2
-                +---------------+--------+--------------------------+
-                | uuid          | status |                          |
-                +---------------+--------+--------------------------+
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                +---------------+--------+--------------------------+
-
-                Team: another-team ---- Project: project-x
-                +---------------+--------+--------------------------+
-                | uuid          | status |                          |
-                +---------------+--------+--------------------------+
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                +---------------+--------+--------------------------+
-
-                Team: another-team ---- Project: project-z
-                +---------------+--------+--------------------------+
-                | uuid          | status |                          |
-                +---------------+--------+--------------------------+
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                +---------------+--------+--------------------------+
-
-                Team: another-team ---- Project: project-y
-                +---------------+--------+--------------------------+
-                | uuid          | status |                          |
-                +---------------+--------+--------------------------+
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                +---------------+--------+--------------------------+
-
-                Team: team2 ---- Project: project3
-                +---------------+--------+--------------------------+
-                | uuid          | status |                          |
-                +---------------+--------+--------------------------+
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                +---------------+--------+--------------------------+
-
-                Team: team2 ---- Project: project4
-                +---------------+--------+--------------------------+
-                | uuid          | status |                          |
-                +---------------+--------+--------------------------+
-                | um-uuid-legal |  True  | wight show um-uuid-legal |
-                +---------------+--------+--------------------------+
-            """
-        )
+        expect(mock_stdout.getvalue()).to_be_like("".join(expected_stdout))
 
 
 class ListTeamLoadTestControllerTest(LoadTestControllerTestBase):
@@ -392,10 +379,11 @@ class InstanceLoadTestControllerTest(LoadTestControllerTestBase):
             Load test: 9d3dc1be-9af4-480c-912a-441d25caa7c6
 
             Status: scheduled
-            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
-            |     title     |                 uuid                 | concurrent_users | requests_per_second | p95 | failed_requests |                                                        |
-            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
-            | test-config-0 | aaf81f79-3eef-4fe1-9ffe-6189f4534212 |       100        |         6.0         | 0.3 |        30       | wight show-result aaf81f79-3eef-4fe1-9ffe-6189f4534212 |
-            | test-config-1 | aaf81f79-3eef-4fe1-9ffe-6189f4534212 |       100        |         14.0        | 0.3 |        70       | wight show-result aaf81f79-3eef-4fe1-9ffe-6189f4534212 |
-            +---------------+--------------------------------------+------------------+---------------------+-----+-----------------+--------------------------------------------------------+
+            +---------------+------------------+------+-----+--------+--------------------------------------------------------+
+            |     title     | concurrent users | rps  | p95 | failed |                                                        |
+            +---------------+------------------+------+-----+--------+--------------------------------------------------------+
+            | test-config-0 |       100        | 6.0  | 0.3 |   30   | wight show-result aaf81f79-3eef-4fe1-9ffe-6189f4534212 |
+            | test-config-1 |       100        | 14.0 | 0.3 |   70   | wight show-result aaf81f79-3eef-4fe1-9ffe-6189f4534212 |
+            +---------------+------------------+------+-----+--------+--------------------------------------------------------+
+            rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests
         """)
