@@ -33,7 +33,6 @@ class WightBaseController(controller.CementBaseController):
         super(WightBaseController, self).__init__(*args, **kw)
         self.ignored += ['api']
 
-        bright_white = "%s%s" % (Fore.WHITE, Style.BRIGHT)
         bright_yellow = "%s%s" % (Fore.YELLOW, Style.BRIGHT)
         bright_cyan = "%s%s" % (Fore.CYAN, Style.BRIGHT)
         bright_green = "%s%s" % (Fore.GREEN, Style.BRIGHT)
@@ -41,7 +40,6 @@ class WightBaseController(controller.CementBaseController):
 
         dim_white = "%s%s" % (Fore.WHITE, Style.DIM)
         dim_red = "%s%s" % (Fore.RED, Style.DIM)
-        dim_green = "%s%s" % (Fore.GREEN, Style.DIM)
 
         self.title_color = bright_cyan
         self.text_color = dim_white
@@ -49,6 +47,7 @@ class WightBaseController(controller.CementBaseController):
         self.error_text_color = dim_red
         self.commands_color = bright_yellow
         self.keyword_color = bright_magenta
+        self.comment_color = dim_white
 
         self.reset = "%s%s" % (Style.RESET_ALL, self.text_color)
         self.reset_success = "%s%s" % (Style.RESET_ALL, self.success_text_color)
@@ -70,6 +69,10 @@ class WightBaseController(controller.CementBaseController):
 
     def line_break(self):
         self.write("")
+
+    def align_right(self, message, length):
+        spacer = (length - len(message)) * ' '
+        return "%s%s" % (spacer, message)
 
     def _parse_args(self):
         super(WightBaseController, self)._parse_args()

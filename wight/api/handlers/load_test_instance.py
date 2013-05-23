@@ -9,9 +9,7 @@ from mongoengine import DoesNotExist
 class LoadTestInstanceHandler(BaseHandler):
 
     @tornado.web.asynchronous
-    @BaseHandler.authenticated
-    @BaseHandler.team_member
-    def get(self, team, project_name, test_uuid):
+    def get(self, team_name=None, project_name=None, test_uuid=None):
         try:
             load_test = LoadTest.objects.get(uuid=test_uuid)
 

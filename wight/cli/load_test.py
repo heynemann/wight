@@ -9,6 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 import six
 from json import loads
+from datetime import datetime
 
 from cement.core import controller
 from prettytable import PrettyTable
@@ -143,15 +144,30 @@ class ListLoadTestController(WightBaseController):
             headers = [
                 "%suuid%s" % (self.commands_color, self.reset),
                 "%sstatus%s" % (self.commands_color, self.reset),
+                "%ssince%s" % (self.commands_color, self.reset),
                 ""
             ]
             table = PrettyTable(headers)
             table.align[headers[0]] = "l"
-            table.align[headers[2]] = "l"
 
+            spacer = "         -         "
             for test in load_test["load_tests"]:
-                table.add_row([test["uuid"], test["status"], "wight show %s" % test["uuid"]])
+                dt = test['created'] if test["status"] == "Scheduled" else test["lastModified"]
+                dt = dt.replace("T", " ")
+                if test["status"] == "Running":
+                    actual_date = datetime.strptime(test['lastModified'], "%Y-%m-%dT%H:%M:%S")
+                    dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
+                table.add_row(
+                    [
+                        test["uuid"],
+                        test["status"],
+                        dt if test["status"] in ["Scheduled", "Running"] else spacer,
+                        "%swight show %s%s" % (self.commands_color, test["uuid"], self.reset)
+                    ]
+                )
+
             self.puts(table)
+
 
 class InstanceLoadTestController(WightBaseController):
     class Meta:
@@ -162,8 +178,8 @@ class InstanceLoadTestController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['--team'], dict(help='The name of the team that owns the project load tests', required=True)),
-            (['--project'], dict(help='The name of the project load tests', required=True)),
+            #(['--team'], dict(help='The name of the team that owns the project load tests', required=True)),
+            #(['--project'], dict(help='The name of the project load tests', required=True)),
             (['load_test_uuid'], dict(help='Load test uuid')),
         ]
 
@@ -172,8 +188,7 @@ class InstanceLoadTestController(WightBaseController):
     def default(self):
         self.load_conf()
         with ConnectedController(self):
-            url = '/teams/%s/projects/%s/load_tests/%s' % \
-                (self.arguments.team, self.arguments.project, self.arguments.load_test_uuid)
+            url = '/load_tests/%s' % self.arguments.load_test_uuid
 
             response = self.get(url)
 
@@ -185,30 +200,42 @@ class InstanceLoadTestController(WightBaseController):
                 content = content.decode('utf-8')
             content = loads(content)
 
+            for result in content['results']:
+                result['requests_per_second'] = round(result['requests_per_second'], 2)
+                result['p95'] = round(result['p95'], 2)
+
             self._print_response(content)
 
     def _print_response(self, load_test):
+        self.line_break()
+
         self.write("%sLoad test%s: %s%s%s" % (
             self.title_color, self.reset,
             self.keyword_color, load_test["uuid"], self.reset,
         ))
-
-        self.line_break()
-
         self.write("%sStatus%s: %s%s%s" % (
             self.title_color, self.reset,
             self.keyword_color, load_test["status"], self.reset,
         ))
+        self.line_break()
 
-        headers = ['title', 'uuid', 'concurrent_users', 'requests_per_second', 'p95', 'failed_requests']
+        headers = ['title', 'concurrent users', 'rps', 'p95', 'failed']
+        keys = ['title', 'concurrent_users', 'requests_per_second', 'p95', 'failed_requests']
 
         table = PrettyTable(headers + [''])
 
         for result in load_test['results']:
             row = []
-            for header in headers:
-                row.append(result[header])
+            for index, header in enumerate(headers):
+                row.append(result[keys[index]])
             row.append("%swight show-result %s%s" % (self.commands_color, result['uuid'], self.reset))
             table.add_row(row)
 
         self.write(table)
+
+        line = str(table).split('\n')[0]
+
+        msg = "rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests"
+        msg = self.align_right(msg, len(line))
+        self.write("%s%s%s" % (self.comment_color, msg, self.reset))
+        self.line_break()

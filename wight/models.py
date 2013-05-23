@@ -350,6 +350,7 @@ class LoadTest(Document):
     base_url = URLField(max_length=2000, required=True)
     date_created = DateTimeField(default=datetime.datetime.now)
     date_modified = DateTimeField(default=datetime.datetime.now)
+    error = StringField(required=False)
 
     results = ListField(EmbeddedDocumentField(TestResult))
 
