@@ -64,6 +64,7 @@ wight is a load testing scheduling and tracking tool.
         'pyyaml',
         'funkload',
         'pyres',
+        'setproctitle>=1.0',
     ],
     extras_require={
         'tests': tests_require,
