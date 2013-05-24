@@ -10,7 +10,7 @@
 
 import sys
 from uuid import UUID
-from os.path import join
+from os.path import join, expanduser, abspath
 import argparse
 import logging
 from tempfile import mkdtemp
@@ -45,12 +45,13 @@ class WorkerJob(object):
 
         runner.run_project_tests(
             base_path=temp_path, load_test_uuid=load_test_uuid,
+            workers=WorkerJob.resq.config.WORKERS,
             cycles=WorkerJob.resq.config.CYCLES, duration=WorkerJob.resq.config.CYCLE_DURATION
         )
 
 
 class BenchRunner(object):
-    def run_project_tests(self, base_path, load_test_uuid, cycles=[10, 20, 30, 40, 50], duration=10):
+    def run_project_tests(self, base_path, load_test_uuid, workers=[], cycles=[10, 20, 30, 40, 50], duration=10):
         load_test = LoadTest.objects(uuid=UUID(load_test_uuid)).first()
         load_test.status = "Running"
         load_test.running_since = datetime.now()
@@ -65,9 +66,18 @@ class BenchRunner(object):
         if is_valid:
             try:
                 for test in cfg.tests:
-                    fl_result = FunkLoadBenchRunner.run(
-                        base_path, test, load_test.base_url, cycles=cycles, duration=duration
+                    kw = dict(
+                        root_path=base_path,
+                        test=test,
+                        base_url=load_test.base_url,
+                        cycles=cycles,
+                        duration=duration
                     )
+
+                    if workers:
+                        kw['workers'] = workers
+
+                    fl_result = FunkLoadBenchRunner.run(**kw)
 
                     if fl_result.exit_code != 0:
                         load_test.status = "Failed"
@@ -77,7 +87,7 @@ class BenchRunner(object):
 
                     result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
 
-                    load_test.add_result(result, xml=fl_result.xml, log=fl_result.text)
+                    load_test.add_result(result, log=fl_result.text)
 
                 load_test.status = "Finished"
                 load_test.save()
@@ -108,9 +118,12 @@ def main(args=None):
     options = parser.parse_args(args)
 
     log_level = LOGS[options.verbose].upper()
-    logging.basicConfig(level=getattr(logging, log_level), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(
+        level=getattr(logging, log_level),
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-    cfg = Config.load(options.conf)
+    cfg = Config.load(abspath(expanduser(options.conf)))
     conn = ResQ(server="%s:%s" % (cfg.REDIS_HOST, cfg.REDIS_PORT), password=cfg.REDIS_PASSWORD)
     conn.config = cfg
 

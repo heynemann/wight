@@ -64,7 +64,8 @@ wight is a load testing scheduling and tracking tool.
         'pyyaml',
         'funkload',
         'pyres',
-        'setproctitle>=1.0',
+        'paramiko',
+        'virtualenv'
     ],
     extras_require={
         'tests': tests_require,
@@ -73,7 +74,8 @@ wight is a load testing scheduling and tracking tool.
         'console_scripts': [
             'wight=wight.cli:main',
             'wight-api=wight.api.server:main',
-            'wight-web=wight.web.server:main'
+            'wight-web=wight.web.server:main',
+            'wight-worker=wight.worker:main'
         ],
     },
 )

@@ -342,7 +342,6 @@ class TestResult(EmbeddedDocument):
     pages_visited = IntField(required=True)
     requests_made = IntField(required=True)
 
-    xml = StringField(required=True)
     log = StringField(required=True)
     status = StringField(required=True, choices=("Failed", "Successful"))
 
@@ -408,7 +407,7 @@ class LoadTest(Document):
             "results": [result.to_dict() for result in self.results]
         }
 
-    def add_result(self, result, xml, log):
+    def add_result(self, result, log):
         config, stats = result['config'], result['results']
 
         cfg = TestConfiguration(
@@ -437,7 +436,6 @@ class LoadTest(Document):
             pages_visited=stats['tests_executed'],
             requests_made=stats['requests_made'],
             config=cfg,
-            xml=xml,
             log=log,
             status="Successful"
         )

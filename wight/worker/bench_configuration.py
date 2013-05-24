@@ -8,6 +8,8 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
+import sys
+
 
 class BenchConfiguration(object):
     def __init__(
@@ -20,7 +22,9 @@ class BenchConfiguration(object):
             cycle_time=1,
             sleep_time=0.01,
             sleep_time_min=0.0,
-            sleep_time_max=0.5):
+            sleep_time_max=0.5,
+            log_path="",
+            workers=[]):
 
         self.test_name = test_name
         self.title = title
@@ -31,6 +35,8 @@ class BenchConfiguration(object):
         self.sleep_time = sleep_time
         self.sleep_time_min = sleep_time_min
         self.sleep_time_max = sleep_time_max
+        self.log_path = log_path
+        self.workers = workers
 
     def to_dict(self):
         return {
@@ -47,8 +53,7 @@ class BenchConfiguration(object):
 
     def save(self, conf_path):
         with open(conf_path, 'w') as conf_file:
-            conf_file.write(
-                """[main]
+            main_section = """[main]
 title=%(title)s
 description=%(description)s
 
@@ -63,4 +68,31 @@ sleep_time_max = %(sleep_time_max).2f
 [%(test_name)s]
 description=%(description)s
 """ % self.to_dict()
-            )
+
+            conf_file.write(main_section)
+
+            if self.workers:
+                conf_file.write("""
+[distribute]
+log_path = %s
+python_bin = %s
+funkload_location=https://github.com/nuxeo/FunkLoad/archive/master.zip
+                """.strip() % (self.log_path, sys.executable))
+
+                conf_file.write("\n")
+                worker_names = " ".join(["worker_%d" % i for i in range(len(self.workers))])
+                workers = ["""
+[workers]
+hosts = %s
+                """.strip() % worker_names]
+
+                conf_file.write("\n")
+                for index, worker in enumerate(self.workers):
+                    workers.append("""
+[worker_%s]
+host = %s
+username = %s
+password = %s
+                    """.strip() % (index, worker['host'], worker['user'], worker['password']))
+
+                conf_file.write("\n".join(workers))
