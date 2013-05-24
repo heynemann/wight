@@ -178,37 +178,25 @@ class TestLoadTest(AcceptanceTest):
     #     load_test.results.append(result2)
     #     load_test.save()
 
-    #     result = self.execute("show", load_test.uuid)
+    #     result = self.execute("show-result", load_test.uuid)
+    #     expected_text = []
 
-    #     line = "| %s |       %s        | %s  | %s |   %s   | wight show-result %s |"
+    #     expected_text.append(result1.config.title)
+    #     expected_text.append(result1.cycles[-1].concurrent_users)
+    #     expected_text.append(result1.cycles[-1].request.successful_requests_per_second)
+    #     expected_text.append(result1.cycles[-1].request.p95)
+    #     expected_text.append(result1.cycles[-1].request.failed_requests)
+    #     expected_text.append(result1.uuid)
 
-    #     line1 = line % (
-    #         result1.config.title,
-    #         result1.cycles[-1].concurrent_users,
-    #         result1.cycles[-1].request.successful_requests_per_second,
-    #         result1.cycles[-1].request.p95,
-    #         result1.cycles[-1].request.failed_requests,
-    #         result1.uuid
-    #     )
-    #     line2 = line % (
-    #         result2.config.title,
-    #         result2.cycles[-1].concurrent_users,
-    #         result2.cycles[-1].request.successful_requests_per_second,
-    #         result2.cycles[-1].request.p95,
-    #         result2.cycles[-1].request.failed_requests,
-    #         result2.uuid
-    #     )
+    #     expected_text.append(result2.config.title)
+    #     expected_text.append(result2.cycles[-1].concurrent_users)
+    #     expected_text.append(result2.cycles[-1].request.successful_requests_per_second)
+    #     expected_text.append(result2.cycles[-1].request.p95)
+    #     expected_text.append(result2.cycles[-1].request.failed_requests)
+    #     expected_text.append(result2.uuid)
 
-    #     expect(result).to_be_like("""
-    #         Load test: %s
-    #         Status: %s
-    #         Scheduled since: %s
+    #     expected_text.append(load_test.uuid)
+    #     expected_text.append(load_test.status)
 
-    #         +---------------+------------------+------+-----+--------+--------------------------------------------------------+
-    #         |     title     | concurrent users | rps  | p95 | failed |                                                        |
-    #         +---------------+------------------+------+-----+--------+--------------------------------------------------------+
-    #         %s
-    #         %s
-    #         +---------------+------------------+------+-----+--------+--------------------------------------------------------+
-    #         rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests
-    #         """ % (load_test.uuid, load_test.status, "porra", line1, line2))
+    #     for expected in expected_text:
+    #         expect(result).to_include(expected)

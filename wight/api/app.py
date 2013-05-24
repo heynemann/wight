@@ -53,7 +53,6 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
             AuthLoadTestResultHandler,
             name='team_project_load_test_result'
         ),
-        url(r'/teams/(?P<team_name>.+?)/projects/(?P<project_name>.+?)/load_tests/(?P<test_uuid>.+)/?', LoadTestInstanceHandler, name='team_projects_load_test_result'),
         url(r'/load_tests/(?P<test_uuid>.+)/?', LoadTestInstanceHandler, name='load_test_directly'),
         url(r'/load_tests/(?P<test_uuid>.+)/results/?', LoadTestInstanceResultsHandler, name='load_test_results_directly'),
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)/load_tests/?', AuthLoadTestHandler, name='team_projects_load_tests'),

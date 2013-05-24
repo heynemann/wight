@@ -21,7 +21,7 @@ class LoadTestsInstanceTest(FullTestCase):
         self.load_test.results.append(result2)
         self.load_test.save()
 
-        url = '/teams/%s/projects/%s/load_tests/%s' % (self.team.name, self.project.name, self.load_test.uuid)
+        url = '/load_tests/%s' % self.load_test.uuid
 
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)
@@ -58,7 +58,7 @@ class LoadTestsInstanceTest(FullTestCase):
         expect(obj['results'][1]['p95']).to_equal(result2_last_cycle.request.p95)
 
     def test_get_instance_load_test_404(self):
-        url = '/teams/%s/projects/%s/load_tests/%s' % (self.team.name, self.project.name, uuid4())
+        url = '/load_tests/%s' % uuid4()
 
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(404)
