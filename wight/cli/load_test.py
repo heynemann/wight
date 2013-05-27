@@ -346,7 +346,22 @@ class ShowResultController(WightBaseController):
             content = loads(content)
             self._print_response(content)
 
+    def _print_two_columns(self, first_title, first_value, second_title, second_value):
+        self.write(("%s%s%s: %s%-" + str(50 - len(first_title)) + "s%s %s%s%s: %s%ss%s") % (
+            self.keyword_color, first_title.strip(), self.reset,
+            self.commands_color, str(first_value).strip(), self.reset,
+            self.keyword_color, second_title.strip(), self.reset,
+            self.commands_color, str(second_value).strip(), self.reset,
+        ))
+
     def _print_response(self, load_test):
+        result = [result for result in load_test['results'] if result['uuid'] == self.arguments.load_test_uuid]
+
+        if not result:
+            self.write("Result with UUID %s was not found!" % self.argument.load_test_uuid)
+
+        result = result[0]
+
         self.line_break()
 
         self.write("%sLoad test%s: %s%s%s" % (
@@ -357,25 +372,66 @@ class ShowResultController(WightBaseController):
             self.title_color, self.reset,
             self.keyword_color, load_test["status"], self.reset,
         ))
+
         self.line_break()
+        self.write("%sBench Configuration%s" % (
+            self.title_color, self.reset
+        ))
+        self.write('-' * len('Bench Configuration'))
 
-        headers = ['title', 'concurrent users', 'rps', 'p95', 'failed']
-        keys = ['title', 'concurrent_users', 'requests_per_second', 'p95', 'failed_requests']
+        cfg = result['config']
+        test_name = "%s.%s" % (cfg['className'], cfg['testName'])
+        items = (
+            ("Title", cfg['title'], 'Description', cfg['description']),
+            ("Module", cfg['module'], "Test", test_name),
+            ("Cycles", cfg['cycles'], "Cycle Duration", cfg['cycleDuration']),
+            ("Base URL", cfg['targetServer'], "Test Date", cfg['testDate']),
+        )
 
-        table = PrettyTable(headers + [''])
+        for item in items:
+            self._print_two_columns(*item)
 
-        for result in load_test['results']:
-            row = []
-            for index, header in enumerate(headers):
-                row.append(result[keys[index]])
-            row.append("%swight show-result %s%s" % (self.commands_color, result['uuid'], self.reset))
+        headers = ['users', 'requests', 'error %', 'rps', 'minimum', 'average', 'p90', 'p95', 'maximum']
+        table = PrettyTable(["%s%s%s" % (self.keyword_color, header, self.reset) for header in headers])
+
+        for cycle in sorted(result['cycles'], key=lambda item: item['cycleNumber']):
+            req = cycle['request']
+            row = [
+                cycle['concurrentUsers'],
+                req['successfulRequests'],
+                "%.2f" % req['failedRequestPercentage'],
+                "%.2f" % req['successfulRequestsPerSecond'],
+                "%.2f" % req['minimum'],
+                "%.2f" % req['average'],
+                "%.2f" % req['p90'],
+                "%.2f" % req['p95'],
+                "%.2f" % req['maximum']
+            ]
             table.add_row(row)
 
+        self.line_break()
         self.write(table)
-
         line = str(table).split('\n')[0]
 
-        msg = "rps means requests per second, p95 means the 95 percentile in seconds and failed means failed requests"
+        msg = "rps means requests per second and average, p95 and maximum are all response time in seconds"
         msg = self.align_right(msg, len(line))
         self.write("%s%s%s" % (self.comment_color, msg, self.reset))
         self.line_break()
+
+        #headers = ['title', 'concurrent users', 'rps', 'p95', 'failed']
+        #keys = ['title', 'concurrent_users', 'requests_per_second', 'p95', 'failed_requests']
+
+        #table = PrettyTable(headers + [''])
+
+        #for result in load_test['results']:
+            #row = []
+            #for index, header in enumerate(headers):
+                #row.append(result[keys[index]])
+            #row.append("%swight show-result %s%s" % (self.commands_color, result['uuid'], self.reset))
+            #table.add_row(row)
+
+        #self.write(table)
+
+        #line = str(table).split('\n')[0]
+
+

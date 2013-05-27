@@ -284,6 +284,15 @@ class TestCycleTests(EmbeddedDocument):
     failed_tests = IntField(required=True)
     failed_tests_percentage = FloatField(required=True)
 
+    def to_dict(self):
+        return {
+            'successfulTestsPerSecond': self.successful_tests_per_second,
+            'totalTests': self.total_tests,
+            'successfulTests': self.successful_tests,
+            'failedTests': self.failed_tests,
+            'failedTestsPercentage': self.failed_tests_percentage
+        }
+
 
 class TestCyclePages(EmbeddedDocument):
     apdex = FloatField(required=True)
@@ -302,6 +311,24 @@ class TestCyclePages(EmbeddedDocument):
     p90 = FloatField(required=True)
     p95 = FloatField(required=True)
 
+    def to_dict(self):
+        return {
+            "apdex": self.apdex,
+            "successfulPagesPerSecond": self.successful_pages_per_second,
+            "maxSuccessfulPagesPerSecond": self.maximum_successful_pages_per_second,
+            "totalRequests": self.total_pages,
+            "successfulRequests": self.successful_pages,
+            "failedRequests": self.failed_pages,
+            "failedRequestPercentage": (float(self.failed_pages) / self.total_pages) * 100,
+            "minimum": self.minimum,
+            "average": self.average,
+            "maximum": self.maximum,
+            "p10": self.p10,
+            "p50": self.p50,
+            "p90": self.p90,
+            "p95": self.p95
+        }
+
 
 class TestCycleRequests(EmbeddedDocument):
     apdex = FloatField(required=True)
@@ -319,6 +346,24 @@ class TestCycleRequests(EmbeddedDocument):
     p90 = FloatField(required=True)
     p95 = FloatField(required=True)
 
+    def to_dict(self):
+        return {
+            "apdex": self.apdex,
+            "successfulRequestsPerSecond": self.successful_requests_per_second,
+            "maxSuccessfulRequestsPerSecond": self.maximum_successful_requests_per_second,
+            "totalRequests": self.total_requests,
+            "successfulRequests": self.successful_requests,
+            "failedRequests": self.failed_requests,
+            "failedRequestPercentage": (float(self.failed_requests) / self.total_requests) * 100,
+            "minimum": self.minimum,
+            "average": self.average,
+            "maximum": self.maximum,
+            "p10": self.p10,
+            "p50": self.p50,
+            "p90": self.p90,
+            "p95": self.p95
+        }
+
 
 class TestCycle(EmbeddedDocument):
     cycle_number = IntField(required=True)
@@ -327,6 +372,15 @@ class TestCycle(EmbeddedDocument):
     test = EmbeddedDocumentField(TestCycleTests)
     page = EmbeddedDocumentField(TestCyclePages)
     request = EmbeddedDocumentField(TestCycleRequests)
+
+    def to_dict(self):
+        return {
+            "cycleNumber": self.cycle_number,
+            "concurrentUsers": self.concurrent_users,
+            "test": self.test.to_dict(),
+            "page": self.page.to_dict(),
+            "request": self.request.to_dict()
+        }
 
 
 class TestResult(EmbeddedDocument):
@@ -352,7 +406,8 @@ class TestResult(EmbeddedDocument):
             "requestMade": self.requests_made,
             "created": format_date_to_dict(self.date_created),
             "lastModified": format_date_to_dict(self.date_modified),
-            "config": self.config.to_dict()
+            "config": self.config.to_dict(),
+            "cycles": [cycle.to_dict() for cycle in self.cycles]
         }
 
     def clean(self):
