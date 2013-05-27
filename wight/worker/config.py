@@ -23,7 +23,8 @@ MINUTES = 60
 HOURS = 60 * MINUTES
 
 Config.define('CYCLES', [1, 20, 40, 60, 80, 100], 'The cycles to run in funkload.', 'Funkload')
-Config.define('CYCLE_DURATION', 3, 'The cycle duration to run in funkload.', 'Funkload')
+Config.define('CYCLE_DURATION', 30, 'The cycle duration to run in funkload.', 'Funkload')
+Config.define('WORKERS', [], 'The workers definition. Each worker should be defined as a dictionary with host, username and password.', 'Workers')
 
 Config.define('MONGO_HOST', '127.0.0.1', 'The host where the Mongo server is running.', 'DB')
 Config.define('MONGO_PORT', 7777, 'The port that the Mongo server is running.', 'DB')
@@ -36,7 +37,6 @@ Config.define('REDIS_PORT', 7780, 'The port that Redis server is running.', 'Cac
 Config.define('REDIS_DB_COUNT', 0, 'The number of redis db.', 'Cache')
 Config.define('REDIS_PASSWORD', '', 'The redis password', 'Cache')
 
-Config.define('WORKERS', [], 'The workers definition. Each worker should be defined as a dictionary with host, username and password.', 'Workers')
 
 #dsn_url = 'https://726638bb401e4b1580102d1699d07d3e:98c3b4ff108e402abe3ecd2d372e6bb3@app.getsentry.com/4140'
 #Config.define('USE_SENTRY', False, 'Should report error to getsentry.com.', 'Sentry')
