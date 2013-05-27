@@ -74,7 +74,7 @@ run: kill_app mongo redis
 api:
 	@python wight/api/server.py --port 2367 --bind 0.0.0.0 --conf ./wight/api/local.conf -vvv --debug
 
-worker:
+worker work:
 	@python wight/worker/__init__.py -vvv
 
 web: kill_app mongo redis

@@ -123,7 +123,11 @@ def main(args=None):
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
-    cfg = Config.load(abspath(expanduser(options.conf)))
+    if options.conf:
+        cfg = Config.load(abspath(expanduser(options.conf)))
+    else:
+        cfg = Config()
+
     conn = ResQ(server="%s:%s" % (cfg.REDIS_HOST, cfg.REDIS_PORT), password=cfg.REDIS_PASSWORD)
     conn.config = cfg
 
