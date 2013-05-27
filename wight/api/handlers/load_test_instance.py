@@ -1,9 +1,21 @@
-import tornado.web
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-from wight.api.handlers.base import BaseHandler
-from wight.models import LoadTest
+# wight load testing
+# https://github.com/heynemann/wight
+
+# Licensed under the MIT license:
+# http://www.opensource.org/licenses/mit-license
+# Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+
+from uuid import UUID
+
+import tornado.web
 from json import dumps
 from mongoengine import DoesNotExist
+
+from wight.models import LoadTest
+from wight.api.handlers.base import BaseHandler
 
 
 class LoadTestInstanceHandler(BaseHandler):
@@ -52,11 +64,15 @@ class LoadTestInstanceResultsHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self, test_uuid=None):
         try:
-            load_test = LoadTest.objects.get(uuid=test_uuid)
-
+            load_test = LoadTest.objects.get(uuid=UUID(test_uuid))
             self.set_status(200)
             self.write(load_test.to_dict())
         except DoesNotExist:
-            self.set_status(404)
+            try:
+                load_test = LoadTest.objects.get(results__uuid=UUID(test_uuid))
+                self.set_status(200)
+                self.write(load_test.to_dict())
+            except DoesNotExist:
+                self.set_status(404)
         finally:
             self.finish()

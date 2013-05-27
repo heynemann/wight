@@ -71,10 +71,6 @@ class UserData(object):
             return cls.from_dict(loads(serializable.read()))
 
 
-def get_uuid():
-    return str(uuid4())
-
-
 class User(Document):
     email = StringField(max_length=2000, unique=True, required=True)
     password = StringField(max_length=2000, required=True)
@@ -86,7 +82,7 @@ class User(Document):
 
     def clean(self):
         if self.salt is None:
-            self.salt = get_uuid()
+            self.salt = uuid4()
             # Make sure that password is hashed
             self.password = User.get_hash_for(self.salt, self.password)
 
@@ -98,7 +94,7 @@ class User(Document):
 
     def validate_token(self, expiration=2 * 60 * 24, generate=True):
         if generate:
-            self.token = get_uuid()
+            self.token = uuid4()
         self.token_expiration = datetime.datetime.now() + datetime.timedelta(minutes=expiration)
 
     @classmethod
@@ -334,7 +330,7 @@ class TestCycle(EmbeddedDocument):
 
 
 class TestResult(EmbeddedDocument):
-    uuid = UUIDField(required=True, default=uuid4())
+    uuid = UUIDField(required=True, default=uuid4)
     date_created = DateTimeField(default=datetime.datetime.now)
     date_modified = DateTimeField(default=datetime.datetime.now)
 

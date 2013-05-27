@@ -7,11 +7,15 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
-import six
+
+import sys
+import time
 from json import loads
 from datetime import datetime
 
+import six
 from cement.core import controller
+from cement.core.exc import CaughtSignal
 from prettytable import PrettyTable
 
 from wight.cli.base import WightBaseController, ConnectedController
@@ -197,6 +201,7 @@ class InstanceLoadTestController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            (['--track'], dict(help='Keep pinging the server until the test is finished.', action="store_true", default=False, required=False)),
             (['load_test_uuid'], dict(help='Load test uuid')),
         ]
 
@@ -205,23 +210,39 @@ class InstanceLoadTestController(WightBaseController):
     def default(self):
         self.load_conf()
         with ConnectedController(self):
-            url = '/load_tests/%s' % self.arguments.load_test_uuid
+            content = self._load_response()
 
-            response = self.get(url)
+            while self.arguments.track and not content['results']:
+                try:
+                    time.sleep(5)
+                    self.line_break()
+                    self.write("-" * 80)
+                    content = self._load_response()
+                except KeyboardInterrupt:
+                    sys.exit(1)
+                except CaughtSignal:
+                    sys.exit(1)
 
-            if response.status_code == 404:
-                return self.write("Load test %s doesn't exist" % self.arguments.load_test_uuid)
+    def _load_response(self):
+        url = '/load_tests/%s' % self.arguments.load_test_uuid
 
-            content = response.content
-            if isinstance(content, six.binary_type):
-                content = content.decode('utf-8')
-            content = loads(content)
+        response = self.get(url)
 
-            for result in content['results']:
-                result['requests_per_second'] = round(result['requests_per_second'], 2)
-                result['p95'] = round(result['p95'], 2)
+        if response.status_code == 404:
+            return self.write("Load test %s doesn't exist" % self.arguments.load_test_uuid)
 
-            self._print_response(content)
+        content = response.content
+        if isinstance(content, six.binary_type):
+            content = content.decode('utf-8')
+        content = loads(content)
+
+        for result in content['results']:
+            result['requests_per_second'] = round(result['requests_per_second'], 2)
+            result['p95'] = round(result['p95'], 2)
+
+        self._print_response(content)
+
+        return content
 
     def _print_response(self, load_test):
         self.line_break()
