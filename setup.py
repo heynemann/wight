@@ -65,7 +65,8 @@ wight is a load testing scheduling and tracking tool.
         'funkload',
         'pyres',
         'paramiko',
-        'virtualenv'
+        'virtualenv',
+        'sh',
     ],
     extras_require={
         'tests': tests_require,
