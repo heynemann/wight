@@ -399,13 +399,13 @@ class ShowResultController(WightBaseController):
             row = [
                 cycle['concurrentUsers'],
                 req['successfulRequests'],
-                "%.2f" % req['failedRequestPercentage'],
+                "%.2f%%" % req['failedRequestPercentage'],
                 "%.2f" % req['successfulRequestsPerSecond'],
-                "%.2f" % req['minimum'],
-                "%.2f" % req['average'],
-                "%.2f" % req['p90'],
-                "%.2f" % req['p95'],
-                "%.2f" % req['maximum']
+                "%.2fs" % req['minimum'],
+                "%.2fs" % req['average'],
+                "%.2fs" % req['p90'],
+                "%.2fs" % req['p95'],
+                "%.2fs" % req['maximum']
             ]
             table.add_row(row)
 
