@@ -81,5 +81,5 @@ class UserHandlerTest(FullTestCase):
         the_user = User.objects.filter(token=self.user.token).first()
         pass_hash = User.get_hash_for(the_user.salt, new_pass)
 
-        expect(str(the_user.salt)).to_equal(old_salt)
+        expect(str(the_user.salt)).to_equal(str(old_salt))
         expect(the_user.password).to_equal(old_pass_hash)

@@ -81,8 +81,13 @@ class LoadTestHandler(BaseHandler):
     def get(self, uuid):
         self.set_status(200)
         try:
-            test_result = LoadTest.get_test_result(uuid)
-            self.write(dumps(test_result.to_dict()))
+            load_test, test_result = LoadTest.get_test_result(uuid)
+            return_value = {
+                "result": test_result.to_dict(),
+                "createdBy": load_test.created_by.email,
+                "lastModified": load_test.date_modified.isoformat()[:19]
+            }
+            self.write(dumps(return_value))
         except DoesNotExist:
             load_test = LoadTest.objects(uuid=uuid)
             if not load_test.count():
@@ -116,7 +121,7 @@ class AuthLoadTestResultHandler(BaseHandler):
             return
 
         try:
-            test_result = LoadTest.get_test_result(result_uuid)
+            load_test, test_result = LoadTest.get_test_result(result_uuid)
             self.write(dumps(test_result.to_dict()))
             self.set_status(200)
         except DoesNotExist:

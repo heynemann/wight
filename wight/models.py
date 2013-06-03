@@ -693,4 +693,4 @@ class LoadTest(Document):
         load_test = load_test.first()
         for result in load_test.results:
             if str(result.uuid) == test_result_uuid:
-                return result
+                return load_test, result
