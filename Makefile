@@ -77,8 +77,7 @@ api:
 worker work:
 	@python wight/worker/__init__.py -vvv
 
-web: kill_app mongo redis
-	@sleep 3
+web:
 	@python wight/web/server.py --port 2368 --bind 0.0.0.0 --conf ./wight/api/local.conf -vvv --debug
 
 kill_app:

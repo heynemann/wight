@@ -264,7 +264,7 @@ class InstanceLoadTestController(WightBaseController):
             return
 
         if load_test["status"] == "Running":
-            dt = load_test['lastModified'].replace('T', '')
+            dt = load_test['lastModified'].replace('T', ' ')
             actual_date = datetime.strptime(load_test['lastModified'], "%Y-%m-%dT%H:%M:%S")
             dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
 
@@ -274,7 +274,7 @@ class InstanceLoadTestController(WightBaseController):
             ))
 
         if load_test["status"] == "Scheduled":
-            dt = load_test['created'].replace('T', '')
+            dt = load_test['created'].replace('T', ' ')
             actual_date = datetime.strptime(load_test['created'], "%Y-%m-%dT%H:%M:%S")
             dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
 

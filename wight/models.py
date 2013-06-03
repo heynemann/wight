@@ -94,7 +94,7 @@ class User(Document):
 
     def validate_token(self, expiration=2 * 60 * 24, generate=True):
         if generate:
-            self.token = uuid4()
+            self.token = str(uuid4())
         self.token_expiration = datetime.datetime.now() + datetime.timedelta(minutes=expiration)
 
     @classmethod
