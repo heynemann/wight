@@ -7,7 +7,6 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
-
 from preggy import expect
 
 from tests.acceptance.base import AcceptanceTest
@@ -146,57 +145,23 @@ class TestLoadTest(AcceptanceTest):
         load_test.save()
 
         result = self.execute("show", load_test.uuid)
-        expected_text = []
+        expected_text = [
+            result1.config.title,
+            result1.cycles[-1].concurrent_users,
+            result1.cycles[-1].request.successful_requests_per_second,
+            result1.cycles[-1].request.p95,
+            result1.cycles[-1].request.failed_requests,
+            result1.uuid,
 
-        expected_text.append(result1.config.title)
-        expected_text.append(result1.cycles[-1].concurrent_users)
-        expected_text.append(result1.cycles[-1].request.successful_requests_per_second)
-        expected_text.append(result1.cycles[-1].request.p95)
-        expected_text.append(result1.cycles[-1].request.failed_requests)
-        expected_text.append(result1.uuid)
-
-        expected_text.append(result2.config.title)
-        expected_text.append(result2.cycles[-1].concurrent_users)
-        expected_text.append(result2.cycles[-1].request.successful_requests_per_second)
-        expected_text.append(result2.cycles[-1].request.p95)
-        expected_text.append(result2.cycles[-1].request.failed_requests)
-        expected_text.append(result2.uuid)
-
-        expected_text.append(load_test.uuid)
-        expected_text.append(load_test.status)
+            result2.config.title,
+            result2.cycles[-1].concurrent_users,
+            result2.cycles[-1].request.successful_requests_per_second,
+            result2.cycles[-1].request.p95,
+            result2.cycles[-1].request.failed_requests,
+            result2.uuid,
+            load_test.uuid,
+            load_test.status
+        ]
 
         for expected in expected_text:
             expect(result).to_include(expected)
-
-    # def test_load_test_result(self):
-    #     team = TeamFactory.create(owner=self.user)
-    #     project = team.add_project("load-test-instace-acc-1", "repo", self.user)
-    #     load_test = LoadTestFactory.create(created_by=team.owner, team=team, project_name=project.name)
-    #     result1 = TestResultFactory.build()
-    #     result2 = TestResultFactory.build()
-    #     load_test.results.append(result1)
-    #     load_test.results.append(result2)
-    #     load_test.save()
-
-    #     result = self.execute("show-result", load_test.uuid)
-    #     expected_text = []
-
-    #     expected_text.append(result1.config.title)
-    #     expected_text.append(result1.cycles[-1].concurrent_users)
-    #     expected_text.append(result1.cycles[-1].request.successful_requests_per_second)
-    #     expected_text.append(result1.cycles[-1].request.p95)
-    #     expected_text.append(result1.cycles[-1].request.failed_requests)
-    #     expected_text.append(result1.uuid)
-
-    #     expected_text.append(result2.config.title)
-    #     expected_text.append(result2.cycles[-1].concurrent_users)
-    #     expected_text.append(result2.cycles[-1].request.successful_requests_per_second)
-    #     expected_text.append(result2.cycles[-1].request.p95)
-    #     expected_text.append(result2.cycles[-1].request.failed_requests)
-    #     expected_text.append(result2.uuid)
-
-    #     expected_text.append(load_test.uuid)
-    #     expected_text.append(load_test.status)
-
-    #     for expected in expected_text:
-    #         expect(result).to_include(expected)

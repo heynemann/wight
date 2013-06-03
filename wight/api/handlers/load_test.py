@@ -79,19 +79,18 @@ class AuthLoadTestHandler(BaseHandler):
 class LoadTestHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self, uuid):
+        self.set_status(200)
         try:
             test_result = LoadTest.get_test_result(uuid)
             self.write(dumps(test_result.to_dict()))
-            self.set_status(200)
-            return
         except DoesNotExist:
             load_test = LoadTest.objects(uuid=uuid)
             if not load_test.count():
                 self.set_status(404)
-                self.finish()
                 return
             self.write(dumps(load_test.first().to_dict()))
-        self.finish()
+        finally:
+            self.finish()
 
 
 class AuthLoadTestResultHandler(BaseHandler):

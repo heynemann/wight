@@ -14,6 +14,7 @@ print "Loading data..."
 ROOT_PATH = abspath(join(dirname(__file__), '..'))
 DEFAULT_CONFIG_PATH = join(ROOT_PATH, 'config', 'local.conf')
 
+
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
@@ -42,7 +43,7 @@ def main(args=None):
     project = team.projects[0]
     load_test = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
     load_test.results.append(TestResultFactory.build())
-
+    load_test.save()
     print "load test: %s" % load_test.uuid
     print "test result: %s" % load_test.results[0].uuid
 

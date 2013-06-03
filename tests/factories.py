@@ -126,10 +126,10 @@ class TestCyclePagesFactory(factory.Factory):
     FACTORY_FOR = TestCyclePages
     apdex = .7
 
-    total_pages = factory.LazyAttributeSequence(lambda cycle, i: 100 * i)
-    successful_pages_per_second = factory.LazyAttributeSequence(lambda cycle, i: i)
+    total_pages = factory.LazyAttributeSequence(lambda cycle, i: 100 * (i + 1))
+    successful_pages_per_second = factory.LazyAttributeSequence(lambda cycle, i: i + 1)
 
-    maximum_successful_pages_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * i)
+    maximum_successful_pages_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * (i + 1))
 
     successful_pages = factory.LazyAttributeSequence(lambda cycle, i: cycle.total_pages / 7)
     failed_pages = factory.LazyAttributeSequence(lambda cycle, i: cycle.total_pages - cycle.successful_pages)
@@ -148,10 +148,10 @@ class TestCycleRequestsFactory(factory.Factory):
 
     apdex = .7
 
-    successful_requests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * i)
-    maximum_successful_requests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * i)
-    successful_requests = factory.LazyAttributeSequence(lambda cycle, i: 100 * i)
-    failed_requests = factory.LazyAttributeSequence(lambda cycle, i: 10 * i)
+    successful_requests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * (i + 1))
+    maximum_successful_requests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * (i + 1))
+    successful_requests = factory.LazyAttributeSequence(lambda cycle, i: 100 * (i + 1))
+    failed_requests = factory.LazyAttributeSequence(lambda cycle, i: 10 * (i + 1))
     total_requests = factory.LazyAttribute(lambda c: c.successful_requests + c.failed_requests)
 
     minimum = .2
