@@ -26,19 +26,24 @@ class ReportHandler(BaseHandler):
 
     @tornado.web.asynchronous
     def get(self, uuid):
-        tests = requests.get("http://0.0.0.0:2367/load-tests/%s/" % uuid)
+        api_result = requests.get("http://0.0.0.0:2367/load-tests/%s/" % uuid)
         report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         kwargs = {
             "test": None,
             "report_date": report_date,
             "uuid": uuid
         }
-        if tests.status_code == 200:
+        if api_result.status_code == 200:
             has_diff = False
-            result = loads(tests.content)
-            result = result if "cycles" in result else result["results"][0]
+            api_content = loads(api_result.content)
+            if "result" in api_content:
+                test = api_content["result"]
+            else:
+                test = api_content["results"][0]
             kwargs.update({
-                "test": result,
+                "createdBy": api_content["createdBy"],
+                "runAt": api_content["lastModified"],
+                "test": test,
                 "format_date": format_date,
                 "has_diff": has_diff
             })

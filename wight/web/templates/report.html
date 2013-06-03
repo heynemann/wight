@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Report #123912932 - 10/10/2010 18:20 - Wight v0.1.0{% end %}
+
+{% block title %}Report {% if test %}#{{ uuid }} - {{ format_date(runAt) }}{% else %}Not Found{% end %} - Wight v0.1.0{% end %}
 
 {% block contents %}
 <div class="container">
@@ -8,7 +9,7 @@
     <div class="hero-unit">
         <h1>{{ test["config"]["title"] }}</h1>
         <p>{{ test["config"]["description"] }}</p>
-        <p><small>This report details the test run at <span class="text-info">10/10/2012 10:10:10</span>, scheduled by user <span class="text-info">heynemann@gmail.com</span>.</small></p>
+        <p><small>This report details the test run at <span class="text-info">{{ format_date(runAt) }}</span>, scheduled by user <span class="text-info">{{ createdBy }}</span>.</small></p>
         <div class="toolbar">
             <div><a href="/report/{{ uuid }}"><i class="icon-file"></i>Permalink for this test</a></div>
             {% if has_diff %}
