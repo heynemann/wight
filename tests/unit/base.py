@@ -145,3 +145,7 @@ class ModelTestCase(PythonTestCase):
 
 class FullTestCase(ApiTestCase, TestCase, ModelTestCase):
     pass
+
+
+class WorkerTestCase(PythonTestCase):
+    pass

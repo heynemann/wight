@@ -92,7 +92,10 @@ hosts = %s
 [worker_%s]
 host = %s
 username = %s
-password = %s
-                    """.strip() % (index, worker['host'], worker['user'], worker['password']))
+                    """.strip() % (index, worker['host'], worker['user']))
+                    if 'password' in worker:
+                        workers.append('password = %s' % worker['password'])
+                    if 'ssh_key' in worker:
+                        workers.append('ssh_key = %s' % worker['ssh_key'])
 
                 conf_file.write("\n".join(workers))
