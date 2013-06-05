@@ -64,7 +64,9 @@ class TestCreateProjectController(ProjectControllerTestBase):
         response = Mock(status_code=200)
         post_mock.return_value = response
         self.ctrl.default()
-        write_mock.assert_called_with("Created '%s' project in '%s' team at 'Target'." % (self.controller_kwargs['project'], self.controller_kwargs['team']))
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(
+            "Created '%s' project in '%s' team at 'Target'." % (self.controller_kwargs['project'], self.controller_kwargs['team'])
+        )
 
     @patch.object(CreateProjectController, 'post')
     @patch.object(CreateProjectController, 'write')
@@ -80,7 +82,9 @@ class TestCreateProjectController(ProjectControllerTestBase):
         response = Mock(status_code=409)
         post_mock.return_value = response
         self.ctrl.default()
-        write_mock.assert_called_with("The project '%s' already exists in team '%s' at 'Target'." % (self.controller_kwargs['project'], self.controller_kwargs['team']))
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(
+            "The project '%s' already exists in team '%s' at 'Target'." % (self.controller_kwargs['project'], self.controller_kwargs['team'])
+        )
 
     @patch.object(CreateProjectController, 'post')
     @patch.object(CreateProjectController, 'write')
@@ -88,7 +92,9 @@ class TestCreateProjectController(ProjectControllerTestBase):
         response = Mock(status_code=400)
         post_mock.return_value = response
         self.ctrl.default()
-        write_mock.assert_called_with("Both name and repository are required in order to save a team.")
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(
+            "Both name and repository are required in order to save a team."
+        )
 
 
 class TestUpdateProjectController(ProjectControllerTestBase):

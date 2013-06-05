@@ -36,21 +36,40 @@ class CreateProjectController(WightBaseController):
         name = self.arguments.project
         repo = self.arguments.repo
 
-        log_message = "Created '%s' project in '%s' team at '%s'." % (name, team_name, target)
         with ConnectedController(self):
             response = self.post("/teams/%s/projects/" % team_name, {"name": name, "repository": repo})
+            self.line_break()
             if response.status_code == 200:
-                self.log.info(log_message)
-                self.write(log_message)
+                self.putsuccess("Created '%s%s%s' project in '%s%s%s' team at '%s%s%s'." % (
+                    self.keyword_color, name, self.reset_success,
+                    self.keyword_color, team_name, self.reset_success,
+                    self.keyword_color, target, self.reset_success
+                ))
+                self.line_break()
                 return
             elif response.status_code == 409:
-                self.write("The project '%s' already exists in team '%s' at '%s'." % (name, team_name, target))
+                self.puterror(
+                    "The project '%s%s%s' already exists in team '%s%s%s' at '%s%s%s'." % (
+                        self.keyword_color, name, self.reset_error,
+                        self.keyword_color, team_name, self.reset_error,
+                        self.keyword_color, target, self.reset_error,
+                    )
+                )
+                self.line_break()
                 return
             elif response.status_code == 400:
-                self.write("Both name and repository are required in order to save a team.")
+                self.puterror("Both name and repository are required in order to save a team.")
+                self.line_break()
                 return
 
-            self.write("The project '%s' was not created! (API Result: '%s', Status Code: '%s'" % (name, response.content, response.status_code))
+            self.puterror(
+                "The project '%s%s%s' was not created! (API Result: '%s%s%s', Status Code: '%s%s%s')." % (
+                    self.keyword_color, name, self.reset_error,
+                    self.keyword_color, response.content, self.reset_error,
+                    self.keyword_color, response.status_code, self.reset_error,
+                )
+            )
+            self.line_break()
 
 
 class UpdateProjectController(WightBaseController):
