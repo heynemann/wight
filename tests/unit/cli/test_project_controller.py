@@ -39,7 +39,7 @@ class TestCreateProjectController(ProjectControllerTestBase):
         self.project_id += 1
 
         self.team = TeamFactory.create()
-        self.controller_kwargs = {"team": self.team.name, "project_name": "project-%d" % self.project_id, "repo": "repo"}
+        self.controller_kwargs = {"team": self.team.name, "project": "project-%d" % self.project_id, "repo": "repo"}
         self.controller_class = CreateProjectController
         super(TestCreateProjectController, self).setUp()
 
@@ -56,7 +56,7 @@ class TestCreateProjectController(ProjectControllerTestBase):
     @patch.object(CreateProjectController, 'post')
     def test_create_project(self, post_mock):
         self.ctrl.default()
-        post_mock.assert_called_with('/teams/%s/projects/' % self.controller_kwargs['team'], {'name': self.controller_kwargs['project_name'], 'repository': self.controller_kwargs['repo']})
+        post_mock.assert_called_with('/teams/%s/projects/' % self.controller_kwargs['team'], {'name': self.controller_kwargs['project'], 'repository': self.controller_kwargs['repo']})
 
     @patch.object(CreateProjectController, 'post')
     @patch.object(CreateProjectController, 'write')
@@ -64,7 +64,7 @@ class TestCreateProjectController(ProjectControllerTestBase):
         response = Mock(status_code=200)
         post_mock.return_value = response
         self.ctrl.default()
-        write_mock.assert_called_with("Created '%s' project in '%s' team at 'Target'." % (self.controller_kwargs['project_name'], self.controller_kwargs['team']))
+        write_mock.assert_called_with("Created '%s' project in '%s' team at 'Target'." % (self.controller_kwargs['project'], self.controller_kwargs['team']))
 
     @patch.object(CreateProjectController, 'post')
     @patch.object(CreateProjectController, 'write')
@@ -80,7 +80,7 @@ class TestCreateProjectController(ProjectControllerTestBase):
         response = Mock(status_code=409)
         post_mock.return_value = response
         self.ctrl.default()
-        write_mock.assert_called_with("The project '%s' already exists in team '%s' at 'Target'." % (self.controller_kwargs['project_name'], self.controller_kwargs['team']))
+        write_mock.assert_called_with("The project '%s' already exists in team '%s' at 'Target'." % (self.controller_kwargs['project'], self.controller_kwargs['team']))
 
     @patch.object(CreateProjectController, 'post')
     @patch.object(CreateProjectController, 'write')

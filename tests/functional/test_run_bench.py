@@ -40,12 +40,11 @@ class TestCanRunFunkloadBench(FunkLoadBaseTest):
 
         expect(fl_result.log).to_be_empty()
 
-        expect(fl_result.xml).not_to_be_null()
         expect(fl_result.result).not_to_be_null()
         expect(fl_result.config).not_to_be_null()
 
         result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
 
-        load_test.add_result(result, xml=fl_result.xml, log=fl_result.text)
+        load_test.add_result(result, fl_result.text)
 
         expect(load_test.results).to_length(1)

@@ -23,7 +23,7 @@ class CreateProjectController(WightBaseController):
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
             (['--team'], dict(help='Name of the team that owns this project.', required=True)),
-            (['--project_name'], dict(help='Name of the project.', required=True)),
+            (['--project'], dict(help='Name of the project.', required=True)),
             (['--repo'], dict(help='Git repository for this project.', required=True)),
         ]
 
@@ -33,7 +33,7 @@ class CreateProjectController(WightBaseController):
         self.load_conf()
         target = self.app.user_data.target
         team_name = self.arguments.team
-        name = self.arguments.project_name
+        name = self.arguments.project
         repo = self.arguments.repo
 
         log_message = "Created '%s' project in '%s' team at '%s'." % (name, team_name, target)

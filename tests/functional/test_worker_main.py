@@ -38,6 +38,5 @@ class TestWorkerMain(FunkLoadBaseTest):
 
         expect(loaded.results).to_length(1)
 
-        expect(loaded.results[0].xml).not_to_be_null()
         expect(loaded.results[0].log).not_to_be_null()
         expect(loaded.results[0].status).to_equal("Successful")

@@ -54,7 +54,6 @@ class TestCanRunFunkloadTest(FunkLoadBaseTest):
         DEBUG test_healthcheck:  Done in
         """)
 
-        expect(result.xml).not_to_be_null()
 
     def test_can_report_failure(self):
         test_path = join(root_path, 'tests', 'functional')
