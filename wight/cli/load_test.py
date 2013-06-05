@@ -30,9 +30,9 @@ class ScheduleLoadTestController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['--base_url'], dict(help='The base url to run the load test against', required=True)),
-            (['--team_name'], dict(help='The name of the team that owns the project to schedule a load test', required=True)),
-            (['--project_name'], dict(help='The name of the project to schedule a load test', required=True)),
+            (['--url'], dict(help='The base url to run the load test against', required=True)),
+            (['--team'], dict(help='The name of the team that owns the project to schedule a load test', required=True)),
+            (['--project'], dict(help='The name of the project to schedule a load test', required=True)),
         ]
 
     @controller.expose(hide=False, aliases=["schedule"], help='Schedules a new load test.')
@@ -40,9 +40,9 @@ class ScheduleLoadTestController(WightBaseController):
     def default(self):
         self.load_conf()
         target = self.app.user_data.target
-        team_name = self.arguments.team_name
-        project_name = self.arguments.project_name
-        base_url = self.arguments.base_url
+        team_name = self.arguments.team
+        project_name = self.arguments.project
+        base_url = self.arguments.url
 
         log_message = "Scheduled a new load test for project '%s%s%s' in team '%s%s%s' at '%s%s%s' target." % (
             self.keyword_color, project_name, self.reset_success,

@@ -144,7 +144,7 @@ class LoadTestControllerTestBase(TestCase):
 
 class LoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team_name": "nameless", "project_name": "project", "base_url": "http://www.globo.com"}
+        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com"}
         self.controller_class = ScheduleLoadTestController
         super(LoadTestControllerTest, self).setUp()
 
