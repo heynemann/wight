@@ -15,7 +15,7 @@ from preggy import expect
 import six
 
 from tests.unit.base import FullTestCase
-from tests.factories import TeamFactory, UserFactory, LoadTestFactory, TestResultFactory
+from tests.factories import TeamFactory, UserFactory, LoadTestFactory, TestResultFactory, TestConfigurationFactory
 
 
 class ShowLoadTestResultTest(FullTestCase):
@@ -32,24 +32,24 @@ class ShowLoadTestResultTest(FullTestCase):
 
     def test_get_return_200_if_not_authenticated(self):
         self.user = None
-        url = "/load-tests/%s" % self.load_test.uuid
+        url = "/load-test-result/%s" % self.load_test.uuid
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)
 
     def test_get_return_200_if_not_team_owner(self):
         user = UserFactory.create(with_token=True)
         team = TeamFactory.create(owner=user)
-        url = "/load-tests/%s" % self.load_test.uuid
+        url = "/load-test-result/%s" % self.load_test.uuid
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)
 
     def test_get_should_return_200_if_no_errors(self):
-        url = "/load-tests/%s" % self.load_test.uuid
+        url = "/load-test-result/%s" % self.load_test.uuid
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)
 
     def test_get_should_be_a_json(self):
-        url = "/load-tests/%s" % self.load_test.uuid
+        url = "/load-test-result/%s" % self.load_test.uuid
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(200)
         obj = response.body
@@ -61,34 +61,74 @@ class ShowLoadTestResultTest(FullTestCase):
         except ValueError:
             raise AssertionError("Should be possible to load a json from response")
 
-    # def test_get_should_be_a_equal_to_result_dict(self):
-    #     url = "/teams/%s/projects/%s/load-tests/%s/results/%s" % (
-    #         self.team.name, self.project.name, self.load_test.uuid, self.result.uuid
-    #     )
-    #     response = self.fetch_with_headers(url)
-    #     expect(response.code).to_equal(200)
-    #     obj = response.body
-    #     if isinstance(obj, six.binary_type):
-    #         obj = obj.decode('utf-8')
-    #     expect(loads(obj)).to_be_like(self.result.to_dict())
-    #
-    # def test_should_return_404_if_project_not_in_team(self):
-    #     url = "/teams/%s/projects/whatever/load-tests/%s/results/whatever" % (
-    #         self.team.name, self.load_test.uuid
-    #     )
-    #     response = self.fetch_with_headers(url)
-    #     expect(response.code).to_equal(404)
-    #
-    # def test_should_return_404_if_load_test_not_in_project(self):
-    #     url = "/teams/%s/projects/%s/load-tests/whatever/results/whatever" % (
-    #         self.team.name, self.project.name
-    #     )
-    #     response = self.fetch_with_headers(url)
-    #     expect(response.code).to_equal(404)
-    #
-    # def test_should_return_404_if_test_result_not_in_load_test(self):
-    #     url = "/teams/%s/projects/%s/load-tests/%s/results/%s" % (
-    #         self.team.name, self.project.name, self.load_test.uuid, uuid4()
-    #     )
-    #     response = self.fetch_with_headers(url)
-    #     expect(response.code).to_equal(404)
+    def test_should_get_404_if_no_test_result(self):
+        url = "/load-test-result/%s" % uuid4()
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(404)
+
+
+class ShowLoadLastTestResultTest(FullTestCase):
+    def setUp(self):
+        super(ShowLoadLastTestResultTest, self).setUp()
+        self.user = UserFactory.create(with_token=True)
+        self.team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_projects(self.team, 1)
+        self.project = self.team.projects[0]
+        self.load_test = LoadTestFactory.create(created_by=self.user, team=self.team, project_name=self.project.name)
+        self.load_test.results.append(TestResultFactory.build())
+        self.load_test.save()
+        self.result = self.load_test.results[0]
+
+    def test_get_return_200_if_not_authenticated(self):
+        self.user = None
+        url = "/load-test-result/%s/last/" % self.result.uuid
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+    def test_get_return_200_if_not_team_owner(self):
+        user = UserFactory.create(with_token=True)
+        TeamFactory.create(owner=user)
+        url = "/load-test-result/%s/last/" % self.result.uuid
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+    def test_get_should_return_200_if_no_errors(self):
+        url = "/load-test-result/%s/last/" % self.result.uuid
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+    def test_get_should_be_a_json(self):
+        url = "/load-test-result/%s/last/" % self.result.uuid
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+        obj = response.body
+        if isinstance(obj, six.binary_type):
+            obj = obj.decode('utf-8')
+        try:
+            loads(obj)
+            assert True
+        except ValueError:
+            raise AssertionError("Should be possible to load a json from response")
+
+    def test_get_should_be_equal_last_result_to_dict(self):
+        config = TestConfigurationFactory.build()
+        self.load_test.results.append(TestResultFactory.build(config=config))
+        self.load_test.results.append(TestResultFactory.build())
+        self.load_test.save()
+        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        load_test2.results.append(TestResultFactory.build())
+        load_test2.results.append(TestResultFactory.build(config=config))
+        load_test2.save()
+
+        result1 = self.load_test.results[1]
+        result2 = load_test2.results[1]
+
+        url = "/load-test-result/%s/last/" % result2.uuid
+        response = self.fetch_with_headers(url)
+        result = loads(response.body)
+        expect(result["uuid"]).to_equal(str(result1.uuid))
+
+    def test_should_get_404_if_no_test_result(self):
+        url = "/load-test-result/%s/last/" % uuid4()
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(404)

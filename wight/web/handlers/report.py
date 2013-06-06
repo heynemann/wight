@@ -26,7 +26,7 @@ class ReportHandler(BaseHandler):
 
     @tornado.web.asynchronous
     def get(self, uuid):
-        api_result = requests.get("http://0.0.0.0:2367/load-tests/%s/" % uuid)
+        api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/" % uuid)
         report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         kwargs = {
             "test": None,

@@ -709,3 +709,4 @@ class LoadTest(Document):
                     result.config.test_name == test_result.config.test_name):
                     return result
 
+        return None

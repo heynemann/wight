@@ -76,28 +76,6 @@ class AuthLoadTestHandler(BaseHandler):
         self.finish()
 
 
-class LoadTestHandler(BaseHandler):
-    @tornado.web.asynchronous
-    def get(self, uuid):
-        self.set_status(200)
-        try:
-            load_test, test_result = LoadTest.get_test_result(uuid)
-            return_value = {
-                "result": test_result.to_dict(),
-                "createdBy": load_test.created_by.email,
-                "lastModified": load_test.date_modified.isoformat()[:19]
-            }
-            self.write(dumps(return_value))
-        except DoesNotExist:
-            load_test = LoadTest.objects(uuid=uuid)
-            if not load_test.count():
-                self.set_status(404)
-                return
-            self.write(dumps(load_test.first().to_dict()))
-        finally:
-            self.finish()
-
-
 class AuthLoadTestResultHandler(BaseHandler):
 
     @tornado.web.asynchronous
@@ -127,3 +105,40 @@ class AuthLoadTestResultHandler(BaseHandler):
         except DoesNotExist:
             self.set_status(404)
         self.finish()
+
+
+class LoadTestHandler(BaseHandler):
+    @tornado.web.asynchronous
+    def get(self, uuid):
+        self.set_status(200)
+        try:
+            load_test, test_result = LoadTest.get_test_result(uuid)
+            return_value = {
+                "result": test_result.to_dict(),
+                "createdBy": load_test.created_by.email,
+                "lastModified": load_test.date_modified.isoformat()[:19]
+            }
+            self.write(dumps(return_value))
+        except DoesNotExist:
+            load_test = LoadTest.objects(uuid=uuid)
+            if not load_test.count():
+                self.set_status(404)
+                return
+            self.write(dumps(load_test.first().to_dict()))
+        finally:
+            self.finish()
+
+
+class LastLoadTestHandler(BaseHandler):
+    @tornado.web.asynchronous
+    def get(self, uuid):
+        self.set_status(200)
+        try:
+            last_result = LoadTest.get_last_result_for(uuid)
+            return_value = last_result.to_dict() if last_result else {"uuid": None}
+            self.write(dumps(return_value))
+        except DoesNotExist:
+            self.set_status(404)
+            return
+        finally:
+            self.finish()

@@ -26,7 +26,7 @@ from wight.api.handlers.authentication import AuthenticationHandler, Authenticat
 from wight.api.handlers.team import TeamHandler, TeamMembersHandler
 from wight.api.handlers.project import ProjectHandler
 from wight.api.handlers.user import UserHandler, UserPasswordHandler
-from wight.api.handlers.load_test import AuthLoadTestHandler, AuthLoadTestResultHandler, LoadTestHandler
+from wight.api.handlers.load_test import AuthLoadTestHandler, AuthLoadTestResultHandler, LoadTestHandler, LastLoadTestHandler
 from wight.api.handlers.load_test_instance import LoadTestInstanceHandler, LoadTestInstanceResultsHandler
 
 #class FakeSentry(object):
@@ -59,11 +59,8 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)?', ProjectHandler, name='team_projects'),
         url(r'/teams/(?P<team_name>.+?)/members/?', TeamMembersHandler, name='team_members'),
         url(r'/teams/?(?P<team_name>.+?)?', TeamHandler, name='team'),
-        url(
-            r'/load-tests/(?P<uuid>.+?)/?',
-            LoadTestHandler,
-            name='load_test_result'
-        ),
+        url(r'/load-test-result/(?P<uuid>.+?)/last/?', LastLoadTestHandler, name='load_test_result'),
+        url(r'/load-test-result/(?P<uuid>.+?)/?', LoadTestHandler, name='load_test_result'),
         url(r'/user/info/?(.+?)?', UserHandler, name='user_info'),
         url(r'/user/change-pass/?', UserPasswordHandler, name='change_password'),
     ]
