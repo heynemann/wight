@@ -12,7 +12,7 @@ from json import loads
 from cement.core import controller
 from prettytable import PrettyTable
 
-from wight.cli.base import WightBaseController, ConnectedController
+from wight.cli.base import WightBaseController, connected_controller
 
 
 class ShowUserController(WightBaseController):
@@ -30,7 +30,7 @@ class ShowUserController(WightBaseController):
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.get("/user/info")
             if response.status_code == 200:
                 content = response.content
@@ -71,7 +71,7 @@ class ChangePasswordController(WightBaseController):
             self.line_break()
             return
 
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.post("/user/change-pass", data={"old_pass":old_pass,"new_pass":new_pass})
 
             if response.status_code == 403:

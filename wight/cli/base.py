@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from contextlib import contextmanager
 
 import sys
 from os.path import exists, join
@@ -196,26 +197,21 @@ Wight version %s
         self.app.args.print_help()
 
 
-class ConnectedController():
-    def __init__(self, controller):
-        self.controller = controller
-
-    def __enter__(self):
-        if self.controller.app.user_data is None:
-            raise RuntimeError("Need to set target before trying to access api")
-        url = join(self.controller.app.user_data.target.rstrip('/'), 'healthcheck')
-        requests.get(url)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type and exc_type == requests.ConnectionError:
-            ex = exc_val
-            self.controller.log.error(ex)
-            target = self.controller.app.user_data.target
-
-            self.controller.line_break()
-            self.controller.puterror("The server did not respond. Check your connection with the target '%s%s%s'." % (
-                self.controller.keyword_color, target, self.controller.reset_error
-            ))
-            self.controller.line_break()
-
-            return True
+@contextmanager
+def connected_controller(controller):
+    if not controller.app.user_data or not controller.app.user_data.target:
+        controller.line_break()
+        controller.puterror("You need to set the target to use wight. Use '%swight target-set %s<url of target>%s' to login." % (
+            controller.commands_color, controller.keyword_color, controller.reset_error
+        ))
+        controller.line_break()
+        sys.exit(0)
+    try:
+        yield
+    except requests.exceptions.ConnectionError:
+        target = controller.app.user_data.target
+        controller.line_break()
+        controller.puterror("The server did not respond. Check your connection with the target '%s%s%s'." % (
+             controller.keyword_color, target, controller.reset_error
+        ))
+        controller.line_break()

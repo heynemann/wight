@@ -10,6 +10,7 @@
 
 import os
 from os.path import exists
+import sys
 
 try:
     from StringIO import StringIO
@@ -64,12 +65,17 @@ class AuthControllerTestCase(FullTestCase):
                 self.expected = message
 
         write_mock.side_effect = assert_written
+
         wightApp = WightApp()
         ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), app=wightApp)
 
-        expect(ctrl.default()).to_be_false()
+        try:
+            expect(ctrl.default()).to_be_false()
+            assert False, "Should have called sys.exit(0)"
+        except SystemExit:
+            assert True
 
-        expected = "Wight target not set. Please use 'wight target-set <url of target>' to specify the api target to be used."
+        expected = "You need to set the target to use wight. Use 'wight target-set <url of target>' to login."
         expect(self.expected).to_be_like(expected)
 
     @mock.patch('sys.stdout', new_callable=StringIO)

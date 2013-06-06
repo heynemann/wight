@@ -10,7 +10,7 @@
 
 from cement.core import controller
 
-from wight.cli.base import WightBaseController, ConnectedController
+from wight.cli.base import WightBaseController, connected_controller
 
 
 class CreateProjectController(WightBaseController):
@@ -36,7 +36,7 @@ class CreateProjectController(WightBaseController):
         name = self.arguments.project
         repo = self.arguments.repo
 
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.post("/teams/%s/projects/" % team_name, {"name": name, "repository": repo})
             self.line_break()
             if response.status_code == 200:
@@ -97,7 +97,7 @@ class UpdateProjectController(WightBaseController):
         name = self.arguments.project_name
         repo = self.arguments.repo
 
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.put("/teams/%s/projects/%s" % (team_name, project_name), {"name": name, "repository": repo})
             self.line_break()
             if response.status_code == 200:
@@ -162,7 +162,7 @@ class DeleteProjectController(WightBaseController):
             self.keyword_color, team_name, self.reset_error,
             self.keyword_color, target, self.reset_error
         )
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.delete("/teams/%s/projects/%s" % (team_name, project_name))
             self.line_break()
             if response.status_code == 200:

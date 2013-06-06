@@ -10,7 +10,7 @@
 
 from cement.core import controller
 
-from wight.cli.base import WightBaseController, ConnectedController
+from wight.cli.base import WightBaseController, connected_controller
 
 
 class AuthController(WightBaseController):
@@ -27,39 +27,30 @@ class AuthController(WightBaseController):
 
     @controller.expose(hide=True, help='Log-in to wight (or register if user not found).')
     def default(self):
-        if not self.app.user_data or not self.app.user_data.target:
-            message = "Wight target not set. Please use '%swight target-set %s<url of target>%s'" + \
-                " to specify the api target to be used."
+        with connected_controller(self):
+            self.log.info("Authenticating with %s." % self.app.user_data.target)
 
-            self.line_break()
-            self.puterror(message % (self.commands_color, self.keyword_color, self.reset_error))
-            self.line_break()
-            return False
+            email = self.arguments.email
+            if email is None:
+                self.line_break()
+                email = self.ask_for("%sPlease enter the %se-mail%s to authenticate with:" % (
+                    self.reset, self.keyword_color, self.reset)
+                )
 
-        self.log.info("Authenticating with %s." % self.app.user_data.target)
+            if not email:
+                self.abort()
+                return False
 
-        email = self.arguments.email
-        if email is None:
-            self.line_break()
-            email = self.ask_for("%sPlease enter the %se-mail%s to authenticate with:" % (
-                self.reset, self.keyword_color, self.reset)
-            )
+            password = self.arguments.password
+            if password is None:
+                password = self.get_pass("%sPlease enter the %spassword%s to authenticate with (nothing will be displayed):" % (
+                    self.reset, self.keyword_color, self.reset)
+                )
 
-        if not email:
-            self.abort()
-            return False
+            if not password:
+                self.abort()
+                return False
 
-        password = self.arguments.password
-        if password is None:
-            password = self.get_pass("%sPlease enter the %spassword%s to authenticate with (nothing will be displayed):" % (
-                self.reset, self.keyword_color, self.reset)
-            )
-
-        if not password:
-            self.abort()
-            return False
-
-        with ConnectedController(self):
             response = self.get("/auth/user", headers={
                 'email': email,
                 'password': password

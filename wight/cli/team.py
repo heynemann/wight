@@ -15,7 +15,7 @@ import six
 from cement.core import controller
 from prettytable import PrettyTable
 
-from wight.cli.base import WightBaseController, ConnectedController
+from wight.cli.base import WightBaseController, connected_controller
 
 
 class CreateTeamController(WightBaseController):
@@ -42,7 +42,7 @@ class CreateTeamController(WightBaseController):
             self.keyword_color, target, self.reset_success
         )
 
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.post("/teams", {"name": name})
 
             self.line_break()
@@ -108,7 +108,7 @@ class ShowTeamController(WightBaseController):
         self.load_conf()
         target = self.app.user_data.target
         name = self.arguments.team_name
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.get("/teams/%s" % name)
             if response.status_code == 200:
                 self.line_break()
@@ -167,7 +167,7 @@ class UpdateTeamController(WightBaseController):
             self.keyword_color, target, self.reset_success
         )
 
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.put("/teams/%s" % name, {"name": new_name})
 
             self.line_break()
@@ -216,7 +216,7 @@ class DeleteTeamController(WightBaseController):
             self.write("Operation aborted...")
             return
         log_message = "Deleted '%s' team, all its projects and tests in '%s' target." % (name, target)
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.delete("/teams/%s" % name)
             if response.status_code == 200:
                 self.log.info(log_message)
@@ -248,7 +248,7 @@ class TeamAddUserController(WightBaseController):
         name = self.arguments.team_name
         user_email = self.arguments.user_email
 
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.patch("/teams/%s/members" % name, {"user": user_email})
 
             self.line_break()
@@ -296,7 +296,7 @@ class TeamRemoveUserController(WightBaseController):
         name = self.arguments.team_name
         user_email = self.arguments.user_email
 
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.delete("/teams/%s/members" % name, {"user": user_email})
 
             self.line_break()

@@ -18,7 +18,7 @@ from cement.core import controller
 from cement.core.exc import CaughtSignal
 from prettytable import PrettyTable
 
-from wight.cli.base import WightBaseController, ConnectedController
+from wight.cli.base import WightBaseController, connected_controller
 
 
 class ScheduleLoadTestController(WightBaseController):
@@ -50,7 +50,7 @@ class ScheduleLoadTestController(WightBaseController):
             self.keyword_color, target, self.reset_success
         )
 
-        with ConnectedController(self):
+        with connected_controller(self):
             response = self.post("/teams/%(team_name)s/projects/%(project_name)s/load_tests/" % {
                 "team_name": team_name,
                 "project_name": project_name
@@ -89,7 +89,7 @@ class ListLoadTestController(WightBaseController):
         self.load_conf()
         team_name = self.arguments.team
         teams_names = []
-        with ConnectedController(self):
+        with connected_controller(self):
             if team_name:
                 teams_names.append(team_name)
             else:
@@ -210,7 +210,7 @@ class InstanceLoadTestController(WightBaseController):
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
-        with ConnectedController(self):
+        with connected_controller(self):
             content = self._load_response()
 
             while self.arguments.track and not content['results']:
@@ -333,7 +333,7 @@ class ShowResultController(WightBaseController):
     @WightBaseController.authenticated
     def default(self):
         self.load_conf()
-        with ConnectedController(self):
+        with connected_controller(self):
             url = '/load_tests/%s/results/' % self.arguments.load_test_uuid
 
             response = self.get(url)
