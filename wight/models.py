@@ -399,6 +399,7 @@ class TestResult(EmbeddedDocument):
     cycles = ListField(EmbeddedDocumentField(TestCycle))
 
     def to_dict(self):
+        cycles_sorted = sorted(self.cycles, key=lambda cycle: cycle.cycle_number)
         return {
             "uuid": str(self.uuid),
             "testExecuted": self.tests_executed,
@@ -407,7 +408,7 @@ class TestResult(EmbeddedDocument):
             "created": format_date_to_dict(self.date_created),
             "lastModified": format_date_to_dict(self.date_modified),
             "config": self.config.to_dict(),
-            "cycles": [cycle.to_dict() for cycle in self.cycles]
+            "cycles": [cycle.to_dict() for cycle in cycles_sorted]
         }
 
     def clean(self):
