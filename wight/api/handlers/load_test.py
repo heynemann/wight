@@ -135,10 +135,11 @@ class LastLoadTestHandler(BaseHandler):
         self.set_status(200)
         try:
             last_result = LoadTest.get_last_result_for(uuid)
-            return_value = last_result.to_dict() if last_result else {"uuid": None}
-            self.write(dumps(return_value))
+            if last_result:
+                self.write(dumps(last_result.to_dict()))
+            else:
+                self.set_status(404)
         except DoesNotExist:
             self.set_status(404)
-            return
         finally:
             self.finish()
