@@ -103,9 +103,9 @@
                     {% for cycle in test["cycles"] %}
                     <tr>
                         <td>{{ cycle["concurrentUsers"] }}</td>
-                        <td>{{ cycle["test"]["successfulTestsPerSecond"] }}</td>
-                        <td>{{ cycle["test"]["totalTests"] }}</td>
-                        <td>{{ cycle["test"]["successfulTests"] }}</td>
+                        <td>{{ "%.0f" % cycle["test"]["successfulTestsPerSecond"] }}</td>
+                        <td>{{ "%.0f" % cycle["test"]["totalTests"] }}</td>
+                        <td>{{ "%.0f" % cycle["test"]["successfulTests"] }}</td>
                         <td>{{ "%.2f" % cycle["test"]["failedTestsPercentage"] }}%</td>
                     </tr>
                     {% end %}
@@ -138,19 +138,19 @@
                     {% for cycle in test["cycles"] %}
                     <tr>
                         <td>{{ cycle["concurrentUsers"] }}</td>
-                        <td>{{ cycle["page"]["apdex"] }}</td>
-                        <td>{{ cycle["page"]["successfulPagesPerSecond"] }}</td>
-                        <td>{{ cycle["page"]["maxSuccessfulPagesPerSecond"] }}</td>
-                        <td>{{ cycle["page"]["totalRequests"] }}</td>
-                        <td>{{ cycle["page"]["successfulRequests"] }}</td>
+                        <td>{{ "%.1f" % cycle["page"]["apdex"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["successfulPagesPerSecond"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["maxSuccessfulPagesPerSecond"] }}</td>
+                        <td>{{ "%.0f" % cycle["page"]["totalRequests"] }}</td>
+                        <td>{{ "%.0f" % cycle["page"]["successfulRequests"] }}</td>
                         <td>{{ "%.2f" % cycle["page"]["failedRequestPercentage"] }}%</td>
-                        <td>{{ cycle["page"]["minimum"] }}</td>
-                        <td>{{ cycle["page"]["p10"] }}</td>
-                        <td>{{ cycle["page"]["p50"] }}</td>
-                        <td>{{ cycle["page"]["average"] }}</td>
-                        <td>{{ cycle["page"]["p90"] }}</td>
-                        <td>{{ cycle["page"]["p95"] }}</td>
-                        <td>{{ cycle["page"]["maximum"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["minimum"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["p10"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["p50"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["average"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["p90"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["p95"] }}</td>
+                        <td>{{ "%.4f" % cycle["page"]["maximum"] }}</td>
                     </tr>
                     {% end %}
                 </tbody>
@@ -182,19 +182,19 @@
                     {% for cycle in test["cycles"] %}
                     <tr>
                         <td>{{ cycle["concurrentUsers"] }}</td>
-                        <td>{{ cycle["request"]["apdex"] }}</td>
-                        <td>{{ cycle["request"]["successfulRequestsPerSecond"] }}</td>
-                        <td>{{ cycle["request"]["maxSuccessfulRequestsPerSecond"] }}</td>
-                        <td>{{ cycle["request"]["totalRequests"] }}</td>
-                        <td>{{ cycle["request"]["successfulRequests"] }}</td>
+                        <td>{{ "%.1f" % cycle["request"]["apdex"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["successfulRequestsPerSecond"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["maxSuccessfulRequestsPerSecond"] }}</td>
+                        <td>{{ "%.0f" % cycle["request"]["totalRequests"] }}</td>
+                        <td>{{ "%.0f" % cycle["request"]["successfulRequests"] }}</td>
                         <td>{{ "%.2f" % cycle["request"]["failedRequestPercentage"] }}%</td>
-                        <td>{{ cycle["request"]["minimum"] }}</td>
-                        <td>{{ cycle["request"]["p10"] }}</td>
-                        <td>{{ cycle["request"]["p50"] }}</td>
-                        <td>{{ cycle["request"]["average"] }}</td>
-                        <td>{{ cycle["request"]["p90"] }}</td>
-                        <td>{{ cycle["request"]["p95"] }}</td>
-                        <td>{{ cycle["request"]["maximum"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["minimum"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["p10"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["p50"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["average"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["p90"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["p95"] }}</td>
+                        <td>{{ "%.4f" % cycle["request"]["maximum"] }}</td>
                     </tr>
                     {% end %}
                 </tbody>
