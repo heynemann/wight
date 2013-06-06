@@ -89,30 +89,31 @@ class ListLoadTestController(WightBaseController):
         self.load_conf()
         team_name = self.arguments.team
         teams_names = []
-        if team_name:
-            teams_names.append(team_name)
-        else:
-            user_info = self.get("/user/info")
-            user_info = loads(user_info.content)
-            teams_names = [team["name"] for team in user_info["user"]["teams"]]
+        with ConnectedController(self):
+            if team_name:
+                teams_names.append(team_name)
+            else:
+                user_info = self.get("/user/info")
+                user_info = loads(user_info.content)
+                teams_names = [team["name"] for team in user_info["user"]["teams"]]
 
-        project_name = self.arguments.project
-        teams_and_projects = self.__get_teams_and_projects_names(project_name, team_name, teams_names)
-        load_tests = []
-        quantity = self.__define_quantity(team_name, project_name)
-        for team_and_project in teams_and_projects:
-            team, project = team_and_project
-            load_test_info = self.get("/teams/%s/projects/%s/load_tests/?quantity=%s" % (team, project, quantity))
-            if load_test_info.status_code == 403:
-                self.puterror(
-                    "You are not the owner or a team member for '%s%s%s' and thus can't list its tests in target '%s%s%s'." % (
-                        self.keyword_color, team, self.reset_error,
-                        self.keyword_color, self.app.user_data.target, self.reset_error
-                    ))
-                return
-            load_tests.append({"header": team_and_project, "load_tests": loads(load_test_info.content)})
+            project_name = self.arguments.project
+            teams_and_projects = self.__get_teams_and_projects_names(project_name, team_name, teams_names)
+            load_tests = []
+            quantity = self.__define_quantity(team_name, project_name)
+            for team_and_project in teams_and_projects:
+                team, project = team_and_project
+                load_test_info = self.get("/teams/%s/projects/%s/load_tests/?quantity=%s" % (team, project, quantity))
+                if load_test_info.status_code == 403:
+                    self.puterror(
+                        "You are not the owner or a team member for '%s%s%s' and thus can't list its tests in target '%s%s%s'." % (
+                            self.keyword_color, team, self.reset_error,
+                            self.keyword_color, self.app.user_data.target, self.reset_error
+                        ))
+                    return
+                load_tests.append({"header": team_and_project, "load_tests": loads(load_test_info.content)})
 
-        self.__print_load_tests(load_tests)
+            self.__print_load_tests(load_tests)
 
     def __get_teams_and_projects_names(self, project_name, team_name, teams_names):
         teams_projects = []
