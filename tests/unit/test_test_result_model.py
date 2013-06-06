@@ -9,6 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 import sys
+from time import sleep
 from uuid import uuid4
 from mongoengine.errors import DoesNotExist
 
@@ -16,10 +17,10 @@ from preggy import expect
 
 from wight.models import LoadTest
 from tests.unit.base import ModelTestCase
-from tests.factories import TeamFactory, UserFactory, LoadTestFactory, TestResultFactory
+from tests.factories import TeamFactory, UserFactory, LoadTestFactory, TestResultFactory, TestConfigurationFactory
 
 
-class TestShowTestResultModel(ModelTestCase):
+class TestTestResultModel(ModelTestCase):
     def setUp(self):
         self.user = UserFactory.create()
         self.team = TeamFactory.create(owner=self.user)
@@ -41,3 +42,19 @@ class TestShowTestResultModel(ModelTestCase):
             assert False, "Should have raise NotFound in mongo"
         except DoesNotExist:
             assert True
+
+    def test_get_last_result_for_diff(self):
+        config = TestConfigurationFactory.build()
+        self.load_test.results.append(TestResultFactory.build(config=config))
+        self.load_test.results.append(TestResultFactory.build())
+        self.load_test.save()
+        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        load_test2.results.append(TestResultFactory.build())
+        load_test2.results.append(TestResultFactory.build(config=config))
+        load_test2.save()
+
+        result1 = self.load_test.results[0]
+        result2 = load_test2.results[1]
+
+        test_result = LoadTest.get_last_result_for(str(result2.uuid))
+        expect(str(test_result.uuid)).to_equal(str(result1.uuid))

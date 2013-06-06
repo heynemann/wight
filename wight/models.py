@@ -695,3 +695,17 @@ class LoadTest(Document):
         for result in load_test.results:
             if str(result.uuid) == test_result_uuid:
                 return load_test, result
+        raise DoesNotExist("There is no Test Result with uuid '%s' in Load Test '%s'" % (test_result_uuid, load_test.uuid))
+
+    @classmethod
+    def get_last_result_for(cls, test_result_uuid):
+        load_test, test_result = cls.get_test_result(test_result_uuid)
+        load_tests = LoadTest.objects(uuid__ne=load_test.uuid)
+
+        for other_load_test in load_tests:
+            for result in other_load_test.results:
+                if (result.config.module == test_result.config.module and
+                    result.config.class_name == test_result.config.class_name and
+                    result.config.test_name == test_result.config.test_name):
+                    return result
+
