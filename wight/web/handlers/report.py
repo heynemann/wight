@@ -34,21 +34,29 @@ class ReportHandler(BaseHandler):
             "uuid": uuid
         }
         if api_result.status_code == 200:
-            has_diff = False
             api_content = loads(api_result.content)
             if "result" in api_content:
                 test = api_content["result"]
             else:
                 test = api_content["results"][0]
+
+            last_result = self._get_last_result(uuid)
             kwargs.update({
                 "createdBy": api_content["createdBy"],
                 "runAt": api_content["lastModified"],
                 "test": test,
                 "format_date": format_date,
-                "has_diff": has_diff
+                "last_result": last_result
             })
 
         self.render('report.html', **kwargs)
+
+    def _get_last_result(self, uuid):
+        api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/last/" % uuid)
+        if api_result.status_code == 200:
+            api_content = loads(api_result.content)
+            return api_content["uuid"]
+        return None
 
 
 class DiffHandler(BaseHandler):

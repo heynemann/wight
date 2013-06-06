@@ -12,8 +12,8 @@
         <p><small>This report details the test run at <span class="text-info">{{ format_date(runAt) }}</span>, scheduled by user <span class="text-info">{{ createdBy }}</span>.</small></p>
         <div class="toolbar">
             <div><a href="/report/{{ uuid }}"><i class="icon-file"></i>Permalink for this test</a></div>
-            {% if has_diff %}
-            <div><a href="/diff/{{ last_uuid }}/{{ uuid }}"><i class="icon-minus-sign"></i>Difference to the previous test</a></div>
+            {% if last_result %}
+            <div><a href="/diff/{{ last_result }}/{{ uuid }}"><i class="icon-minus-sign"></i>Difference to the previous test</a></div>
             {% end %}
             <div><a href="/trend/{{ uuid }}"><i class="icon-fullscreen"></i>Trend for this project</a></div>
         </div>
