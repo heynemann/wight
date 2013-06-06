@@ -30,11 +30,11 @@ def main():
         app.setup()
         app.run()
     except UnauthenticatedError:
-        print "\n%sYou need to be logged to use this command. Use %swight login%s %syour@email.com%s%s to login.%s\n" % (
+        print "\n%sYou need to be logged to use this command. Use '%swight login%s %s<user e-mail>%s%s' to login.%s\n" % (
             dim_red, bright_yellow, reset, bright_magenta, reset, dim_red, reset
         )
     except TargetNotSetError:
-        print "\n%sYou need to set the target to use wight. Use %swight target-set%s %starget.url%s%s to login.%s\n" % (
+        print "\n%sYou need to set the target to use wight. Use '%swight target-set%s %s<url of target>%s%s' to login.%s\n" % (
             dim_red, bright_yellow, reset, bright_magenta, reset, dim_red, reset
         )
     finally:
