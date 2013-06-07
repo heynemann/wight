@@ -114,6 +114,7 @@ class LoadTestHandler(BaseHandler):
         try:
             load_test, test_result = LoadTest.get_test_result(uuid)
             return_value = {
+                "projectName": load_test.project_name,
                 "result": test_result.to_dict(),
                 "createdBy": load_test.created_by.email,
                 "lastModified": load_test.date_modified.isoformat()[:19]

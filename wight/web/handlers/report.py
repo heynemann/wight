@@ -67,6 +67,7 @@ class DiffHandler(BaseHandler):
             api_content = loads(reference_api_result.content)
             test = api_content["result"]
             kwargs.update({
+                "project_name": api_content["projectName"],
                 "%s_created_by" % test_name: api_content["createdBy"],
                 "%s_run_at" % test_name: api_content["lastModified"],
                 "%s_test" % test_name: test,
