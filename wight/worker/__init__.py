@@ -16,11 +16,12 @@ import logging
 from tempfile import mkdtemp
 from datetime import datetime
 
+from pygit2 import GIT_SORT_TIME
 from pyres.worker import Worker
 from pyres import ResQ
 from mongoengine import connect
 
-from wight.models import LoadTest
+from wight.models import LoadTest, Commit
 from wight.worker.repository import Repository
 from wight.worker.config import WightConfig, Config
 from wight.worker.runners import FunkLoadTestRunner, FunkLoadBenchRunner
@@ -57,14 +58,18 @@ class BenchRunner(object):
         load_test.running_since = datetime.now()
         load_test.save()
 
-        repo = Repository.clone(url=load_test.project.repository, path=base_path)
-        bench_path = join(base_path, 'bench')
-        cfg = WightConfig.load(join(bench_path, 'wight.yml'))
+        try:
+            repo = Repository.clone(url=load_test.project.repository, path=base_path)
+            last_commit = tuple(repo.walk(repo.head.target, GIT_SORT_TIME))[0]
+            load_test.last_commit = Commit.from_pygit(last_commit)
+            load_test.save()
 
-        is_valid = self.validate_tests(base_path, repo, cfg, load_test)
+            bench_path = join(base_path, 'bench')
+            cfg = WightConfig.load(join(bench_path, 'wight.yml'))
 
-        if is_valid:
-            try:
+            is_valid = self.validate_tests(base_path, repo, cfg, load_test)
+
+            if is_valid:
                 for test in cfg.tests:
                     kw = dict(
                         root_path=base_path,
@@ -91,11 +96,11 @@ class BenchRunner(object):
 
                 load_test.status = "Finished"
                 load_test.save()
-            except Exception:
-                err = sys.exc_info()[1]
-                load_test.status = "Failed"
-                load_test.error = str(err)
-                load_test.save()
+        except Exception:
+            err = sys.exc_info()[1]
+            load_test.status = "Failed"
+            load_test.error = str(err)
+            load_test.save()
 
     def validate_tests(self, base_path, repo, config, load_test):
         for test in config.tests:

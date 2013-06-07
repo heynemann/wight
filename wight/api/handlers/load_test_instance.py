@@ -9,6 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from uuid import UUID
+from os.path import join
 
 import tornado.web
 from json import dumps
@@ -37,6 +38,7 @@ class LoadTestInstanceHandler(BaseHandler):
                 'lastModified': load_test.date_modified.isoformat()[:19],
                 'repository': load_test.project.repository,
                 'error': load_test.error,
+                'lastCommit': load_test.last_commit and load_test.last_commit.to_dict() or None,
             }
 
             for result in load_test.results:
@@ -71,7 +73,10 @@ class LoadTestInstanceResultsHandler(BaseHandler):
             try:
                 load_test = LoadTest.objects.get(results__uuid=UUID(test_uuid))
                 self.set_status(200)
-                self.write(load_test.to_dict())
+
+                result = load_test.to_dict()
+                result['reportURL'] = join(self.application.config.WIGHT_WEB_HOST.rstrip('/'), 'report', test_uuid)
+                self.write(result)
             except DoesNotExist:
                 self.set_status(404)
         finally:

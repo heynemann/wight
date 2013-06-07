@@ -14,6 +14,7 @@ from derpconf.config import Config, generate_config
 MINUTES = 60
 HOURS = 60 * MINUTES
 
+Config.define('WIGHT_WEB_HOST', 'http://localhost:2368', 'The hostname (and port if needed) for wight-web.', 'Basic')
 Config.define('COOKIE_SECRET', '1617401289404f2182bqwelf7cddd0f', 'To sign secure cookie info.', 'Basic')
 Config.define('TOKEN_EXPIRATION_IN_MINUTES', 2 * 24 * 60, 'Expiration of authentication tokens in minutes.', 'Basic')
 

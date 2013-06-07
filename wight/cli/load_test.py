@@ -257,6 +257,13 @@ class InstanceLoadTestController(WightBaseController):
             self.keyword_color, load_test["status"], self.reset,
         ))
 
+        if "lastCommit" in load_test:
+            self.write("%sBased on commit%s: %s%s%s by %s%s%s" % (
+                self.title_color, self.reset,
+                self.keyword_color, load_test["lastCommit"]["hex"], self.reset,
+                self.keyword_color, load_test["lastCommit"]["committer"]["name"], self.reset,
+            ))
+
         if load_test['status'] == "Failed":
             self.puterror("This test run failed because:")
             self.line_break()
@@ -372,6 +379,11 @@ class ShowResultController(WightBaseController):
         self.write("%sStatus%s: %s%s%s" % (
             self.title_color, self.reset,
             self.keyword_color, load_test["status"], self.reset,
+        ))
+
+        self.write("%sWeb Report URL%s: %s%s%s" % (
+            self.title_color, self.reset,
+            self.keyword_color, load_test['reportURL'], self.reset,
         ))
 
         self.line_break()

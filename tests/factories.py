@@ -13,7 +13,11 @@ from uuid import uuid4
 
 import factory
 
-from wight.models import User, Team, Project, LoadTest, TestConfiguration, TestResult, TestCycle, TestCycleTests, TestCyclePages, TestCycleRequests
+from wight.models import (
+    User, Team, Project, LoadTest, Commit,
+    TestConfiguration, TestResult, TestCycle,
+    TestCycleTests, TestCyclePages, TestCycleRequests
+)
 
 
 class UserFactory(factory.Factory):
@@ -196,17 +200,34 @@ class TestResultFactory(factory.Factory):
         return test_result
 
 
+class CommitFactory(factory.Factory):
+    FACTORY_FOR = Commit
+
+    hex = "b64df0e7cdd3bcd099c4e43001f6c87efd81d417"
+    author_name = "Author Name"
+    author_email = "author@gmail.com"
+    committer_name = "Committer Name"
+    committer_email = "committer@gmail.com"
+
+    commit_message = factory.LazyAttributeSequence(lambda user, index: 'Commit #%d' % index)
+    commit_date = factory.LazyAttribute(lambda user: datetime.now())
+
+    date_modified = factory.LazyAttribute(lambda user: datetime.now())
+    date_created = factory.LazyAttribute(lambda user: datetime.now())
+
+
 class LoadTestFactory(factory.Factory):
     FACTORY_FOR = LoadTest
 
-    uuid = factory.LazyAttribute(lambda user: uuid4())
-    created_by = factory.SubFactory(UserFactory)
+    uuid = factory.LazyAttribute(lambda load_test: uuid4())
+    created_by = factory.LazyAttribute(lambda load_test: load_test.team.owner)
     team = factory.SubFactory(TeamFactory)
-    project_name = factory.LazyAttributeSequence(lambda user, index: 'project-%d' % index)
-    base_url = factory.LazyAttributeSequence(lambda user, index: 'http://localhost:%04d' % index)
+    last_commit = factory.SubFactory(CommitFactory)
+    project_name = factory.LazyAttributeSequence(lambda load_test, index: 'project-%d' % index)
+    base_url = factory.LazyAttributeSequence(lambda load_test, index: 'http://localhost:%04d' % index)
     status = "Scheduled"
-    date_modified = factory.LazyAttribute(lambda user: datetime.now())
-    date_created = factory.LazyAttribute(lambda user: datetime.now())
+    date_modified = factory.LazyAttribute(lambda load_test: datetime.now())
+    date_created = factory.LazyAttribute(lambda load_test: datetime.now())
     results = []
 
     @classmethod

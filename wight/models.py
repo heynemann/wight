@@ -415,11 +415,60 @@ class TestResult(EmbeddedDocument):
         self.date_modified = datetime.datetime.now()
 
 
+class Commit(EmbeddedDocument):
+    '''Describes the last commit in the repository being used in a load test.'''
+    hex = StringField(max_length=255, required=True)
+    author_name = StringField(max_length=2000, required=True)
+    author_email = StringField(max_length=2000, required=True)
+    committer_name = StringField(max_length=2000, required=True)
+    committer_email = StringField(max_length=2000, required=True)
+
+    commit_message = StringField(max_length=2000, required=True)
+    commit_date = DateTimeField(required=True)
+
+    date_modified = DateTimeField(default=datetime.datetime.now)
+    date_created = DateTimeField(default=datetime.datetime.now)
+
+    def clean(self):
+        # Updates date_modified field
+        self.date_modified = datetime.datetime.now()
+
+    @classmethod
+    def from_pygit(cls, commit_obj):
+        commit_date = datetime.datetime.fromtimestamp(commit_obj.commit_time)
+
+        return Commit(
+            hex=commit_obj.hex,
+            author_name=commit_obj.author.name,
+            author_email=commit_obj.author.email,
+            committer_name=commit_obj.committer.name,
+            committer_email=commit_obj.committer.email,
+            commit_message=commit_obj.message,
+            commit_date=commit_date
+        )
+
+    def to_dict(self):
+        return {
+            'hex': self.hex,
+            'author': {
+                'name': self.author_name,
+                'email': self.author_email
+            },
+            'committer': {
+                'name': self.committer_name,
+                'email': self.committer_name
+            },
+            'message': self.commit_message,
+            'date': self.commit_date.isoformat()
+        }
+
+
 class LoadTest(Document):
     uuid = UUIDField(required=True, default=uuid4)
     status = StringField(required=True, choices=("Scheduled", "Running", "Failed", "Finished"))
     team = ReferenceField(Team, required=True)
     created_by = ReferenceField(User, required=True)
+    last_commit = EmbeddedDocumentField(Commit)
     project_name = StringField(max_length=2000, required=True)
     base_url = URLField(max_length=2000, required=True)
     date_created = DateTimeField(default=datetime.datetime.now)
@@ -456,6 +505,7 @@ class LoadTest(Document):
             "status": self.status,
             "created": format_date_to_dict(self.date_created),
             "lastModified": format_date_to_dict(self.date_modified),
+            "lastCommit": self.last_commit and self.last_commit.to_dict() or None,
             "results": [result.to_dict() for result in self.results]
         }
 

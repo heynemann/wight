@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+
 import six
 from json import loads
 from cement.core import controller
@@ -72,7 +73,7 @@ class ChangePasswordController(WightBaseController):
             return
 
         with connected_controller(self):
-            response = self.post("/user/change-pass", data={"old_pass":old_pass,"new_pass":new_pass})
+            response = self.post("/user/change-pass", data={"old_pass": old_pass, "new_pass": new_pass})
 
             if response.status_code == 403:
                 self.line_break()
