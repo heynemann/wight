@@ -459,7 +459,7 @@ class Commit(EmbeddedDocument):
                 'email': self.committer_name
             },
             'message': self.commit_message,
-            'date': self.commit_date.isoformat()
+            'date': self.commit_date.isoformat()[:19]
         }
 
 
