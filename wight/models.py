@@ -750,7 +750,7 @@ class LoadTest(Document):
     @classmethod
     def get_last_result_for(cls, test_result_uuid):
         load_test, test_result = cls.get_test_result(test_result_uuid)
-        load_tests = LoadTest.objects(uuid__ne=load_test.uuid)
+        load_tests = LoadTest.objects(uuid__ne=load_test.uuid, project_name=load_test.project_name)
 
         for other_load_test in load_tests:
             for result in other_load_test.results:

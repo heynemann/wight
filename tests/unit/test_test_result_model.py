@@ -24,7 +24,7 @@ class TestTestResultModel(ModelTestCase):
     def setUp(self):
         self.user = UserFactory.create()
         self.team = TeamFactory.create(owner=self.user)
-        TeamFactory.add_projects(self.team, 1)
+        TeamFactory.add_projects(self.team, 2)
         self.project = self.team.projects[0]
         self.load_test = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
 
@@ -48,6 +48,25 @@ class TestTestResultModel(ModelTestCase):
         self.load_test.results.append(TestResultFactory.build(config=config))
         self.load_test.results.append(TestResultFactory.build())
         self.load_test.save()
+        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        load_test2.results.append(TestResultFactory.build())
+        load_test2.results.append(TestResultFactory.build(config=config))
+        load_test2.save()
+
+        result1 = self.load_test.results[0]
+        result2 = load_test2.results[1]
+
+        test_result = LoadTest.get_last_result_for(str(result2.uuid))
+        expect(str(test_result.uuid)).to_equal(str(result1.uuid))
+
+    def test_get_last_result_for_diff_only_for_same_project(self):
+        config = TestConfigurationFactory.build()
+        self.load_test.results.append(TestResultFactory.build(config=config))
+        self.load_test.results.append(TestResultFactory.build())
+        self.load_test.save()
+        load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1])
+        load_test3.results.append(TestResultFactory.build(config=config))
+        load_test3.save()
         load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
         load_test2.results.append(TestResultFactory.build())
         load_test2.results.append(TestResultFactory.build(config=config))
