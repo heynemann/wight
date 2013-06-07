@@ -26,13 +26,14 @@ class ReportHandler(BaseHandler):
 
     @tornado.web.asynchronous
     def get(self, uuid):
-        api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/" % uuid)
         report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         kwargs = {
+            "uuid": uuid,
             "test": None,
+            "format_date": format_date,
             "report_date": report_date,
-            "uuid": uuid
         }
+        api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/" % uuid)
         if api_result.status_code == 200:
             api_content = loads(api_result.content)
             if "result" in api_content:
@@ -45,7 +46,6 @@ class ReportHandler(BaseHandler):
                 "createdBy": api_content["createdBy"],
                 "runAt": api_content["lastModified"],
                 "test": test,
-                "format_date": format_date,
                 "last_result": last_result
             })
 
@@ -61,9 +61,33 @@ class ReportHandler(BaseHandler):
 
 class DiffHandler(BaseHandler):
 
+    def add_test_result_to_kwargs(self, kwargs, uuid, test_name):
+        reference_api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/" % uuid)
+        if reference_api_result.status_code == 200:
+            api_content = loads(reference_api_result.content)
+            test = api_content["result"]
+            kwargs.update({
+                "%s_created_by" % test_name: api_content["createdBy"],
+                "%s_run_at" % test_name: api_content["lastModified"],
+                "%s_test" % test_name: test,
+            })
+
     @tornado.web.asynchronous
-    def get(self, from_report_hash, to_report_hash):
-        self.render('diff.html')
+    def get(self, reference_uuid, challenger_uuid):
+        report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        kwargs = {
+            "reference_uuid": reference_uuid,
+            "challenger_uuid": challenger_uuid,
+            "reference_test": None,
+            "challenger_test": None,
+            "format_date": format_date,
+            "report_date": report_date,
+        }
+
+        self.add_test_result_to_kwargs(kwargs, reference_uuid, "reference")
+        self.add_test_result_to_kwargs(kwargs, challenger_uuid, "challenger")
+
+        self.render('diff.html', **kwargs)
 
 
 class TrendHandler(BaseHandler):

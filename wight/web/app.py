@@ -40,7 +40,7 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
     handlers = [
         url(r'/healthcheck(?:/|\.html)?', HealthCheckHandler, name="healthcheck"),
         url(r'/report/(?P<uuid>.+?)/?', ReportHandler, name="report"),
-        url(r'/diff/(?P<from_report_hash>.+?)/(?P<to_report_hash>.+?)/?', DiffHandler, name="diff"),
+        url(r'/diff/(?P<reference_uuid>.+?)/(?P<challenger_uuid>.+?)/?', DiffHandler, name="diff"),
         url(r'/trend/(?P<team_name>.+?)/(?P<project_name>.+?)/(?P<test_full_name>.+?)/?', TrendHandler, name="trend"),
     ]
 
