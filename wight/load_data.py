@@ -7,7 +7,7 @@ import argparse
 from mongoengine import connect
 
 from web.config import Config
-from tests.factories import LoadTestFactory, TeamFactory, UserFactory, TestResultFactory
+from tests.factories import LoadTestFactory, TeamFactory, UserFactory, TestResultFactory, TestConfigurationFactory
 
 print "Loading data..."
 
@@ -41,11 +41,19 @@ def main(args=None):
     team = TeamFactory.create(owner=user)
     TeamFactory.add_projects(team, 1)
     project = team.projects[0]
-    load_test = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
-    load_test.results.append(TestResultFactory.build())
-    load_test.save()
-    print "load test: %s" % load_test.uuid
-    print "test result: %s" % load_test.results[0].uuid
+    config = TestConfigurationFactory.build()
+    load_test1 = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
+    load_test1.results.append(TestResultFactory.build(config=config))
+    load_test1.save()
+    print "load test 1: %s" % load_test1.uuid
+    print "test result for load test 1: %s" % load_test1.results[0].uuid
+    load_test2 = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
+    load_test2.results.append(TestResultFactory.build(config=config))
+    load_test2.results.append(TestResultFactory.build())
+    load_test2.save()
+    print "load test 2: %s" % load_test2.uuid
+    print "test result 1 for load test 2: %s" % load_test2.results[0].uuid
+    print "test result 2 for load test 2: %s" % load_test2.results[1].uuid
 
 if __name__ == '__main__':
     main(sys.argv[1:])
