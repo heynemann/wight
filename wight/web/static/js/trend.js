@@ -25,9 +25,9 @@ var getData = function(concurrentUsers, tests, values) {
             values:[]
         };
         testData.push(cycle);
-        for (var test=1; test < tests; test++) {
+        for (var test=0; test < tests; test++) {
             cycle.values.push({
-                x: test,
+                x: test + 1,
                 y: values[index][test]
             });
         }
@@ -36,26 +36,5 @@ var getData = function(concurrentUsers, tests, values) {
     return testData;
 };
 
-var getResponseTimeTestData = function() {
-    var testData = [];
-
-    for (var cu=20; cu < 160; cu += 20) {
-        var cycle = {
-            key: cu + " Concurrent Users",
-            values:[]
-        };
-        testData.push(cycle);
-
-        for (var test=1; test < 37; test++) {
-            cycle.values.push({
-                x: test,
-                y: 0.2 + Math.random() + cu / 100
-            });
-        }
-    }
-
-    return testData;
-};
-
-addLineGraph(".pps svg", getData(ppsConcurrentUsers, ppsTests, ppsValues), d3.format(',r'), d3.format('.02f'));
-addLineGraph(".response-time svg", getResponseTimeTestData(), function(d) { return "Test #" + d; }, function(d) { return floatFormat(d) + " secs"; });
+addLineGraph(".pps svg", getData(concurrentUsers, testsQuantity, ppsValues), d3.format(',r'), d3.format('.02f'));
+addLineGraph(".response-time svg", getData(concurrentUsers, testsQuantity, responseTimeValues), function(d) { return "Test #" + d; }, function(d) { return floatFormat(d) + " secs"; });

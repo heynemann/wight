@@ -105,4 +105,18 @@ class TrendHandler(BaseHandler):
             "format_date": format_date,
             "report_date": report_date,
         }
+        api_result = requests.get("http://0.0.0.0:2367/results/%s/%s/%s/%s/%s/" % (team, project, module, class_name, test))
+        if api_result.status_code == 200:
+            results = loads(api_result.content)
+            concurrent_users = []
+            for result in results:
+                for cycle in result["cycles"]:
+                    if not cycle["concurrentUsers"] in concurrent_users:
+                        concurrent_users.append(cycle["concurrentUsers"])
+            concurrent_users.sort()
+
+            kwargs.update({
+                "results": results,
+                "concurrent_users": concurrent_users
+            })
         self.render('trend.html', **kwargs)

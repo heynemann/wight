@@ -13,7 +13,7 @@
 {% if results %}
     <div class="hero-unit">
         <h1>{{ project }}</h1>
-        <p>Trend results for GeoTests.test_geo</p>
+        <p>Trend results for {{ full_name }}</p>
         <p><small>This report details the trend results for the last {{ len(results) }} bench runs for the <span class="text-info">{{ project }}</span> project, running the <span class="text-info">{{ full_name }}</span> test.</small></p>
         <div class="toolbar">
             <div><a href="/trend/{{ team }}/{{ project }}/{{ module }}/{{ class_name }}/{{ test }}"><i class="icon-file"></i>Permalink for this test</a></div>
@@ -178,14 +178,22 @@ $('.apdex-cycles .btn').on('click', function(ev) {
 
 /* END OF APDEX CHART */
 
-var ppsConcurrentUsers = [20, 40, 60, 80, 100];
-var ppsTests = 5;
+var concurrentUsers = {{ concurrent_users }};
+var testsQuantity = {{ len(results) }};
 var ppsValues = [
-    [10, 15, 25, 20, 35],
-    [12, 16, 15, 50, 25],
-    [17, 25, 75, 40, 65],
-    [11, 5, 45, 50, 69],
-    [8, 13, 28, 26, 39]
+    {% for result in results %}
+        [{% for cycle in result["cycles"] %}
+        {{ cycle["page"]["successfulPagesPerSecond"] }},
+        {% end %}],
+    {% end %}
+];
+
+var responseTimeValues = [
+    {% for result in results %}
+        [{% for cycle in result["cycles"] %}
+        {{ cycle["page"]["average"] }},
+        {% end %}],
+    {% end %}
 ];
 </script>
 <script src="{{ static_url('js/trend.js') }}"></script>

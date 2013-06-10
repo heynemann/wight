@@ -49,12 +49,17 @@ def main(args=None):
     print "test result for load test 1: %s" % load_test1.results[0].uuid
     load_test2 = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
     load_test2.results.append(TestResultFactory.build(config=config))
-    for i in range(15):
-        load_test2.results.append(TestResultFactory.build())
+    load_test2.results.append(TestResultFactory.build())
     load_test2.save()
+    load_test3 = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
+    load_test3.results.append(TestResultFactory.build(config=config))
+    load_test3.save()
+    load_test4 = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
+    load_test4.results.append(TestResultFactory.build(config=config))
+    load_test4.save()
     print "load test 2: %s" % load_test2.uuid
     print "test result 1 for load test 2: %s" % load_test2.results[0].uuid
     print "test result 2 for load test 2: %s" % load_test2.results[1].uuid
-
+    print "url for trend: %s/%s/%s/%s/%s/" % (team.name, project.name, config.module, config.class_name, config.test_name)
 if __name__ == '__main__':
     main(sys.argv[1:])
