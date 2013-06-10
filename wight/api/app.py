@@ -59,7 +59,7 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/teams/(?P<team_name>.+?)/projects/?(?P<project_name>.+?)?', ProjectHandler, name='team_projects'),
         url(r'/teams/(?P<team_name>.+?)/members/?', TeamMembersHandler, name='team_members'),
         url(r'/teams/?(?P<team_name>.+?)?', TeamHandler, name='team'),
-        url(r'/load-test-result/(?P<uuid>.+?)/last/?', LastResultForLoadTestHandler, name='load_test_result'),
+        url(r'/load-test-result/(?P<uuid>.+?)/last/?', LastResultForLoadTestHandler, name='load_last_test_result'),
         url(r'/load-test-result/(?P<uuid>.+?)/?', LoadTestOrResultHandler, name='load_test_result'),
         url(r'/user/info/?(.+?)?', UserHandler, name='user_info'),
         url(r'/user/change-pass/?', UserPasswordHandler, name='change_password'),
