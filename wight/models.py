@@ -748,15 +748,38 @@ class LoadTest(Document):
         raise DoesNotExist("There is no Test Result with uuid '%s' in Load Test '%s'" % (test_result_uuid, load_test.uuid))
 
     @classmethod
+    def result_was_for(cls, result, module, class_name, test_name):
+        return (result.config.module == module and
+                result.config.class_name == class_name and
+                result.config.test_name == test_name)
+
+    @classmethod
     def get_last_result_for(cls, test_result_uuid):
         load_test, test_result = cls.get_test_result(test_result_uuid)
         load_tests = LoadTest.objects(uuid__ne=load_test.uuid, project_name=load_test.project_name)
 
         for other_load_test in load_tests:
             for result in other_load_test.results:
-                if (result.config.module == test_result.config.module and
-                    result.config.class_name == test_result.config.class_name and
-                    result.config.test_name == test_result.config.test_name):
+                if cls.result_was_for(result, test_result.config.module, test_result.config.class_name, test_result.config.test_name):
                     return result
 
         return None
+
+    @classmethod
+    def get_same_results_for_all_load_tests_from_project(cls, team, project_name, module, class_name, test_name):
+        load_tests = LoadTest.objects(
+            team=team, project_name=project_name,
+            results__config__module=module,
+            results__config__class_name=class_name,
+            results__config__test_name=test_name
+        )
+        if not load_tests.count():
+            raise DoesNotExist("There is no Load Test for team %s, project %s and test %s.%s.%s " % (
+                team.name, project_name, module, class_name, test_name)
+            )
+        results = []
+        for load_test in load_tests:
+            for result in load_test.results:
+                if cls.result_was_for(result, module, class_name, test_name):
+                    results.append(result)
+        return results

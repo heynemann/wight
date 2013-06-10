@@ -77,3 +77,35 @@ class TestTestResultModel(ModelTestCase):
 
         test_result = LoadTest.get_last_result_for(str(result2.uuid))
         expect(str(test_result.uuid)).to_equal(str(result1.uuid))
+
+    def test_get_results_for_team_project_and_test_raise_does_not_exists_if_not_found(self):
+        try:
+            LoadTest.get_same_results_for_all_load_tests_from_project(self.team, "no-project", "module", "class_name", "test_name")
+            assert False, "Should have raise NotFound in mongo"
+        except DoesNotExist:
+            assert True
+
+    def test_get_results_for_team_project_and_test(self):
+        config = TestConfigurationFactory.build()
+        self.load_test.results.append(TestResultFactory.build(config=config))
+        self.load_test.results.append(TestResultFactory.build())
+        self.load_test.results.append(TestResultFactory.build(config=config))
+        self.load_test.save()
+        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        load_test2.results.append(TestResultFactory.build())
+        load_test2.results.append(TestResultFactory.build(config=config))
+        load_test2.save()
+        load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1])
+        load_test3.results.append(TestResultFactory.build(config=config))
+        load_test3.results.append(TestResultFactory.build(config=config))
+        load_test3.save()
+
+        results = [str(result.uuid) for result in LoadTest.get_same_results_for_all_load_tests_from_project(self.team, self.project.name, config.module, config.class_name, config.test_name)]
+
+        expected_results = [
+            str(self.load_test.results[0].uuid),
+            str(self.load_test.results[2].uuid),
+            str(load_test2.results[1].uuid)
+        ]
+
+        expect(results).to_be_like(expected_results)
