@@ -15,7 +15,7 @@ import tornado.web
 from json import dumps
 from mongoengine import DoesNotExist
 
-from wight.models import LoadTest
+from wight.models import LoadTest, Team
 from wight.api.handlers.base import BaseHandler
 
 
@@ -116,6 +116,23 @@ class LastResultForLoadTestHandler(BaseHandler):
                 self.write(dumps(last_result.to_dict()))
             else:
                 self.set_status(404)
+        except DoesNotExist:
+            self.set_status(404)
+        finally:
+            self.finish()
+
+
+class ResultsForTeamProjectAndTestHandler(BaseHandler):
+    @tornado.web.asynchronous
+    def get(self, team_name, project_name, module, class_name, test_name):
+        self.set_status(200)
+        try:
+            team = Team.objects(name=team_name).first()
+            results = LoadTest.get_same_results_for_all_load_tests_from_project(team, project_name, module, class_name, test_name)
+            response = []
+            for result in results:
+                response.append(result.to_dict())
+            self.write(dumps(response))
         except DoesNotExist:
             self.set_status(404)
         finally:

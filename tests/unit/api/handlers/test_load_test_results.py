@@ -144,3 +144,82 @@ class ShowLoadLastTestResultTest(FullTestCase):
         url = "/load-test-result/%s/last/" % self.result.uuid
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(404)
+
+
+class ShowTestResultForTeamProjectAndTestTest(FullTestCase):
+    def setUp(self):
+        super(ShowTestResultForTeamProjectAndTestTest, self).setUp()
+        self.user = UserFactory.create(with_token=True)
+        self.team = TeamFactory.create(owner=self.user)
+        TeamFactory.add_projects(self.team, 2)
+        self.project = self.team.projects[0]
+        self.load_test = LoadTestFactory.create(created_by=self.user, team=self.team, project_name=self.project.name)
+        self.load_test.save()
+        self.config = TestConfigurationFactory.build()
+        self.config2 = TestConfigurationFactory.build()
+
+    def _add_results(self):
+        self.load_test.results.append(TestResultFactory.build())
+        self.load_test.results.append(TestResultFactory.build(config=self.config))
+        self.load_test.results.append(TestResultFactory.build())
+        self.load_test.save()
+        self.load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        self.load_test2.results.append(TestResultFactory.build())
+        self.load_test2.results.append(TestResultFactory.build(config=self.config))
+        self.load_test2.save()
+        self.load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1])
+        self.load_test3.results.append(TestResultFactory.build())
+        self.load_test3.results.append(TestResultFactory.build(config=self.config))
+        self.load_test3.save()
+
+    def test_get_return_200_if_not_authenticated(self):
+        self._add_results()
+        self.user = None
+        url = "/results/%s/%s/%s/%s/%s" % (self.team.name, self.project.name, self.config.module, self.config.class_name, self.config.test_name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+    def test_get_return_200_if_not_team_owner(self):
+        self._add_results()
+        user = UserFactory.create(with_token=True)
+        TeamFactory.create(owner=user)
+        url = "/results/%s/%s/%s/%s/%s" % (self.team.name, self.project.name, self.config.module, self.config.class_name, self.config.test_name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+    def test_get_should_return_200_if_no_errors(self):
+        self._add_results()
+        url = "/results/%s/%s/%s/%s/%s" % (self.team.name, self.project.name, self.config.module, self.config.class_name, self.config.test_name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+
+    def test_get_should_be_a_json(self):
+        self._add_results()
+        url = "/results/%s/%s/%s/%s/%s" % (self.team.name, self.project.name, self.config.module, self.config.class_name, self.config.test_name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+        obj = response.body
+        if isinstance(obj, six.binary_type):
+            obj = obj.decode('utf-8')
+        try:
+            loads(obj)
+            assert True
+        except ValueError:
+            raise AssertionError("Should be possible to load a json from response")
+
+    def test_get_should_be_equal_to_results_with_same_config(self):
+        self._add_results()
+        result1 = self.load_test.results[1]
+        result2 = self.load_test2.results[1]
+
+        url = "/results/%s/%s/%s/%s/%s" % (self.team.name, self.project.name, self.config.module, self.config.class_name, self.config.test_name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(200)
+        results = [result["uuid"] for result in loads(response.body)]
+
+        expect(results).to_be_like([str(result1.uuid), str(result2.uuid)])
+
+    def test_should_get_404_if_no_test_result(self):
+        url = "/results/%s/%s/%s/%s/%s" % (self.team.name, self.project.name, "no-module", self.config.class_name, self.config.test_name)
+        response = self.fetch_with_headers(url)
+        expect(response.code).to_equal(404)
