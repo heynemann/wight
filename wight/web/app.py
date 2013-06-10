@@ -41,7 +41,7 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/healthcheck(?:/|\.html)?', HealthCheckHandler, name="healthcheck"),
         url(r'/report/(?P<uuid>.+?)/?', ReportHandler, name="report"),
         url(r'/diff/(?P<reference_uuid>.+?)/(?P<challenger_uuid>.+?)/?', DiffHandler, name="diff"),
-        url(r'/trend/(?P<team_name>.+?)/(?P<project_name>.+?)/(?P<test_full_name>.+?)/?', TrendHandler, name="trend"),
+        url(r'/trend/(?P<team>.+?)/(?P<project>.+?)/(?P<module>.+?)/(?P<class_name>.+?)/(?P<test>.+?)/?', TrendHandler, name="trend"),
     ]
 
     logging.info("Connecting to redis on {0}:{1}/{2}".format(self.config.REDIS_HOST, self.config.REDIS_PORT, self.config.REDIS_DB_COUNT))

@@ -49,7 +49,8 @@ def main(args=None):
     print "test result for load test 1: %s" % load_test1.results[0].uuid
     load_test2 = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
     load_test2.results.append(TestResultFactory.build(config=config))
-    load_test2.results.append(TestResultFactory.build())
+    for i in range(15):
+        load_test2.results.append(TestResultFactory.build())
     load_test2.save()
     print "load test 2: %s" % load_test2.uuid
     print "test result 1 for load test 2: %s" % load_test2.results[0].uuid

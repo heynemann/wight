@@ -62,9 +62,9 @@ class ReportHandler(BaseHandler):
 class DiffHandler(BaseHandler):
 
     def add_test_result_to_kwargs(self, kwargs, uuid, test_name):
-        reference_api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/" % uuid)
-        if reference_api_result.status_code == 200:
-            api_content = loads(reference_api_result.content)
+        api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/" % uuid)
+        if api_result.status_code == 200:
+            api_content = loads(api_result.content)
             test = api_content["result"]
             kwargs.update({
                 "project_name": api_content["projectName"],
@@ -84,15 +84,25 @@ class DiffHandler(BaseHandler):
             "format_date": format_date,
             "report_date": report_date,
         }
-
         self.add_test_result_to_kwargs(kwargs, reference_uuid, "reference")
         self.add_test_result_to_kwargs(kwargs, challenger_uuid, "challenger")
-
         self.render('diff.html', **kwargs)
 
 
 class TrendHandler(BaseHandler):
 
     @tornado.web.asynchronous
-    def get(self, team_name, project_name, test_full_name):
-        self.render('trend.html')
+    def get(self, team, project, module, class_name, test):
+        report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        kwargs = {
+            "team": team,
+            "project": project,
+            "module": module,
+            "class_name": class_name,
+            "test": test,
+            "full_name": "%s.%s.%s" % (module, class_name, test),
+            "results": [],
+            "format_date": format_date,
+            "report_date": report_date,
+        }
+        self.render('trend.html', **kwargs)

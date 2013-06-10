@@ -1,16 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Trend for project GloboAPI - GeoTests.test_geo - Wight v0.1.0{% end %}
+{% block title %}
+    {% if results %}
+        Trend for project {{ project }} - {{ full_name }} - Wight v0.1.0
+    {% else %}
+        Test Result for team {{ team }}, project {{ project }} and test {{ full_name }} not found - Wight v0.1.0
+    {% end %}
+{% end %}
 
 {% block contents %}
 <div class="trend container">
+{% if results %}
     <div class="hero-unit">
-        <h1>my-funky-project</h1>
+        <h1>{{ project }}</h1>
         <p>Trend results for GeoTests.test_geo</p>
-        <p><small>This report details the trend results for the last 37 bench runs for the <span class="text-info">GloboAPI</span> project, running the <span class="text-info">GeoTests.test_geo</span> test.</small></p>
+        <p><small>This report details the trend results for the last {{ len(results) }} bench runs for the <span class="text-info">{{ project }}</span> project, running the <span class="text-info">{{ full_name }}</span> test.</small></p>
         <div class="toolbar">
-            <div><a href="#"><i class="icon-file"></i>Permalink for this test</a></div>
-            <div><a href="/report/1293913912931293"><i class="icon-circle-arrow-left"></i>Last test report for this trend</a></div>
+            <div><a href="/trend/{{ team }}/{{ project }}/{{ module }}/{{ class_name }}/{{ test }}"><i class="icon-file"></i>Permalink for this test</a></div>
+            <div><a href="/report/{{ results[-1]["uuid"] }}"><i class="icon-circle-arrow-left"></i>Last test report for this trend</a></div>
         </div>
     </div>
 
@@ -47,15 +54,21 @@
         </div>
 
         <div class="report-list">
-            {% for i in range(37) %}
-            <a href="/report/129391239123123912">Report for 10/10/12 10:{{ "%02d" % i }}:10</a>
+            {% for index, result in enumerate(results) %}
+            <a href="/report/{{ result["uuid"] }}">{{ "%02d" % (index + 1) }} - Report for {{ format_date(result["created"]) }}</a>
             {% end %}
         </div>
 
     </div>
 
 
-    <p class="text-center"><small>Report generated at 12/12/13 10:32:23.</small></p>
+    <p class="text-center"><small>Report generated at {{ report_date }}.</small></p>
+{% else %}
+    <div class="hero-unit">
+        <h1>No load test found</h1>
+        <p>We are unable to find a test result for team {{ team }}, project {{ project }} and test {{ full_name }}.</p>
+    </div>
+{% end %}
 </div>
 {% end %}
 
@@ -165,97 +178,15 @@ $('.apdex-cycles .btn').on('click', function(ev) {
 
 /* END OF APDEX CHART */
 
-/* START OF PAGES PER SECOND CHART */
-var getPPSTestData = function() {
-    var testData = [];
-
-    for (var cu=20; cu < 160; cu += 20) {
-        var cycle = {
-            key: cu + " Concurrent Users",
-            values:[]
-        };
-        testData.push(cycle);
-
-        for (var test=1; test < 37; test++) {
-            cycle.values.push({
-                x: test,
-                y: cu + 10 * Math.random()
-            });
-        }
-    }
-
-    return testData;
-};
-
-var ppsChart = null;
-nv.addGraph(function() {  
-    ppsChart = nv.models.lineChart();
-
-    ppsChart.margin({
-        left: 100,
-        bottom: 80
-    });
-
-    ppsChart.xAxis
-        .tickFormat(d3.format(',r'));
-
-    ppsChart.yAxis
-        .tickFormat(d3.format('.02f'));
-
-    d3.select(".pps svg")
-        .datum(getPPSTestData())
-        .transition().duration(500)
-        .call(ppsChart);
-
-    return ppsChart;
-});
-/* END OF PAGES PER SECOND CHART */
-
-/* START OF AVERAGE RESPONSE TIME CHART */
-var getResponseTimeTestData = function() {
-    var testData = [];
-
-    for (var cu=20; cu < 160; cu += 20) {
-        var cycle = {
-            key: cu + " Concurrent Users",
-            values:[]
-        };
-        testData.push(cycle);
-
-        for (var test=1; test < 37; test++) {
-            cycle.values.push({
-                x: test,
-                y: 0.2 + Math.random() + cu / 100
-            });
-        }
-    }
-
-    return testData;
-};
-
-var avgTimeChart = null;
-nv.addGraph(function() {  
-    avgTimeChart = nv.models.lineChart();
-
-    avgTimeChart.margin({
-        left: 100,
-        bottom: 80
-    });
-
-    avgTimeChart.xAxis
-        .tickFormat(function(d) { return "Test #" + d; });
-
-    avgTimeChart.yAxis
-        .tickFormat(function(d) { return floatFormat(d) + " secs"; });
-
-    d3.select(".response-time svg")
-        .datum(getResponseTimeTestData())
-        .transition().duration(500)
-        .call(avgTimeChart);
-
-    return avgTimeChart;
-});
-/* END OF PAGES PER SECOND CHART */
-
+var ppsConcurrentUsers = [20, 40, 60, 80, 100];
+var ppsTests = 5;
+var ppsValues = [
+    [10, 15, 25, 20, 35],
+    [12, 16, 15, 50, 25],
+    [17, 25, 75, 40, 65],
+    [11, 5, 45, 50, 69],
+    [8, 13, 28, 26, 39]
+];
 </script>
+<script src="{{ static_url('js/trend.js') }}"></script>
 {% end %}
