@@ -3,6 +3,8 @@
 
 import logging
 from datetime import datetime
+from os.path import join
+import requests
 
 import tornado.web
 
@@ -81,3 +83,7 @@ class BaseHandler(tornado.web.RequestHandler):
             return None
 
         return user
+
+    def get_api(self, url):
+        url = join(self.application.config.WIGHT_API_URL, url)
+        return requests.get(url)

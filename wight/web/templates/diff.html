@@ -5,7 +5,7 @@
 {% block contents %}
 <div class="diff container">
     <div class="hero-unit">
-        <h1>{{ project_name }} #diff</h1>
+        <h1>{{ project }} #diff</h1>
 
         <h3>Diff between:</h1>
         <div class="hero-container">
@@ -22,7 +22,7 @@
             <div><a href="/diff/{{ reference_uuid }}/{{ challenger_uuid }}"><i class="icon-file"></i>Permalink for this diff</a></div>
             <div><a href="/report/{{ reference_uuid }}"><i class="icon-circle-arrow-left"></i>{{ reference_test["config"]["title"] }} - {{ format_date(reference_run_at) }}</a></div>
             <div><a href="/report/{{ challenger_uuid }}"><i class="icon-circle-arrow-right"></i>{{ challenger_test["config"]["title"] }} - {{ format_date(challenger_run_at) }}</a></div>
-            <div><a href="/trend/1293123/123123/123321312/"><i class="icon-fullscreen"></i>Trend for this project</a></div>
+            <div><a href="/trend/{{ team }}/{{ project }}/{{ reference_test["config"]["module"] }}/{{ reference_test["config"]["className"] }}/{{ reference_test["config"]["testName"] }}"><i class="icon-fullscreen"></i>Trend for this project</a></div>
         </div>
     </div>
 

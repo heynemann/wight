@@ -33,6 +33,7 @@ Config.define('NUMBER_OF_FORKS', multiprocessing.cpu_count(), 'Number of forks t
 Config.define('HEALTHCHECK_TEXT', 'WORKING', 'Default text for the healthcheck route.', 'Runtime')
 
 Config.define('STATIC_URL', '/static/', 'Static files route.', 'Static')
+Config.define('WIGHT_API_URL', 'http://0.0.0.0:2367/', 'Wight API URL.', 'API')
 
 #dsn_url = 'https://726638bb401e4b1580102d1699d07d3e:98c3b4ff108e402abe3ecd2d372e6bb3@app.getsentry.com/4140'
 #Config.define('USE_SENTRY', False, 'Should report error to getsentry.com.', 'Sentry')

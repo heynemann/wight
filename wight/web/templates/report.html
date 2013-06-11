@@ -15,7 +15,7 @@
             {% if last_result %}
             <div><a href="/diff/{{ last_result }}/{{ uuid }}"><i class="icon-minus-sign"></i>Difference to the previous test</a></div>
             {% end %}
-            <div><a href="/trend/{{ uuid }}"><i class="icon-fullscreen"></i>Trend for this project</a></div>
+            <div><a href="/trend/{{ team }}/{{ project }}/{{ test["config"]["module"] }}/{{ test["config"]["className"] }}/{{ test["config"]["testName"] }}"><i class="icon-fullscreen"></i>Trend for this project</a></div>
         </div>
     </div>
 

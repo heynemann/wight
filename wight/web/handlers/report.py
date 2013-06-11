@@ -13,7 +13,7 @@ import requests
 
 import tornado.web
 
-from wight.api.handlers.base import BaseHandler
+from wight.web.handlers.base import BaseHandler
 
 
 def format_date(date_as_text):
@@ -33,7 +33,7 @@ class ReportHandler(BaseHandler):
             "format_date": format_date,
             "report_date": report_date,
         }
-        api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/" % uuid)
+        api_result = self.get_api("load-test-result/%s/" % uuid)
         if api_result.status_code == 200:
             api_content = loads(api_result.content)
             if "result" in api_content:
@@ -43,6 +43,8 @@ class ReportHandler(BaseHandler):
 
             last_result = self._get_last_result(uuid)
             kwargs.update({
+                "team": api_content["team"],
+                "project": api_content["project"],
                 "createdBy": api_content["createdBy"],
                 "runAt": api_content["lastModified"],
                 "test": test,
@@ -52,7 +54,7 @@ class ReportHandler(BaseHandler):
         self.render('report.html', **kwargs)
 
     def _get_last_result(self, uuid):
-        api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/last/" % uuid)
+        api_result = self.get_api("load-test-result/%s/last/" % uuid)
         if api_result.status_code == 200:
             api_content = loads(api_result.content)
             return api_content["uuid"]
@@ -62,12 +64,13 @@ class ReportHandler(BaseHandler):
 class DiffHandler(BaseHandler):
 
     def add_test_result_to_kwargs(self, kwargs, uuid, test_name):
-        api_result = requests.get("http://0.0.0.0:2367/load-test-result/%s/" % uuid)
+        api_result = self.get_api("load-test-result/%s/" % uuid)
         if api_result.status_code == 200:
             api_content = loads(api_result.content)
             test = api_content["result"]
             kwargs.update({
-                "project_name": api_content["projectName"],
+                "team": api_content["team"],
+                "project": api_content["project"],
                 "%s_created_by" % test_name: api_content["createdBy"],
                 "%s_run_at" % test_name: api_content["lastModified"],
                 "%s_test" % test_name: test,
@@ -105,7 +108,7 @@ class TrendHandler(BaseHandler):
             "format_date": format_date,
             "report_date": report_date,
         }
-        api_result = requests.get("http://0.0.0.0:2367/results/%s/%s/%s/%s/%s/" % (team, project, module, class_name, test))
+        api_result = self.get_api("results/%s/%s/%s/%s/%s/" % (team, project, module, class_name, test))
         if api_result.status_code == 200:
             results = loads(api_result.content)
             concurrent_users = []
