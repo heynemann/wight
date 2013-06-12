@@ -9,6 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from datetime import datetime
+import random
 from uuid import uuid4
 
 import factory
@@ -128,7 +129,7 @@ class TestCycleTestsFactory(factory.Factory):
 
 class TestCyclePagesFactory(factory.Factory):
     FACTORY_FOR = TestCyclePages
-    apdex = .7
+    apdex = factory.LazyAttributeSequence(lambda cycle, i: "%.1f" % random.random())
 
     total_pages = factory.LazyAttributeSequence(lambda cycle, i: 100 * (i + 1))
     successful_pages_per_second = factory.LazyAttributeSequence(lambda cycle, i: i + 1)
@@ -139,7 +140,7 @@ class TestCyclePagesFactory(factory.Factory):
     failed_pages = factory.LazyAttributeSequence(lambda cycle, i: cycle.total_pages - cycle.successful_pages)
 
     minimum = .2
-    average = .5
+    average = factory.LazyAttributeSequence(lambda cycle, i: cycle.successful_pages_per_second / 2)
     maximum = .8
     p10 = .9
     p50 = .8
@@ -150,7 +151,7 @@ class TestCyclePagesFactory(factory.Factory):
 class TestCycleRequestsFactory(factory.Factory):
     FACTORY_FOR = TestCycleRequests
 
-    apdex = .7
+    apdex = random.random()
 
     successful_requests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * (i + 1))
     maximum_successful_requests_per_second = factory.LazyAttributeSequence(lambda cycle, i: 2 * (i + 1))

@@ -27,13 +27,6 @@
         </div>
 
         <h3>Apdex</h3>
-        <div class="text-center">
-            <div class="btn-group apdex-cycles">
-              {% for users in apdex_concurrent_users %}
-              <button data-cycles="{{ users }}" class="btn">{{ users }} Users</button>
-              {% end %}
-            </div>
-        </div>
         <div class="chart apdex"><svg></svg></div>
         <p class="legend"><small><i>apdex ranges from 0.0 to 1.0, with 1.0 being a perfect score</i></small></p>
 
@@ -70,114 +63,16 @@
 
 {% block scripts %}
 <script>
-var floatFormat = function(num) {
-    return Math.round(num * 100) / 100;
-};
 
+    var testsQuantity = {{ len(results) }};
 
-/* START OF APDEX CHART */
+    var apdexConcurrentUsers = {{ apdex_concurrent_users }};
+    var apdexValues = {{ apdex_values }};
 
-var getData = function() {
-    var apdexData = [
-        {
-            key: "0.0-0.2",
-            values: [],
-            color: "#ca0000"
-        },
-        {
-            key: "0.2-0.4",
-            values: [],
-            color: "#c04c74"
-        },
-        {
-            key: "0.4-0.6",
-            values: [],
-            color: "#ff7f00"
-        },
-        {
-            key: "0.6-0.8",
-            values: [],
-            color: "#5c8800"
-        },
-        {
-            key: "0.8-1.0",
-            values: [],
-            color: "#87b169"
-        }
-    ];
+    var pageConcurrentUsers = {{ page_concurrent_users }};
 
-    for (var i=0; i < 5; i++) {
-        for (var test=0; test < 50; test++) {
-            apdexData[i].values.push({
-                x: test,
-                y: Math.random()
-            })
-        }
-    }
-
-    return apdexData;
-};
-
-apdexData = {
-    20: getData(20),
-    40: getData(40),
-    60: getData(60),
-    80: getData(80),
-    100: getData(100),
-    120: getData(120),
-    140: getData(140)
-};
-
-var apdexChart = null;
-nv.addGraph(function() {
-    apdexChart = nv.models.stackedAreaChart()
-                          .x(function(d) { return d.x })
-                          .y(function(d) { return d.y })
-                          .showControls(false)
-                          .style('expand')
-                          .clipEdge(true);
-
-    apdexChart.margin({
-        left: 100,
-        bottom: 80
-    });
-
-    apdexChart.xAxis
-              .axisLabel("Bench")
-              .tickFormat(function(d) { return "Test #" + d; })
-              .showMaxMin(false);
-
-    apdexChart.yAxis
-              .tickFormat(function(d) { return floatFormat(d * 100) + "%"; });
-
-    d3.select('.apdex svg')
-      .datum(apdexData[140])
-      .transition().duration(500).call(apdexChart);
-
-    return apdexChart;
-});
-
-var buttons = $('.apdex-cycles .btn');
-
-$('.apdex-cycles .btn').on('click', function(ev) {
-    var target = $(ev.currentTarget);
-
-    buttons.removeClass('active');
-    target.addClass('active');
-
-    var cycles = target.attr('data-cycles');
-
-    d3.select('.apdex svg')
-      .datum(apdexData[parseInt(cycles, 10)])
-      .call(apdexChart);
-});
-
-/* END OF APDEX CHART */
-
-var concurrentUsers = {{ response_time_concurrent_users }};
-var testsQuantity = {{ len(results) }};
-var ppsValues = {{ pps_values }};
-var averageResponseTimeValues = {{ average_response_time_values }};
+    var ppsValues = {{ pps_values }};
+    var averageResponseTimeValues = {{ average_response_time_values }};
 
 </script>
 <script src="{{ static_url('js/trend.js') }}"></script>

@@ -104,6 +104,9 @@ class TrendHandler(BaseHandler):
         concurrent_users = self._get_concurrent_users_for_results(results)
         return sorted(set(concurrent_users[0]).intersection(*concurrent_users))
 
+    def _get_page_values_for(self, page_data_type, results):
+        return [[cycle["page"][page_data_type] for cycle in result["cycles"]] for result in results]
+
     @tornado.web.asynchronous
     def get(self, team, project, module, class_name, test):
         report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -124,8 +127,9 @@ class TrendHandler(BaseHandler):
             kwargs.update({
                 "results": results,
                 "apdex_concurrent_users": self._get_concurrent_users_for_apdex(results),
-                "pps_values": [[cycle["page"]["successfulPagesPerSecond"] for cycle in result["cycles"]] for result in results],
-                "average_response_time_values": [[cycle["page"]["average"] for cycle in result["cycles"]] for result in results],
-                "response_time_concurrent_users": self._get_concurrent_users_for_response_time(results)
+                "apdex_values": self._get_page_values_for("apdex", results),
+                "pps_values": self._get_page_values_for("successfulPagesPerSecond", results),
+                "average_response_time_values": self._get_page_values_for("average", results),
+                "page_concurrent_users": self._get_concurrent_users_for_response_time(results)
             })
         self.render('trend.html', **kwargs)
