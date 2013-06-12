@@ -9,7 +9,6 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 from datetime import datetime
 from json import loads
-import requests
 
 import tornado.web
 
@@ -94,6 +93,17 @@ class DiffHandler(BaseHandler):
 
 class TrendHandler(BaseHandler):
 
+    def _get_concurrent_users_for_results(self, results):
+        return [[cycle["concurrentUsers"] for cycle in result["cycles"]] for result in results]
+
+    def _get_concurrent_users_for_response_time(self, results):
+        concurrent_users = self._get_concurrent_users_for_results(results)
+        return sorted(set(concurrent_users[0]).union(*concurrent_users))
+
+    def _get_concurrent_users_for_apdex(self, results):
+        concurrent_users = self._get_concurrent_users_for_results(results)
+        return sorted(set(concurrent_users[0]).intersection(*concurrent_users))
+
     @tornado.web.asynchronous
     def get(self, team, project, module, class_name, test):
         report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -111,15 +121,11 @@ class TrendHandler(BaseHandler):
         api_result = self.get_api("results/%s/%s/%s/%s/%s/" % (team, project, module, class_name, test))
         if api_result.status_code == 200:
             results = loads(api_result.content)
-            concurrent_users = []
-            for result in results:
-                for cycle in result["cycles"]:
-                    if not cycle["concurrentUsers"] in concurrent_users:
-                        concurrent_users.append(cycle["concurrentUsers"])
-            concurrent_users.sort()
-
             kwargs.update({
                 "results": results,
-                "concurrent_users": concurrent_users
+                "apdex_concurrent_users": self._get_concurrent_users_for_apdex(results),
+                "pps_values": [[cycle["page"]["successfulPagesPerSecond"] for cycle in result["cycles"]] for result in results],
+                "average_response_time_values": [[cycle["page"]["average"] for cycle in result["cycles"]] for result in results],
+                "response_time_concurrent_users": self._get_concurrent_users_for_response_time(results)
             })
         self.render('trend.html', **kwargs)

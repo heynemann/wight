@@ -29,13 +29,9 @@
         <h3>Apdex</h3>
         <div class="text-center">
             <div class="btn-group apdex-cycles">
-              <button data-cycles="20" class="btn">20 Users</button>
-              <button data-cycles="40" class="btn">40 Users</button>
-              <button data-cycles="60" class="btn">60 Users</button>
-              <button data-cycles="80" class="btn">80 Users</button>
-              <button data-cycles="100" class="btn">100 Users</button>
-              <button data-cycles="120" class="btn">120 Users</button>
-              <button data-cycles="140" class="btn active">140 Users</button>
+              {% for users in apdex_concurrent_users %}
+              <button data-cycles="{{ users }}" class="btn">{{ users }} Users</button>
+              {% end %}
             </div>
         </div>
         <div class="chart apdex"><svg></svg></div>
@@ -178,23 +174,11 @@ $('.apdex-cycles .btn').on('click', function(ev) {
 
 /* END OF APDEX CHART */
 
-var concurrentUsers = {{ concurrent_users }};
+var concurrentUsers = {{ response_time_concurrent_users }};
 var testsQuantity = {{ len(results) }};
-var ppsValues = [
-    {% for result in results %}
-        [{% for cycle in result["cycles"] %}
-        {{ cycle["page"]["successfulPagesPerSecond"] }},
-        {% end %}],
-    {% end %}
-];
+var ppsValues = {{ pps_values }};
+var averageResponseTimeValues = {{ average_response_time_values }};
 
-var responseTimeValues = [
-    {% for result in results %}
-        [{% for cycle in result["cycles"] %}
-        {{ cycle["page"]["average"] }},
-        {% end %}],
-    {% end %}
-];
 </script>
 <script src="{{ static_url('js/trend.js') }}"></script>
 {% end %}

@@ -1,12 +1,13 @@
-var addLineGraph = function(element, data, xTickFormat, yTickFormat, yLabel) {
+var addLineGraph = function(element, data) {
     nv.addGraph(function() {
         var chart = nv.models.lineChart();
         chart.margin({ left: 100, bottom: 80 });
-        chart.xAxis.tickFormat(xTickFormat);
-        chart.yAxis.tickFormat(yTickFormat);
-        if (yLabel) {
-            chart.yAxis.axisLabel(yLabel)
-        }
+        chart.xAxis.tickFormat(function(d) {
+            if (d % 1 == 0) {
+                return "Test #" + d;
+            }
+        });
+        chart.yAxis.tickFormat(function(d) { return floatFormat(d) + " secs"; });
         d3.select(element)
             .datum(data)
             .transition().duration(500)
@@ -36,5 +37,5 @@ var getData = function(concurrentUsers, tests, values) {
     return testData;
 };
 
-addLineGraph(".pps svg", getData(concurrentUsers, testsQuantity, ppsValues), d3.format(',r'), d3.format('.02f'));
-addLineGraph(".response-time svg", getData(concurrentUsers, testsQuantity, responseTimeValues), function(d) { return "Test #" + d; }, function(d) { return floatFormat(d) + " secs"; });
+addLineGraph(".pps svg", getData(concurrentUsers, testsQuantity, ppsValues));
+addLineGraph(".response-time svg", getData(concurrentUsers, testsQuantity, averageResponseTimeValues));
