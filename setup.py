@@ -51,6 +51,7 @@ wight is a load testing scheduling and tracking tool.
         'Topic :: Software Development :: Testing'
     ],
     packages=find_packages(),
+    include_package_data = True,
     install_requires=[
         'argparse',
         'cement',
