@@ -257,7 +257,7 @@ class InstanceLoadTestController(WightBaseController):
             self.keyword_color, load_test["status"], self.reset,
         ))
 
-        if "lastCommit" in load_test:
+        if "lastCommit" in load_test and load_test['lastCommit'] is not None:
             self.write("%sBased on commit%s: %s%s%s by %s%s%s" % (
                 self.title_color, self.reset,
                 self.keyword_color, load_test["lastCommit"]["hex"], self.reset,
