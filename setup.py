@@ -52,6 +52,7 @@ wight is a load testing scheduling and tracking tool.
     ],
     packages=find_packages(),
     include_package_data = True,
+    dependency_links = ['https://github.com/nuxeo/FunkLoad/archive/master.tar.gz#egg=funkload-1.17.0'],
     install_requires=[
         'argparse',
         'cement',
@@ -63,7 +64,7 @@ wight is a load testing scheduling and tracking tool.
         'prettytable',
         'colorama',
         'pyyaml',
-        'funkload',
+        'funkload>=1.17.0',
         'pyres',
         'paramiko',
         'virtualenv',
