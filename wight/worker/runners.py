@@ -96,7 +96,7 @@ class FunkLoadBenchRunner(object):
             log_path=root_path,
             workers=workers
         )
-
+        cfg.calculate_timeout(len(cycles))
         cfg.save(join(root_path, 'bench', '%s.conf' % test.class_name))
 
         try:

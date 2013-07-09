@@ -47,6 +47,7 @@ sleep_time_max = 0.50
 [test]
 description=test
 [distribute]
+channel_timeout = 300
 log_path =
 python_bin = /bin/python
 funkload_location=https://github.com/nuxeo/FunkLoad/archive/master.zip
@@ -86,6 +87,7 @@ sleep_time_max = 0.50
 [test]
 description=test
 [distribute]
+channel_timeout = 300
 log_path =
 python_bin = /bin/python
 funkload_location=https://github.com/nuxeo/FunkLoad/archive/master.zip

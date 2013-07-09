@@ -1,0 +1,7 @@
+Timeout para o Schedule para evitar que fique indefinidamente no running
+Sair do --track quando dar Failure
+UTC time para evitar bizarrices de tempo negativo.
+Criar comando set-default para definir team and project para todos os comandos a seguir.
+Melhorar parâmetros:
+    project-create:
+        não precisar digitar --project para o nome do projeto

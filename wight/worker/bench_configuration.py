@@ -37,6 +37,7 @@ class BenchConfiguration(object):
         self.sleep_time_max = sleep_time_max
         self.log_path = log_path
         self.workers = workers
+        self.timeout = 300
 
     def to_dict(self):
         return {
@@ -50,6 +51,9 @@ class BenchConfiguration(object):
             'sleep_time_min': self.sleep_time_min,
             'sleep_time_max': self.sleep_time_max
         }
+
+    def calculate_timeout(self, cycles):
+        self.timeout = 60 * cycles
 
     def save(self, conf_path):
         with open(conf_path, 'w') as conf_file:
@@ -74,10 +78,11 @@ description=%(description)s
             if self.workers:
                 conf_file.write("""
 [distribute]
+channel_timeout = %s
 log_path = %s
 python_bin = %s
 funkload_location=https://github.com/nuxeo/FunkLoad/archive/master.zip
-                """.strip() % (self.log_path, sys.executable))
+                """.strip() % (self.timeout, self.log_path, sys.executable))
 
                 conf_file.write("\n")
                 worker_names = " ".join(["worker_%d" % i for i in range(len(self.workers))])
