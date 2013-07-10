@@ -1,3 +1,4 @@
+[![Stories in Ready](http://badge.waffle.io/heynemann/wight.png)](http://waffle.io/heynemann/wight)  
 wight
 =====
 
