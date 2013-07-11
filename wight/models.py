@@ -77,8 +77,8 @@ class User(Document):
     salt = UUIDField(required=False)
     token = StringField(required=False)
     token_expiration = DateTimeField(required=False)
-    date_modified = DateTimeField(default=datetime.datetime.now)
-    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.utcnow)
+    date_created = DateTimeField(default=datetime.datetime.utcnow)
 
     def clean(self):
         if self.salt is None:
@@ -87,7 +87,7 @@ class User(Document):
             self.password = User.get_hash_for(self.salt, self.password)
 
         # Updates date_modified field
-        self.date_modified = datetime.datetime.now()
+        self.date_modified = datetime.datetime.utcnow()
 
     def to_dict(self):
         return self.email
@@ -95,7 +95,7 @@ class User(Document):
     def validate_token(self, expiration=2 * 60 * 24, generate=True):
         if generate:
             self.token = str(uuid4())
-        self.token_expiration = datetime.datetime.now() + datetime.timedelta(minutes=expiration)
+        self.token_expiration = datetime.datetime.utcnow() + datetime.timedelta(minutes=expiration)
 
     @classmethod
     def get_hash_for(cls, salt, password):
@@ -123,7 +123,7 @@ class User(Document):
         if user is None:
             return None
 
-        if user.token_expiration < datetime.datetime.now():
+        if user.token_expiration < datetime.datetime.utcnow():
             return None
 
         user.validate_token(expiration, generate=False)
@@ -148,8 +148,8 @@ class Team(Document):
     name = StringField(max_length=2000, unique=True, required=True)
     owner = ReferenceField(User, required=True)
     members = ListField(ReferenceField(User))
-    date_modified = DateTimeField(default=datetime.datetime.now)
-    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.utcnow)
+    date_created = DateTimeField(default=datetime.datetime.utcnow)
 
     projects = ListField(EmbeddedDocumentField("Project"))
 
@@ -166,7 +166,7 @@ class Team(Document):
             raise ValueError("Can't have the same project twice in the projects collection.")
 
         # Updates date_modified field
-        self.date_modified = datetime.datetime.now()
+        self.date_modified = datetime.datetime.utcnow()
 
     def to_dict(self):
         return {
@@ -218,8 +218,8 @@ class Project(EmbeddedDocument):
     name = StringField(max_length=2000, required=True)
     repository = StringField(max_length=3000, required=True)
     created_by = ReferenceField(User, required=True)
-    date_modified = DateTimeField(default=datetime.datetime.now)
-    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.utcnow)
+    date_created = DateTimeField(default=datetime.datetime.utcnow)
     team = ReferenceField(Team, required=True)
 
     def clean(self):
@@ -229,7 +229,7 @@ class Project(EmbeddedDocument):
                 raise ValueError("Only the owner or members of team %s can create projects for it." % self.team.name)
 
         # Updates date_modified field
-        self.date_modified = datetime.datetime.now()
+        self.date_modified = datetime.datetime.utcnow()
 
     def to_dict(self):
         return {
@@ -385,8 +385,8 @@ class TestCycle(EmbeddedDocument):
 
 class TestResult(EmbeddedDocument):
     uuid = UUIDField(required=True, default=uuid4)
-    date_created = DateTimeField(default=datetime.datetime.now)
-    date_modified = DateTimeField(default=datetime.datetime.now)
+    date_created = DateTimeField(default=datetime.datetime.utcnow)
+    date_modified = DateTimeField(default=datetime.datetime.utcnow)
 
     tests_executed = IntField(required=True)
     pages_visited = IntField(required=True)
@@ -412,7 +412,7 @@ class TestResult(EmbeddedDocument):
         }
 
     def clean(self):
-        self.date_modified = datetime.datetime.now()
+        self.date_modified = datetime.datetime.utcnow()
 
 
 class Commit(EmbeddedDocument):
@@ -426,12 +426,12 @@ class Commit(EmbeddedDocument):
     commit_message = StringField(max_length=2000, required=True)
     commit_date = DateTimeField(required=True)
 
-    date_modified = DateTimeField(default=datetime.datetime.now)
-    date_created = DateTimeField(default=datetime.datetime.now)
+    date_modified = DateTimeField(default=datetime.datetime.utcnow)
+    date_created = DateTimeField(default=datetime.datetime.utcnow)
 
     def clean(self):
         # Updates date_modified field
-        self.date_modified = datetime.datetime.now()
+        self.date_modified = datetime.datetime.utcnow()
 
     @classmethod
     def from_pygit(cls, commit_obj):
@@ -471,8 +471,8 @@ class LoadTest(Document):
     last_commit = EmbeddedDocumentField(Commit)
     project_name = StringField(max_length=2000, required=True)
     base_url = URLField(max_length=2000, required=True)
-    date_created = DateTimeField(default=datetime.datetime.now)
-    date_modified = DateTimeField(default=datetime.datetime.now)
+    date_created = DateTimeField(default=datetime.datetime.utcnow)
+    date_modified = DateTimeField(default=datetime.datetime.utcnow)
     error = StringField(required=False)
 
     results = ListField(EmbeddedDocumentField(TestResult))
@@ -487,7 +487,7 @@ class LoadTest(Document):
             if self.created_by.id not in team_member_ids:
                 raise ValueError("Only the owner or members of team %s can create tests for it." % self.team.name)
 
-        self.date_modified = datetime.datetime.now()
+        self.date_modified = datetime.datetime.utcnow()
 
     @property
     def project(self):

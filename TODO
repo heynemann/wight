@@ -1,7 +1,12 @@
 Timeout for Schedule command to avoid infinite "Running" - DONE
+    Define calculate_timeout logic in BenchConfiguration class
+
 --track should kill if Failure
+
 Use UTC time to avoid strange time diffs
+
 Make a set-default command to define team and project to be used on all subsequent commands
+
 Get better parameters:
     project-create:
         don't need to type --project for project name

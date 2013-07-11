@@ -69,6 +69,8 @@ wight is a load testing scheduling and tracking tool.
         'paramiko',
         'virtualenv',
         'sh',
+        'pytz',
+        'python-dateutil',
     ],
     extras_require={
         'tests': tests_require,

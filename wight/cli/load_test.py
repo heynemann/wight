@@ -17,8 +17,16 @@ import six
 from cement.core import controller
 from cement.core.exc import CaughtSignal
 from prettytable import PrettyTable
+from dateutil import tz
 
 from wight.cli.base import WightBaseController, connected_controller
+
+
+def get_local_time_from_utc(utc_date):
+    utc_date = datetime.strptime(utc_date, "%Y-%m-%dT%H:%M:%S")
+    local_tz = tz.tzlocal()
+    utc_tz = tz.gettz('UTC')
+    return utc_date.replace(tzinfo=utc_tz).astimezone(local_tz)
 
 
 class ScheduleLoadTestController(WightBaseController):
@@ -158,11 +166,11 @@ class ListLoadTestController(WightBaseController):
             spacer = "         -         "
             for test in load_test["load_tests"]:
                 dt = test['created'] if test["status"] == "Scheduled" else test["lastModified"]
-                dt = dt.replace("T", " ")
+                dt = get_local_time_from_utc(dt)
 
                 if test["status"] == "Running":
                     actual_date = datetime.strptime(test['lastModified'], "%Y-%m-%dT%H:%M:%S")
-                    dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
+                    dt = "%s (%.2fs)" % (dt, (datetime.utcnow() - actual_date).total_seconds())
 
                 table.add_row(
                     [
@@ -272,9 +280,9 @@ class InstanceLoadTestController(WightBaseController):
             return
 
         if load_test["status"] == "Running":
-            dt = load_test['lastModified'].replace('T', ' ')
+            dt = get_local_time_from_utc(load_test['lastModified'])
             actual_date = datetime.strptime(load_test['lastModified'], "%Y-%m-%dT%H:%M:%S")
-            dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
+            dt = "%s (%.2fs)" % (dt, (datetime.utcnow() - actual_date).total_seconds())
 
             self.write("%sRunning since%s: %s%s%s" % (
                 self.title_color, self.reset,
@@ -284,7 +292,7 @@ class InstanceLoadTestController(WightBaseController):
         if load_test["status"] == "Scheduled":
             dt = load_test['created'].replace('T', ' ')
             actual_date = datetime.strptime(load_test['created'], "%Y-%m-%dT%H:%M:%S")
-            dt = "%s (%.2fs)" % (dt, (datetime.now() - actual_date).total_seconds())
+            dt = "%s (%.2fs)" % (dt, (datetime.utcnow() - actual_date).total_seconds())
 
             self.write("%sScheduled since%s: %s%s%s" % (
                 self.title_color, self.reset,

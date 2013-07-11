@@ -124,8 +124,8 @@ def generate_fake_load_you_know_what(quantity, team, project):
             "team": team,
             "project": project,
             "status": True,
-            "created": "31/12/2060 00:00:00",
-            "lastModified": "31/12/2060 00:00:00",
+            "created": "2060-12-31T00:00:00",
+            "lastModified": "2060-12-31T00:00:00",
         })
     return dumps(load_tests)
 
