@@ -221,7 +221,7 @@ class InstanceLoadTestController(WightBaseController):
         with connected_controller(self):
             content = self._load_response()
 
-            while self.arguments.track and not content['results']:
+            while self.arguments.track and (content['status'] == "Running" or content['status'] == "Scheduled"):
                 try:
                     time.sleep(5)
                     self.line_break()
@@ -233,6 +233,7 @@ class InstanceLoadTestController(WightBaseController):
                     sys.exit(1)
 
     def _load_response(self):
+
         url = '/load_tests/%s' % self.arguments.load_test_uuid
 
         response = self.get(url)

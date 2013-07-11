@@ -86,3 +86,14 @@ kill_app:
 data: mongo
 	@sleep 3
 	@python wight/load_data.py --conf ./wight/api/local.conf
+
+local-login:
+	@wight target-set http://0.0.0.0:2367
+	@wight login
+
+local-team:
+	@wight team-create local
+	@wight project-create --team local --project wight --repo https://github.com/heynemann/wight.git
+
+local-schedule:
+	@wight schedule --team local --project wight --url http://wight.timeho.me/
