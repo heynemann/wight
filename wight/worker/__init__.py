@@ -59,8 +59,6 @@ class BenchRunner(object):
         load_test.save()
 
         try:
-            import ipdb; ipdb.set_trace()
-            raise Exception("caiu!!! :D")
             repo = Repository.clone(url=load_test.project.repository, path=base_path)
             last_commit = tuple(repo.walk(repo.head.target, GIT_SORT_TIME))[0]
             load_test.last_commit = Commit.from_pygit(last_commit)
