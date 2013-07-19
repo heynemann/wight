@@ -57,29 +57,29 @@ class WorkerJob(object):
 
 class BenchRunner(object):
     def run_project_tests(self, base_path, load_test_uuid, workers=[], cycles=[10, 20, 30, 40, 50], duration=10):
-        print("UPDATE LOAD TEST WITH RUNNING")
+        logging.debug("UPDATE LOAD TEST WITH RUNNING")
         load_test = LoadTest.objects(uuid=UUID(load_test_uuid)).first()
         load_test.status = "Running"
         load_test.running_since = datetime.utcnow()
         load_test.save()
-        print("LOAD TEST UPDATEd")
+        logging.debug("LOAD TEST UPDATEd")
 
         try:
-            print("CLONING REPOSITORY")
+            logging.debug("CLONING REPOSITORY")
             repo = Repository.clone(url=load_test.project.repository, path=base_path)
             last_commit = tuple(repo.walk(repo.head.target, GIT_SORT_TIME))[0]
             load_test.last_commit = Commit.from_pygit(last_commit)
             load_test.save()
-            print("REPOSITORY CLONED")
+            logging.debug("REPOSITORY CLONED")
 
-            print("LOADING CONFIG")
+            logging.debug("LOADING CONFIG")
             bench_path = join(base_path, 'bench')
             cfg = WightConfig.load(join(bench_path, 'wight.yml'))
-            print("CONFIG LOADED")
+            logging.debug("CONFIG LOADED")
 
-            print("VALIDATING TESTS")
+            logging.debug("VALIDATING TESTS")
             self.validate_tests(base_path, repo, cfg, load_test)
-            print("TESTS VALIDATED")
+            logging.debug("TESTS VALIDATED")
 
             for test in cfg.tests:
                 kw = dict(
@@ -93,9 +93,9 @@ class BenchRunner(object):
                 if workers:
                     kw['workers'] = workers
 
-                print("RUNNING BENCH FOR %s" % test)
+                logging.debug("RUNNING BENCH FOR %s" % test)
                 fl_result = FunkLoadBenchRunner.run(**kw)
-                print("BENCH RUNNED FOR %s - EXIT CODE %s" % (test, fl_result.exit_code))
+                logging.debug("BENCH RUNNED FOR %s - EXIT CODE %s" % (test, fl_result.exit_code))
 
                 if fl_result.exit_code != 0:
                     load_test.status = "Failed"
@@ -103,11 +103,11 @@ class BenchRunner(object):
                     load_test.save()
                     return
 
-                print("ADDING RESULT")
+                logging.debug("ADDING RESULT")
                 result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
 
                 load_test.add_result(result, log=fl_result.text)
-                print("RESULT ADDED")
+                logging.debug("RESULT ADDED")
 
             load_test.status = "Finished"
             load_test.save()
@@ -124,9 +124,10 @@ class BenchRunner(object):
                 test.test_name, load_test.base_url
             )
             if result.exit_code != 0:
-                raise TestNotValidError("The test '%s.%s.%s' running in '%s' is not valid " %
+                logging.error(result.log)
+                raise TestNotValidError("The test '%s.%s.%s' running in '%s' is not valid (%s)" %
                                         (test.module, test.class_name,
-                                        test.test_name, load_test.base_url))
+                                        test.test_name, load_test.base_url, result.text))
 
 
 def main(args=None):
@@ -143,19 +144,19 @@ def main(args=None):
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
-    print("LOADING CONFIG")
+    logging.debug("LOADING CONFIG")
     if options.conf:
         cfg = Config.load(abspath(expanduser(options.conf)))
     else:
         cfg = Config()
-    print("CONFIG LOADED")
+    logging.debug("CONFIG LOADED")
 
-    print("CONNECTING IN REDIS")
+    logging.debug("CONNECTING IN REDIS")
     conn = ResQ(server="%s:%s" % (cfg.REDIS_HOST, cfg.REDIS_PORT), password=cfg.REDIS_PASSWORD)
     conn.config = cfg
-    print("REDIS CONNECTED")
+    logging.debug("REDIS CONNECTED")
 
-    print("CONNECTING IN MONGO")
+    logging.debug("CONNECTING IN MONGO")
     connect(
         cfg.MONGO_DB,
         host=cfg.MONGO_HOST,
@@ -163,14 +164,14 @@ def main(args=None):
         username=cfg.MONGO_USER,
         password=cfg.MONGO_PASS
     )
-    print("MONGO CONNECTED")
+    logging.debug("MONGO CONNECTED")
 
     print
-    print("--- Wight worker started ---")
+    logging.info("--- Wight worker started ---")
     print
     Worker.run([WorkerJob.queue], conn)
     print
-    print "--- Wight worker killed ---"
+    logging.info("--- Wight worker killed ---")
     print
 
 if __name__ == '__main__':
