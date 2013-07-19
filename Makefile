@@ -97,3 +97,6 @@ local-team:
 
 local-schedule:
 	@wight schedule --team local --project wight --url http://wight.timeho.me/
+
+pip:
+	@python setup.py -q sdist upload

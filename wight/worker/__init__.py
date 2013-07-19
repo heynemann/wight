@@ -53,21 +53,29 @@ class WorkerJob(object):
 
 class BenchRunner(object):
     def run_project_tests(self, base_path, load_test_uuid, workers=[], cycles=[10, 20, 30, 40, 50], duration=10):
+        logging.debug("UPDATE LOAD TEST WITH RUNNING")
         load_test = LoadTest.objects(uuid=UUID(load_test_uuid)).first()
         load_test.status = "Running"
         load_test.running_since = datetime.utcnow()
         load_test.save()
+        logging.debug("LOAD TEST UPDATEd")
 
         try:
+            logging.debug("CLONING REPOSITORY")
             repo = Repository.clone(url=load_test.project.repository, path=base_path)
             last_commit = tuple(repo.walk(repo.head.target, GIT_SORT_TIME))[0]
             load_test.last_commit = Commit.from_pygit(last_commit)
             load_test.save()
+            logging.debug("REPOSITORY CLONED")
 
+            logging.debug("LOADING CONFIG")
             bench_path = join(base_path, 'bench')
             cfg = WightConfig.load(join(bench_path, 'wight.yml'))
+            logging.debug("CONFIG LOADED")
 
+            logging.debug("VALIDATING TESTS")
             is_valid = self.validate_tests(base_path, repo, cfg, load_test)
+            logging.debug("TESTS VALIDATED")
 
             if is_valid:
                 for test in cfg.tests:
@@ -82,7 +90,9 @@ class BenchRunner(object):
                     if workers:
                         kw['workers'] = workers
 
+                    logging.debug("RUNNING BENCH FOR %s" % test)
                     fl_result = FunkLoadBenchRunner.run(**kw)
+                    logging.debug("BENCH RUNNED FOR %s - EXIT CODE %s" % (test, fl_result.exit_code))
 
                     if fl_result.exit_code != 0:
                         load_test.status = "Failed"
@@ -90,9 +100,11 @@ class BenchRunner(object):
                         load_test.save()
                         return
 
+                    logging.debug("ADDING RESULT")
                     result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
 
                     load_test.add_result(result, log=fl_result.text)
+                    logging.debug("RESULT ADDED")
 
                 load_test.status = "Finished"
                 load_test.save()
