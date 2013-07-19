@@ -140,14 +140,19 @@ def main(args=None):
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
+    logging.debug("LOADING CONFIG")
     if options.conf:
         cfg = Config.load(abspath(expanduser(options.conf)))
     else:
         cfg = Config()
+    logging.debug("CONFIG LOADED")
 
+    logging.debug("CONNECTING IN REDIS")
     conn = ResQ(server="%s:%s" % (cfg.REDIS_HOST, cfg.REDIS_PORT), password=cfg.REDIS_PASSWORD)
     conn.config = cfg
+    logging.debug("REDIS CONNECTED")
 
+    logging.debug("CONNECTING IN MONGO")
     connect(
         cfg.MONGO_DB,
         host=cfg.MONGO_HOST,
@@ -155,6 +160,7 @@ def main(args=None):
         username=cfg.MONGO_USER,
         password=cfg.MONGO_PASS
     )
+    logging.debug("MONGO CONNECTED")
 
     print
     print("--- Wight worker started ---")
