@@ -35,6 +35,10 @@ LOGS = {
 }
 
 
+class TestNotValidError(Exception):
+    pass
+
+
 class WorkerJob(object):
     queue = 'wight'
     config = None
@@ -74,40 +78,39 @@ class BenchRunner(object):
             print("CONFIG LOADED")
 
             print("VALIDATING TESTS")
-            is_valid = self.validate_tests(base_path, repo, cfg, load_test)
+            self.validate_tests(base_path, repo, cfg, load_test)
             print("TESTS VALIDATED")
 
-            if is_valid:
-                for test in cfg.tests:
-                    kw = dict(
-                        root_path=base_path,
-                        test=test,
-                        base_url=load_test.base_url,
-                        cycles=cycles,
-                        duration=duration
-                    )
+            for test in cfg.tests:
+                kw = dict(
+                    root_path=base_path,
+                    test=test,
+                    base_url=load_test.base_url,
+                    cycles=cycles,
+                    duration=duration
+                )
 
-                    if workers:
-                        kw['workers'] = workers
+                if workers:
+                    kw['workers'] = workers
 
-                    print("RUNNING BENCH FOR %s" % test)
-                    fl_result = FunkLoadBenchRunner.run(**kw)
-                    print("BENCH RUNNED FOR %s - EXIT CODE %s" % (test, fl_result.exit_code))
+                print("RUNNING BENCH FOR %s" % test)
+                fl_result = FunkLoadBenchRunner.run(**kw)
+                print("BENCH RUNNED FOR %s - EXIT CODE %s" % (test, fl_result.exit_code))
 
-                    if fl_result.exit_code != 0:
-                        load_test.status = "Failed"
-                        load_test.error = fl_result.text
-                        load_test.save()
-                        return
+                if fl_result.exit_code != 0:
+                    load_test.status = "Failed"
+                    load_test.error = fl_result.text
+                    load_test.save()
+                    return
 
-                    print("ADDING RESULT")
-                    result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
+                print("ADDING RESULT")
+                result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
 
-                    load_test.add_result(result, log=fl_result.text)
-                    print("RESULT ADDED")
+                load_test.add_result(result, log=fl_result.text)
+                print("RESULT ADDED")
 
-                load_test.status = "Finished"
-                load_test.save()
+            load_test.status = "Finished"
+            load_test.save()
         except Exception:
             err = sys.exc_info()[1]
             load_test.status = "Failed"
@@ -121,9 +124,9 @@ class BenchRunner(object):
                 test.test_name, load_test.base_url
             )
             if result.exit_code != 0:
-                return False
-
-        return True
+                raise TestNotValidError("The test '%s.%s.%s' running in '%s' is not valid " %
+                                        (test.module, test.class_name,
+                                        test.test_name, load_test.base_url))
 
 
 def main(args=None):
