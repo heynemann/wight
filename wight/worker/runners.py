@@ -109,7 +109,7 @@ class FunkLoadBenchRunner(object):
             log = fl_log.read()
 
         xml_path = join(root_path, 'bench', 'funkload.xml')
-        if workers:
+        if workers and result.exit_code == 0:
             MergeResultFiles(
                 [join(root_path, 'worker_%s-funkload.xml' % index) for index in range(len(workers))],
                 xml_path
