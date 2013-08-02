@@ -78,10 +78,11 @@ description=%(description)s
             if self.workers:
                 conf_file.write("""
 [distribute]
+channel_timeout = %s
 log_path = %s
 python_bin = %s
 funkload_location=https://github.com/nuxeo/FunkLoad/archive/master.zip
-                """.strip() % (self.log_path, sys.executable))
+                """.strip() % (self.timeout, self.log_path, sys.executable))
 
                 conf_file.write("\n")
                 worker_names = " ".join(["worker_%d" % i for i in range(len(self.workers))])
