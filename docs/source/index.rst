@@ -10,27 +10,8 @@ Wight is a tool that enables users to do continuous load testing of their apps u
 
 It provides reports that showcase performance tests, diff between two tests and trend of tests.
 
-.. TODO: Add pictures of reports.
-
-Architecture
-------------
-
-Wight is divided in server and client components.
-
-The server components include the api and web reports.
-
-The client portion is just a commmand line interface (CLI) that allows usage and scheduling of tests.
-
-Installing
-----------
-
-Installing wight's server portion is as easy as::
-
-    $ pip install wight
-
-The CLI app can be installed easily with::
-
-    $ pip install wight-cli
-
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
+
+    installing
+    architecture
