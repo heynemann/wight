@@ -7,6 +7,8 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from datetime import datetime
+from dateutil import tz
 from preggy import expect
 
 from tests.acceptance.base import AcceptanceTest
@@ -14,20 +16,26 @@ from tests.factories import TeamFactory, LoadTestFactory, UserFactory, TestResul
 from wight.models import LoadTest
 
 
+def get_local_time_from_utc(utc_date):
+    utc_date = datetime.strptime(utc_date, "%Y-%m-%dT%H:%M:%S")
+    local_tz = tz.tzlocal()
+    utc_tz = tz.gettz('UTC')
+    return utc_date.replace(tzinfo=utc_tz).astimezone(local_tz)
+
 BASE_LOAD_TESTS_TABLE_PRINT = """
     Team: %s ---- Project: %s
-    +--------------------------------------+-----------+---------------------+-------------------------------------------------+
+    +--------------------------------------+-----------+---------------------------+-------------------------------------------------+
     | uuid                                 |   status  |        since        |                                                 |
-    +--------------------------------------+-----------+---------------------+-------------------------------------------------+
+    +--------------------------------------+-----------+---------------------------+-------------------------------------------------+
     %s
-    +--------------------------------------+-----------+---------------------+-------------------------------------------------+
+    +--------------------------------------+-----------+---------------------------+-------------------------------------------------+
 """
 
 
 def _get_print_lines_for_load_tests(load_tests):
     return [
         "| %s | Scheduled | %s | wight show %s |" % (
-            load.uuid, load.date_created.isoformat().replace("T", " ")[:19], load.uuid
+            load.uuid, get_local_time_from_utc(load.date_created.isoformat()[:19]), load.uuid
         )
         for load in load_tests
     ]
