@@ -27,13 +27,13 @@ class UserHandlerTest(FullTestCase):
 
     def test_when_user_doesnt_exist(self):
         self.user = None
-        response = self.fetch_with_headers("/user/info")
+        response = self.fetch_with_headers("/user/info/invalid@gmail.com")
         expect(response.code).to_equal(401)
 
     def test_get_user_info(self):
         team_owner = TeamFactory(owner=self.user)
         team_member = TeamFactory(members=[self.user])
-        response = self.fetch_with_headers("/user/info")
+        response = self.fetch_with_headers("/user/info/%s" % self.user.email)
 
         expect(response.code).to_equal(200)
 
@@ -42,10 +42,15 @@ class UserHandlerTest(FullTestCase):
             body = body.decode('utf-8')
         body = loads(body)
         expect(body['user']['email']).to_equal(self.user.email)
-        expect(body['user']['teams'][0]['name']).to_equal(team_owner.name)
-        expect(body['user']['teams'][0]['role']).to_equal('owner')
-        expect(body['user']['teams'][1]['name']).to_equal(team_member.name)
-        expect(body['user']['teams'][1]['role']).to_equal('member')
+
+        owner_team = [team for team in body['user']['teams'] if team['role'] == 'owner']
+        member_team = [team for team in body['user']['teams'] if team['role'] == 'member']
+
+        expect(owner_team).to_length(1)
+        expect(member_team).to_length(1)
+
+        expect(owner_team[0]['name']).to_equal(team_owner.name)
+        expect(member_team[0]['name']).to_equal(team_member.name)
 
     def test_change_user_password_works_with_correct_password(self):
         old_pass = "12345"
