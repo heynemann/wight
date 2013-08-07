@@ -3,7 +3,7 @@ test ci-test: mongo_test redis
 	@rm -rf ~/.wighttest
 	@rm -rf .coverage
 	@coverage2 run --branch `which nosetests` -vv --with-yanc -s tests/unit/
-	@coverage2 report --omit="wight/worker/*" -m --fail-under=80
+	@coverage2 report --omit="wight/worker/*" -m --fail-under=75
 
 focus: mongo_test redis
 	@sleep 1
