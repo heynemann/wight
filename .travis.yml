@@ -7,6 +7,7 @@ python:
   #- "pypy"
 
 install:
+  - pushd
   # installing mongodb
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
   - echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/10gen.list
@@ -24,6 +25,7 @@ install:
   - cd /tmp/libgit2/build && cmake .. && cmake --build . && sudo cmake --build . --target install
 
   # install python requirements
+  - popd
   - pip install coveralls
   - pip install -e .[tests]
 
