@@ -22,7 +22,7 @@ install:
   - sudo rm -rf /tmp/libgit2
   - cd /tmp && git clone git://github.com/libgit2/libgit2.git
   - cd /tmp/libgit2/ && git checkout v0.19.0 && mkdir -p /tmp/libgit2/build
-  - cd /tmp/libgit2/build && cmake .. && cmake --build . && sudo cmake --build . --target install
+  - cd /tmp/libgit2/build && cmake .. && cmake --build . && sudo cmake --build . --target install && sudo ldconfig
 
   # install python requirements
   - popd
