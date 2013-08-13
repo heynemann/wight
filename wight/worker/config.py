@@ -22,8 +22,8 @@ except ImportError:
 MINUTES = 60
 HOURS = 60 * MINUTES
 
-Config.define('CYCLES', [1, 20, 40, 60, 80, 100], 'The cycles to run in funkload.', 'Funkload')
-Config.define('CYCLE_DURATION', 30, 'The cycle duration to run in funkload.', 'Funkload')
+Config.define('CYCLES', [20, 50, 100], 'The cycles to run in funkload.', 'Funkload')
+Config.define('CYCLE_DURATION', 10, 'The cycle duration to run in funkload.', 'Funkload')
 Config.define('WORKERS', [], 'The workers definition. Each worker should be defined as a dictionary with host, username and password.', 'Workers')
 
 Config.define('MONGO_HOST', '127.0.0.1', 'The host where the Mongo server is running.', 'DB')
