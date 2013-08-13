@@ -1,4 +1,13 @@
-test ci-test: mongo_test redis
+ci-test: mongo_test redis kill_app
+	@sleep 3
+	@rm -rf ~/.wighttest
+	@rm -rf ~/.wightfunc
+	@rm -rf .coverage
+	@python wight/api/server.py --port 2368 --bind 0.0.0.0 --conf ./tests/acceptance/acceptance.conf &
+	@coverage2 run --branch `which nosetests` -vv --with-yanc -s tests/
+	@coverage2 report --omit="wight/worker/*" -m --fail-under=75
+
+test: mongo_test redis
 	@sleep 3
 	@rm -rf ~/.wighttest
 	@rm -rf .coverage
