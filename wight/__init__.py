@@ -8,4 +8,4 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-__version__ = '0.1.16'
+__version__ = '0.1.17'
