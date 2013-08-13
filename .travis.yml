@@ -31,9 +31,7 @@ install:
 
 script:
     # finally run tests
-    - make ci-test
-    - make f
-    - make acc
+    - make ci-test && make f && make acc
 
 after_success:
   - coveralls
