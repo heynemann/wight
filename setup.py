@@ -22,7 +22,8 @@ tests_require = [
     'sh',
     'factory_boy',
     'coveralls',
-    'pexpect-u'
+    'pexpect-u',
+    'pygit2'
 ]
 
 setup(
