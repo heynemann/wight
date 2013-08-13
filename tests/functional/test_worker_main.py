@@ -18,6 +18,7 @@ from tests.factories import LoadTestFactory, TeamFactory
 
 
 class TestWorkerMain(FunkLoadBaseTest):
+
     def test_can_run_project(self):
         temp_path = mkdtemp()
 
@@ -40,3 +41,16 @@ class TestWorkerMain(FunkLoadBaseTest):
 
         expect(loaded.results[0].log).not_to_be_null()
         expect(loaded.results[0].status).to_equal("Successful")
+
+    def test_fail_if_yaml_not_exists(self):
+        temp_path = mkdtemp()
+        load_test = LoadTestFactory.add_to_project(1, base_url=self.base_url, repository="git://ngit.globoi.com/wight-test/wight-test.git")
+
+        runner = BenchRunner()
+        runner.run_project_tests(temp_path, str(load_test.uuid), cycles=[1, 2], duration=1)
+
+        loaded = LoadTest.objects(uuid=load_test.uuid).first()
+
+        expect(loaded).not_to_be_null()
+        expect(loaded.status).to_equal("Failed")
+        expect(loaded.error).to_equal("The wight.yml file was not found in project repository bench folder.")

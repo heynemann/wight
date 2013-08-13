@@ -106,6 +106,9 @@ class BenchRunner(object):
             load_test.save()
 
     def validate_tests(self, base_path, repo, config, load_test):
+        if not config:
+            raise TestNotValidError("The wight.yml file was not found in project repository bench folder.")
+
         for test in config.tests:
             result = FunkLoadTestRunner.run(
                 base_path, test.module, test.class_name,

@@ -75,9 +75,12 @@ class TeamFactory(factory.Factory):
         team.save()
 
     @classmethod
-    def add_projects(cls, team, number_of_projects):
+    def add_projects(cls, team, number_of_projects, repository=None):
         for i in range(number_of_projects):
-            team.projects.append(ProjectFactory.create(team=team, created_by=team.owner))
+            if repository:
+                team.projects.append(ProjectFactory.create(team=team, created_by=team.owner, repository=repository))
+            else:
+                team.projects.append(ProjectFactory.create(team=team, created_by=team.owner))
 
         team.save()
 
@@ -239,7 +242,7 @@ class LoadTestFactory(factory.Factory):
         return load_test
 
     @classmethod
-    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None):
+    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None, repository=None):
         if not user:
             user = UserFactory.create()
 
@@ -247,7 +250,7 @@ class LoadTestFactory(factory.Factory):
             team = TeamFactory.create(owner=user)
 
         if not project:
-            TeamFactory.add_projects(team, 1)
+            TeamFactory.add_projects(team, 1, repository=repository)
             project = team.projects[-1]
 
         test = None
