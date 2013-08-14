@@ -98,14 +98,23 @@ class TrendHandler(BaseHandler):
 
     def _get_concurrent_users_for_response_time(self, results):
         concurrent_users = self._get_concurrent_users_for_results(results)
-        return sorted(set(concurrent_users[0]).union(*concurrent_users))
+        return sorted(set(concurrent_users[0]).intersection(*concurrent_users))
 
     def _get_concurrent_users_for_apdex(self, results):
         concurrent_users = self._get_concurrent_users_for_results(results)
         return sorted(set(concurrent_users[0]).intersection(*concurrent_users))
 
     def _get_page_values_for(self, page_data_type, results):
-        return [[cycle["page"][page_data_type] for cycle in result["cycles"]] for result in results]
+        return [{cycle["concurrentUsers"]: cycle["page"][page_data_type] for cycle in result["cycles"]} for result in results]
+
+    def _filter_results_with_not_same_concurrent_users(self, concurrent_users, results):
+        return_value = []
+        for result in results:
+            result_concurrent_users = [cycle["concurrentUsers"] for cycle in result["cycles"]]
+            if concurrent_users == result_concurrent_users:
+                return_value.append(result)
+
+        return return_value
 
     @tornado.web.asynchronous
     def get(self, team, project, module, class_name, test):
@@ -124,12 +133,16 @@ class TrendHandler(BaseHandler):
         api_result = self.get_api("results/%s/%s/%s/%s/%s/" % (team, project, module, class_name, test))
         if api_result.status_code == 200:
             results = loads(api_result.content)
+            concurrent_users = self._get_concurrent_users_for_results(results)
+            concurrent_users = concurrent_users[0]
+            results = self._filter_results_not_with_same_concurrent_users(concurrent_users, results)
+
             kwargs.update({
                 "results": results,
-                "apdex_concurrent_users": self._get_concurrent_users_for_apdex(results),
+                "apdex_concurrent_users": concurrent_users,
                 "apdex_values": self._get_page_values_for("apdex", results),
                 "pps_values": self._get_page_values_for("successfulPagesPerSecond", results),
                 "average_response_time_values": self._get_page_values_for("average", results),
-                "page_concurrent_users": self._get_concurrent_users_for_response_time(results)
+                "page_concurrent_users": concurrent_users
             })
         self.render('trend.html', **kwargs)
