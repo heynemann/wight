@@ -7,7 +7,9 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+import os
 
+from mock import patch
 from preggy import expect
 from tempfile import mkdtemp
 
@@ -42,9 +44,12 @@ class TestWorkerMain(FunkLoadBaseTest):
         expect(loaded.results[0].log).not_to_be_null()
         expect(loaded.results[0].status).to_equal("Successful")
 
-    def test_fail_if_yaml_not_exists(self):
+    @patch.object(BenchRunner, '_clone_repository')
+    def test_fail_if_yaml_not_exists(self, clone_repo_mock):
+        clone_repo_mock.return_value = None
         temp_path = mkdtemp()
-        load_test = LoadTestFactory.add_to_project(1, base_url=self.base_url, repository="git://ngit.globoi.com/wight-test/wight-test.git")
+        os.mkdir(os.path.join(temp_path, "bench"))
+        load_test = LoadTestFactory.add_to_project(1, base_url=self.base_url)
 
         runner = BenchRunner()
         runner.run_project_tests(temp_path, str(load_test.uuid), cycles=[1, 2], duration=1)

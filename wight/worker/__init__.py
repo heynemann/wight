@@ -56,6 +56,13 @@ class WorkerJob(object):
 
 
 class BenchRunner(object):
+    def _clone_repository(self, base_path, load_test):
+        repo = Repository.clone(url=load_test.project.repository, path=base_path)
+        last_commit = tuple(repo.walk(repo.head.target, GIT_SORT_TIME))[0]
+        load_test.last_commit = Commit.from_pygit(last_commit)
+        load_test.save()
+        return repo
+
     def run_project_tests(self, base_path, load_test_uuid, workers=[], cycles=[10, 20, 30, 40, 50], duration=10):
         load_test = LoadTest.objects(uuid=UUID(load_test_uuid)).first()
         load_test.status = "Running"
@@ -63,10 +70,7 @@ class BenchRunner(object):
         load_test.save()
 
         try:
-            repo = Repository.clone(url=load_test.project.repository, path=base_path)
-            last_commit = tuple(repo.walk(repo.head.target, GIT_SORT_TIME))[0]
-            load_test.last_commit = Commit.from_pygit(last_commit)
-            load_test.save()
+            repo = self._clone_repository(base_path, load_test)
 
             bench_path = join(base_path, 'bench')
             cfg = WightConfig.load(join(bench_path, 'wight.yml'))
