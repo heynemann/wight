@@ -44,12 +44,13 @@ Config.define('REDIS_PASSWORD', '', 'The redis password', 'Cache')
 
 
 class TestConfig(object):
-    def __init__(self, title, description, module, class_name, test_name):
+    def __init__(self, title, description, module, class_name, test_name, pressure):
         self.title = title
         self.description = description
         self.module = module
         self.class_name = class_name
         self.test_name = test_name
+        self.pressure = pressure
 
 
 class WightConfig(object):
@@ -64,7 +65,8 @@ class WightConfig(object):
                 test.get('description', None),
                 test.get('module', None),
                 test.get('class', None),
-                test.get('test', None)
+                test.get('test', None),
+                test.get('pressure', "small")
             )
             self.tests.append(test_obj)
 

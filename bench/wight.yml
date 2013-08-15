@@ -15,3 +15,4 @@ tests:
     module: test_healthcheck
     class: HealthCheckTest
     test: test_healthcheck
+    pressure: small

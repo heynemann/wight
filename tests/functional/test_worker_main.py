@@ -32,7 +32,7 @@ class TestWorkerMain(FunkLoadBaseTest):
         load_test = LoadTestFactory.add_to_project(1, user=user, team=team, project=project, base_url=self.base_url)
 
         runner = BenchRunner()
-        runner.run_project_tests(temp_path, str(load_test.uuid), cycles=[1, 2], duration=1)
+        runner.run_project_tests(temp_path, str(load_test.uuid), duration=1)
 
         loaded = LoadTest.objects(uuid=load_test.uuid).first()
 
