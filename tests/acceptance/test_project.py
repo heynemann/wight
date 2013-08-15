@@ -22,7 +22,7 @@ class TestCreateProject(AcceptanceTest):
         project_name = "test-create-project"
         repo = "repo"
 
-        result = self.execute("project-create", team=team.name, project=project_name, repo=repo)
+        result = self.execute("project-create", project_name, team=team.name, repo=repo)
         expect(result).to_be_like(
             "Created '%s' project in '%s' team at '%s'." % (project_name, team.name, self.target)
         )
