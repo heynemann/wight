@@ -28,10 +28,18 @@ class TestCanRunFunkloadBench(FunkLoadBaseTest):
         user = team.owner
         project = team.projects[0]
         load_test = LoadTestFactory.add_to_project(1, user=user, team=team, project=project)
+        load_test.pressure = "small"
 
         conf = WightConfig.load(join(root_path, 'bench', 'wight.yml'))
         test = conf.tests[0]
-        fl_result = FunkLoadBenchRunner.run(root_path, test, self.base_url, cycles=[10, 20], duration=5)
+
+        DEFAULT_CYCLES = {
+            "small": [10, 20],
+            "medium": [10, 20, 30],
+            "large": [30, 75, 100],
+        }
+
+        fl_result = FunkLoadBenchRunner.run(root_path, test, self.base_url, cycles=DEFAULT_CYCLES, duration=5)
 
         expect(fl_result).not_to_be_null()
         expect(fl_result.exit_code).to_equal(0)

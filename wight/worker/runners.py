@@ -60,8 +60,14 @@ class FunkLoadTestRunner(object):
 
 
 class FunkLoadBenchRunner(object):
+    DEFAULT_CYCLES = {
+        "small": [3, 5, 8],  # with 20 funkload instances => 60, 100, 160
+        "medium": [10, 20, 30],  # with 20 funkload instances => 200, 400, 600
+        "large": [30, 75, 100],  # with 20 funkload instances => 600, 1500, 2000
+    }
+
     @classmethod
-    def run(cls, root_path, test, base_url, workers=[], cycles=[10, 20, 30, 40, 50], duration=10):
+    def run(cls, root_path, test, base_url, workers=[], cycles=DEFAULT_CYCLES, duration=10):
         assert isinstance(test, TestConfig), "The test argument must be of type wight.worker.config.TestConfig"
 
         #fl-run-bench --distribute --distribute-workers=localhost -u http://api.qa01.globoi.com -c 10:20:30:40:50 -D 30 --simple-fetch geo.py GeoTests.test_geo
@@ -71,7 +77,7 @@ class FunkLoadBenchRunner(object):
         keyword_arguments = dict(
             # keyword arguments
             u=base_url, simple_fetch=True,
-            c=":".join([str(cycle) for cycle in cycles]),
+            c=":".join([str(cycle) for cycle in cycles[test.pressure]]),
 
             # sh.py options
             _env={
