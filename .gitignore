@@ -36,6 +36,5 @@ nosetests.xml
 
 .idea
 
-funkload.log
-funkload.xml
+/bench/funkload.*
 HealthCheckTest.conf
