@@ -63,3 +63,64 @@ class TestUserData(TestCase):
         loaded = UserData.load()
         expect(loaded).not_to_be_null()
         expect(loaded.target).to_equal("http://target3.wight.com")
+
+    def test_adding_team_default(self):
+        ud = UserData(target="target")
+
+        ud.set_default(team="team-blah")
+        expect(hasattr(ud, "team")).to_be_true()
+        expect(ud.team).to_equal("team-blah")
+        expect(hasattr(ud, "project")).to_be_false()
+
+    def test_adding_project_default(self):
+        ud = UserData(target="target")
+
+        ud.set_default(project="project-blah")
+        expect(hasattr(ud, "project")).to_be_true()
+        expect(ud.project).to_equal("project-blah")
+        expect(hasattr(ud, "team")).to_be_false()
+
+    def test_adding_team_and_project_default(self):
+        ud = UserData(target="target")
+
+        ud.set_default(team="team-blah", project="project-blah")
+        expect(hasattr(ud, "team")).to_be_true()
+        expect(hasattr(ud, "project")).to_be_true()
+        expect(ud.team).to_equal("team-blah")
+        expect(ud.project).to_equal("project-blah")
+
+    def test_to_dict_with_team(self):
+        ud = UserData(target="target")
+        ud.set_default(team="team-blah")
+        ud_dict = ud.to_dict()
+        expect(ud_dict).to_be_like({"target": "target", "team": "team-blah", "token": None})
+
+    def test_to_dict_with_project(self):
+        ud = UserData(target="target")
+        ud.set_default(project="project-blah")
+        ud_dict = ud.to_dict()
+        expect(ud_dict).to_be_like({"target": "target", "project": "project-blah", "token": None})
+
+    def test_to_dict_with_team_and_project(self):
+        ud = UserData(target="target")
+        ud.set_default(team="team-blah", project="project-blah")
+        ud_dict = ud.to_dict()
+        expect(ud_dict).to_be_like({"target": "target", "team": "team-blah", "project": "project-blah", "token": None})
+
+    def test_saving_with_team(self):
+        ud = UserData(target="target")
+        ud.set_default(team="team-blah")
+        ud.save()
+        loaded = UserData.load()
+        expect(hasattr(loaded, "team")).to_be_true()
+        expect(loaded.team).to_equal("team-blah")
+        expect(hasattr(loaded, "project")).to_be_false()
+
+    def test_saving_with_project(self):
+        ud = UserData(target="target")
+        ud.set_default(project="project-blah")
+        ud.save()
+        loaded = UserData.load()
+        expect(hasattr(loaded, "project")).to_be_true()
+        expect(loaded.project).to_equal("project-blah")
+        expect(hasattr(loaded, "team")).to_be_false()

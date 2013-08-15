@@ -11,6 +11,7 @@
 from preggy import expect
 
 from wight.cli.app import WightApp
+from wight.cli.default import SetDefaultController, GetDefaultController
 from wight.cli.target import TargetSetController, TargetGetController
 from wight.cli.auth import AuthController
 from wight.cli.team import CreateTeamController, ShowTeamController, UpdateTeamController, TeamAddUserController, DeleteTeamController, TeamRemoveUserController
@@ -38,7 +39,7 @@ class TestWightApp(TestCase):
 
         self.app.register_controllers()
 
-        expect(self.app.controllers).to_length(18)
+        expect(self.app.controllers).to_length(20)
         expect(self.app.controllers).to_include(TargetSetController)
         expect(self.app.controllers).to_include(TargetGetController)
         expect(self.app.controllers).to_include(AuthController)
@@ -57,3 +58,5 @@ class TestWightApp(TestCase):
         expect(self.app.controllers).to_include(ListLoadTestController)
         expect(self.app.controllers).to_include(InstanceLoadTestController)
         expect(self.app.controllers).to_include(ShowResultController)
+        expect(self.app.controllers).to_include(SetDefaultController)
+        expect(self.app.controllers).to_include(GetDefaultController)

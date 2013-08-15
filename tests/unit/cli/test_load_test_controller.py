@@ -8,6 +8,7 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 from json import dumps
+import mock
 
 from wight.errors import UnauthenticatedError
 
@@ -183,6 +184,82 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
         msg = "Project or team not found at target 'Target'."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_must_show_error_message_if_default_team_are_not_set(self, mock_stdout):
+        self.ctrl.arguments.team = None
+        self.ctrl.default()
+        expect(mock_stdout.getvalue()).to_be_like(
+            """
+A default team was not set and you do not pass one. You can:
+    pass a team using --team parameter
+    or set a default team with wight default-set --team <team-name> command
+            """)
+
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_must_show_error_message_if_default_project_are_not_set(self, mock_stdout):
+        self.ctrl.arguments.project = None
+        self.ctrl.default()
+        expect(mock_stdout.getvalue()).to_be_like(
+            """
+A default project was not set and you do not pass one. You can:
+    pass a project using --project parameter
+    or set a default project with wight default-set --project <project-name> command
+            """)
+
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_must_show_error_message_if_default_team_and_project_are_not_set(self, mock_stdout):
+        self.ctrl.arguments.team = None
+        self.ctrl.arguments.project = None
+        self.ctrl.default()
+        expect(mock_stdout.getvalue()).to_be_like(
+            """
+A default team was not set and you do not pass one. You can:
+    pass a team using --team parameter
+    or set a default team with wight default-set --team <team-name> command
+A default project was not set and you do not pass one. You can:
+    pass a project using --project parameter
+    or set a default project with wight default-set --project <project-name> command
+            """)
+
+    @patch.object(ScheduleLoadTestController, 'post')
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_should_be_possible_schedule_with_default_team(self, mock_stdout, post_mock):
+        response = Mock(status_code=200)
+        post_mock.return_value = response
+        self.ctrl.arguments.pressure = "medium"
+        self.ctrl.arguments.team = None
+        self.ctrl.app.user_data.set_default(team="team-blah")
+        self.ctrl.default()
+        expect(mock_stdout.getvalue()).to_be_like(
+            "Scheduled a new load test for project 'project' in team 'team-blah' at 'Target' target."
+        )
+
+    @patch.object(ScheduleLoadTestController, 'post')
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_should_be_possible_schedule_with_default_project(self, mock_stdout, post_mock):
+        response = Mock(status_code=200)
+        post_mock.return_value = response
+        self.ctrl.arguments.pressure = "medium"
+        self.ctrl.arguments.project = None
+        self.ctrl.app.user_data.set_default(project="project-blah")
+        self.ctrl.default()
+        expect(mock_stdout.getvalue()).to_be_like(
+            "Scheduled a new load test for project 'project-blah' in team 'nameless' at 'Target' target."
+        )
+
+    @patch.object(ScheduleLoadTestController, 'post')
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_should_be_possible_schedule_with_default_team_and_project(self, mock_stdout, post_mock):
+        response = Mock(status_code=200)
+        post_mock.return_value = response
+        self.ctrl.arguments.pressure = "medium"
+        self.ctrl.arguments.team = None
+        self.ctrl.arguments.project = None
+        self.ctrl.app.user_data.set_default(team="team-blah", project="project-blah")
+        self.ctrl.default()
+        expect(mock_stdout.getvalue()).to_be_like(
+            "Scheduled a new load test for project 'project-blah' in team 'team-blah' at 'Target' target."
+        )
 
 class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):

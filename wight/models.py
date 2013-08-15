@@ -39,10 +39,24 @@ class UserData(object):
         self.token = token
 
     def to_dict(self):
-        return {
+        user_data = {
             "target": self.target,
-            "token": self.token
+            "token": self.token,
         }
+
+        if hasattr(self, "team"):
+            user_data["team"] = self.team
+
+        if hasattr(self, "project"):
+            user_data["project"] = self.project
+
+        return user_data
+
+    def set_default(self, team=None, project=None):
+        if team:
+            self.team = team
+        if project:
+            self.project = project
 
     def save(self, path=None):
         if path is None:
@@ -55,8 +69,12 @@ class UserData(object):
     def from_dict(cls, data):
         item = cls(
             target=data['target'],
-            token=data.get('token', None)
+            token=data.get('token', None),
         )
+        if "team" in data:
+            item.set_default(team=data["team"])
+        if "project" in data:
+            item.set_default(project=data["project"])
         return item
 
     @classmethod

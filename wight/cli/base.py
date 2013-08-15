@@ -54,6 +54,26 @@ class WightBaseController(controller.CementBaseController):
         self.reset_success = "%s%s" % (Style.RESET_ALL, self.success_text_color)
         self.reset_error = "%s%s" % (Style.RESET_ALL, self.error_text_color)
 
+    def _get_parameter(self, parameter, default_name):
+        result = parameter
+        if not parameter and hasattr(self.app.user_data, default_name):
+            result = getattr(self.app.user_data, default_name)
+        if not result:
+            self.puterror(
+                """
+A default %(parameter_name)s was not set and you do not pass one. You can:
+    pass a %(parameter_name)s using %(keyword_color)s--%(parameter_name)s%(reset_error)s parameter
+    or set a default %(parameter_name)s with %(commands_color)swight default-set %(keyword_color)s--%(parameter_name)s <%(parameter_name)s-name>%(reset_error)s command
+                """ %
+                {
+                    "parameter_name": default_name,
+                    "keyword_color": self.keyword_color,
+                    "commands_color": self.commands_color,
+                    "reset_error": self.reset_error
+                }
+            )
+        return result
+
     def abort(self, message="Aborting..."):
         self.line_break()
         self.puterror(message)
