@@ -466,6 +466,7 @@ class Commit(EmbeddedDocument):
 class LoadTest(Document):
     uuid = UUIDField(required=True, default=uuid4)
     status = StringField(required=True, choices=("Scheduled", "Running", "Failed", "Finished"))
+    pressure = StringField(required=True, choices=("small", "medium", "large"))
     team = ReferenceField(Team, required=True)
     created_by = ReferenceField(User, required=True)
     last_commit = EmbeddedDocumentField(Commit)
