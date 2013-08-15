@@ -1,4 +1,4 @@
-ci-test: kill_mongo mongo_test kill_redis redis kill_app
+ci-test: kill_mongo mongo_test redis kill_app
 	@sleep 5
 	@rm -rf ~/.wighttest
 	@rm -rf ~/.wightfunc
