@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+
 from json import dumps
 import mock
 
@@ -260,6 +261,7 @@ A default project was not set and you do not pass one. You can:
         expect(mock_stdout.getvalue()).to_be_like(
             "Scheduled a new load test for project 'project-blah' in team 'team-blah' at 'Target' target."
         )
+
 
 class ListAllLoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):

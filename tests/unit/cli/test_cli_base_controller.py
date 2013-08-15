@@ -8,8 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-import os
-
 try:
     from StringIO import StringIO
 except ImportError:

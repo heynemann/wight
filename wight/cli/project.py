@@ -22,8 +22,8 @@ class CreateProjectController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['--team'], dict(help='Name of the team that owns this project.', required=True)),
-            (['--project'], dict(help='Name of the project.', required=True)),
+            (['project'], dict(help='Name of the project.')),
+            (['--team'], dict(help='Name of the team that owns this project.')),
             (['--repo'], dict(help='Git repository for this project.', required=True)),
         ]
 
@@ -32,7 +32,10 @@ class CreateProjectController(WightBaseController):
     def default(self):
         self.load_conf()
         target = self.app.user_data.target
-        team_name = self.arguments.team
+        team_name = self._get_parameter(self.arguments.team, "team")
+        if not team_name:
+            return
+
         name = self.arguments.project
         repo = self.arguments.repo
 
@@ -81,10 +84,10 @@ class UpdateProjectController(WightBaseController):
 
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['--team'], dict(help='Name of the team that owns this project.', required=True)),
-            (['--project'], dict(help='Name of the project to be updated.', required=True)),
             (['--project_name'], dict(help='Name to update for this project', required=False)),
             (['--repo'], dict(help='Git repository to update for this project.', required=False)),
+            (['--team'], dict(help='Name of the team that owns this project.')),
+            (['--project'], dict(help='Name of the project to be updated.')),
         ]
 
     @controller.expose(hide=False, aliases=["project-update"], help='Updates a project.')
@@ -92,8 +95,12 @@ class UpdateProjectController(WightBaseController):
     def default(self):
         self.load_conf()
         target = self.app.user_data.target
-        team_name = self.arguments.team
-        project_name = self.arguments.project
+        team_name = self._get_parameter(self.arguments.team, "team")
+        project_name = self._get_parameter(self.arguments.project, "project")
+
+        if not team_name or not project_name:
+            return
+
         name = self.arguments.project_name
         repo = self.arguments.repo
 
@@ -142,8 +149,11 @@ class DeleteProjectController(WightBaseController):
     def default(self):
         self.load_conf()
         target = self.app.user_data.target
-        team_name = self.arguments.team
+        team_name = self._get_parameter(self.arguments.team, "team")
         project_name = self.arguments.project
+
+        if not team_name:
+            return
 
         self.line_break()
         self.write(
