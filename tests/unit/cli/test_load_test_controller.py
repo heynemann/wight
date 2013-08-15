@@ -7,10 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
-from datetime import datetime
 from json import dumps
-from uuid import uuid4
-from tests.factories import UserFactory
 
 from wight.errors import UnauthenticatedError
 
@@ -150,9 +147,11 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
 
     @patch.object(ScheduleLoadTestController, 'post')
     def test_schedule_test(self, post_mock):
+        self.ctrl.arguments.pressure = "medium"
         self.ctrl.default()
         post_mock.assert_any_call("/teams/nameless/projects/project/load_tests/", {
-            "base_url": "http://www.globo.com"
+            "base_url": "http://www.globo.com",
+            "pressure": "medium"
         })
 
     @patch.object(ScheduleLoadTestController, 'post')
@@ -160,6 +159,7 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
     def test_schedule_test_notifies_user(self, write_mock, post_mock):
         response = Mock(status_code=200)
         post_mock.return_value = response
+        self.ctrl.arguments.pressure = "medium"
         self.ctrl.default()
         msg = "Scheduled a new load test for project 'project' in team 'nameless' at 'Target' target."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
@@ -168,6 +168,7 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
     @patch.object(ScheduleLoadTestController, 'write')
     def test_schedule_gets_server_error_and_notify(self, write_mock, post_mock):
         post_mock.side_effect = requests.ConnectionError
+        self.ctrl.arguments.pressure = "medium"
         self.ctrl.default()
         msg = "The server did not respond. Check your connection with the target 'Target'."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
@@ -177,6 +178,7 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
     def test_schedule_test_when_project_not_found(self, write_mock, post_mock):
         response = Mock(status_code=404)
         post_mock.return_value = response
+        self.ctrl.arguments.pressure = "medium"
         self.ctrl.default()
         msg = "Project or team not found at target 'Target'."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)

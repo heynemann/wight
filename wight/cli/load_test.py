@@ -29,6 +29,13 @@ def get_local_time_from_utc(utc_date):
     return utc_date.replace(tzinfo=utc_tz).astimezone(local_tz)
 
 
+PRESSURES = {
+    'small': 0,
+    'medium': 1,
+    'large': 2
+}
+
+
 class ScheduleLoadTestController(WightBaseController):
     class Meta:
         label = 'schedule'
@@ -39,6 +46,7 @@ class ScheduleLoadTestController(WightBaseController):
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
             (['--url'], dict(help='The base url to run the load test against', required=True)),
+            (['--pressure'], dict(help='Pressure to apply. Impacts the number of concurrent users. Can be "small", "medium" or "large" [default: %s].', default="medium")),
             (['--team'], dict(help='The name of the team that owns the project to schedule a load test', required=True)),
             (['--project'], dict(help='The name of the project to schedule a load test', required=True)),
         ]
@@ -51,6 +59,10 @@ class ScheduleLoadTestController(WightBaseController):
         team_name = self.arguments.team
         project_name = self.arguments.project
         base_url = self.arguments.url
+        pressure = self.arguments.pressure
+
+        if not team_name or not project_name or pressure.lower() not in PRESSURES:
+            return
 
         log_message = "Scheduled a new load test for project '%s%s%s' in team '%s%s%s' at '%s%s%s' target." % (
             self.keyword_color, project_name, self.reset_success,
@@ -63,7 +75,8 @@ class ScheduleLoadTestController(WightBaseController):
                 "team_name": team_name,
                 "project_name": project_name
             }, {
-                'base_url': base_url
+                'base_url': base_url,
+                'pressure': pressure
             })
 
             self.line_break()
@@ -455,5 +468,3 @@ class ShowResultController(WightBaseController):
         #self.write(table)
 
         #line = str(table).split('\n')[0]
-
-
