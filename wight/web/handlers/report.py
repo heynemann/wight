@@ -135,7 +135,7 @@ class TrendHandler(BaseHandler):
             results = loads(api_result.content)
             concurrent_users = self._get_concurrent_users_for_results(results)
             concurrent_users = concurrent_users[0]
-            results = self._filter_results_not_with_same_concurrent_users(concurrent_users, results)
+            results = self._filter_results_with_not_same_concurrent_users(concurrent_users, results)
 
             kwargs.update({
                 "results": results,
