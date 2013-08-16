@@ -34,7 +34,6 @@ class AuthLoadTestHandler(BaseHandler):
     @BaseHandler.team_member
     def post(self, team, project_name):
         base_url = self.get_argument("base_url").strip()
-        pressure = self.get_argument("pressure").strip().lower()
 
         if not base_url or not URL_RE.match(base_url):
             self.set_status(400)
@@ -47,16 +46,10 @@ class AuthLoadTestHandler(BaseHandler):
             self.finish()
             return
 
-        if not pressure or pressure not in ["small", "medium", "large"]:
-            self.set_status(400)
-            self.finish()
-            return
-
         project = project[0]
 
         test = LoadTest(
             status="Scheduled",
-            pressure=pressure,
             base_url=base_url,
             team=team,
             created_by=self.current_user,

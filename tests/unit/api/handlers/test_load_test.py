@@ -28,8 +28,7 @@ class ScheduleLoadTestTest(FullTestCase):
     def test_schedule_test(self):
         url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
         response = self.post(url, **{
-            "base_url": "http://www.globo.com",
-            "pressure": "small"
+            "base_url": "http://www.globo.com"
         })
         expect(response.code).to_equal(200)
         expect(response.body).to_equal("OK")
@@ -40,7 +39,6 @@ class ScheduleLoadTestTest(FullTestCase):
         expect(tests[0].created_by.id).to_equal(self.user.id)
         expect(tests[0].project_name).to_equal(self.project.name)
         expect(tests[0].base_url).to_equal("http://www.globo.com")
-        expect(tests[0].pressure).to_equal("small")
 
     def test_schedule_test_without_being_a_member(self):
         team = TeamFactory.create()
@@ -55,8 +53,7 @@ class ScheduleLoadTestTest(FullTestCase):
     def test_schedule_test_for_invalid_project(self):
         url = "/teams/%s/projects/bogus-project/load_tests/" % self.team.name
         response = self.post(url, **{
-            "base_url": "http://www.globo.com",
-            "pressure": "medium"
+            "base_url": "http://www.globo.com"
         })
         expect(response.code).to_equal(404)
 
@@ -79,11 +76,6 @@ class ScheduleLoadTestTest(FullTestCase):
 
         response = self.post(url, **{
             "base_url": "wqeqwejqwjeqw"
-        })
-        expect(response.code).to_equal(400)
-
-        response = self.post(url, **{
-            "base_url": "http://www.globo.com"
         })
         expect(response.code).to_equal(400)
 

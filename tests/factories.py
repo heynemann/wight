@@ -230,7 +230,6 @@ class LoadTestFactory(factory.Factory):
     project_name = factory.LazyAttributeSequence(lambda load_test, index: 'project-%d' % index)
     base_url = factory.LazyAttributeSequence(lambda load_test, index: 'http://localhost:%04d' % index)
     status = "Scheduled"
-    pressure = "medium"
     date_modified = factory.LazyAttribute(lambda load_test: datetime.now())
     date_created = factory.LazyAttribute(lambda load_test: datetime.now())
     results = []
