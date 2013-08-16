@@ -18,7 +18,7 @@ from funkload.MergeResultFiles import MergeResultFiles
 from six import StringIO
 
 from wight.worker.bench_configuration import BenchConfiguration
-from wight.worker.config import TestConfig
+from wight.worker.config import TestConfig, DEFAULT_CYCLES
 
 fl_run_test = Command("fl-run-test")
 fl_run_bench = Command("fl-run-bench")
@@ -60,11 +60,6 @@ class FunkLoadTestRunner(object):
 
 
 class FunkLoadBenchRunner(object):
-    DEFAULT_CYCLES = {
-        "small": [3, 5, 8],  # with 20 funkload instances => 60, 100, 160
-        "medium": [10, 20, 30],  # with 20 funkload instances => 200, 400, 600
-        "large": [30, 75, 100],  # with 20 funkload instances => 600, 1500, 2000
-    }
 
     @classmethod
     def run(cls, root_path, test, base_url, workers=[], cycles=DEFAULT_CYCLES, duration=10):

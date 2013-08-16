@@ -12,6 +12,7 @@ from os.path import exists
 
 from derpconf.config import Config, generate_config
 from yaml import load
+
 try:
     # if libyaml is available we use it, since it's a lot faster
     from yaml import CLoader as Loader
@@ -22,7 +23,13 @@ except ImportError:
 MINUTES = 60
 HOURS = 60 * MINUTES
 
-Config.define('CYCLES', [20, 50, 100], 'The cycles to run in funkload.', 'Funkload')
+DEFAULT_CYCLES = {
+    "small": [3, 5, 8],  # with 20 funkload instances => 60, 100, 160
+    "medium": [10, 20, 30],  # with 20 funkload instances => 200, 400, 600
+    "large": [30, 75, 100],  # with 20 funkload instances => 600, 1500, 2000
+}
+
+Config.define('CYCLES', DEFAULT_CYCLES, 'The cycles to run in funkload.', 'Funkload')
 Config.define('CYCLE_DURATION', 10, 'The cycle duration to run in funkload.', 'Funkload')
 Config.define('WORKERS', [], 'The workers definition. Each worker should be defined as a dictionary with host, username and password.', 'Workers')
 

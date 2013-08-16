@@ -109,3 +109,21 @@ local-schedule:
 
 pip:
 	@python setup.py -q sdist upload
+
+prod-login:
+	@wight target-set http://api.wight.globoi.com/
+	@wight login
+
+blade-login:
+	@wight target-set http://wight.plataformas.corp.globoi.com/
+	@wight login
+
+aws-login:
+	@wight target-set http://wight.timeho.me/
+	@wight login
+
+default:
+	@wight default-set --team local --project wight
+
+schedule:
+	@wight schedule --url http://wight.timeho.me/

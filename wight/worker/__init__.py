@@ -23,7 +23,7 @@ from mongoengine import connect
 
 from wight.models import LoadTest, Commit
 from wight.worker.repository import Repository
-from wight.worker.config import WightConfig, Config
+from wight.worker.config import WightConfig, Config, DEFAULT_CYCLES
 from wight.worker.runners import FunkLoadTestRunner, FunkLoadBenchRunner
 
 
@@ -63,7 +63,7 @@ class BenchRunner(object):
         load_test.save()
         return repo
 
-    def run_project_tests(self, base_path, load_test_uuid, workers=[], cycles=FunkLoadBenchRunner.DEFAULT_CYCLES, duration=10):
+    def run_project_tests(self, base_path, load_test_uuid, workers=[], cycles=DEFAULT_CYCLES, duration=10):
         load_test = LoadTest.objects(uuid=UUID(load_test_uuid)).first()
         load_test.status = "Running"
         load_test.running_since = datetime.utcnow()
