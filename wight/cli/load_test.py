@@ -39,8 +39,8 @@ class ScheduleLoadTestController(WightBaseController):
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
             (['--url'], dict(help='The base url to run the load test against', required=True)),
-            (['--team'], dict(help='The name of the team that owns the project to schedule a load test', required=True)),
-            (['--project'], dict(help='The name of the project to schedule a load test', required=True)),
+            (['--team'], dict(help='The name of the team that owns the project to schedule a load test')),
+            (['--project'], dict(help='The name of the project to schedule a load test')),
         ]
 
     @controller.expose(hide=False, aliases=["schedule"], help='Schedules a new load test.')

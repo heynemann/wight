@@ -52,7 +52,6 @@ class TestSchedule(AcceptanceTest):
         expect(load_test).not_to_be_null()
 
         expect(load_test.team.id).to_equal(team.id)
-        expect(load_test.pressure).to_equal("medium")
         expect(load_test.project_name).to_equal(project_name)
         expect(load_test.created_by.id).to_equal(self.user.id)
 
@@ -72,7 +71,6 @@ class TestSchedule(AcceptanceTest):
         expect(load_test).not_to_be_null()
 
         expect(load_test.team.id).to_equal(team.id)
-        expect(load_test.pressure).to_equal("medium")
         expect(load_test.project_name).to_equal(project_name)
         expect(load_test.created_by.id).to_equal(self.user.id)
 
@@ -92,6 +90,5 @@ class TestSchedule(AcceptanceTest):
         expect(load_test).not_to_be_null()
 
         expect(load_test.team.id).to_equal(team.id)
-        expect(load_test.pressure).to_equal("medium")
         expect(load_test.project_name).to_equal(project_name)
         expect(load_test.created_by.id).to_equal(self.user.id)
