@@ -29,12 +29,6 @@ def get_local_time_from_utc(utc_date):
     return utc_date.replace(tzinfo=utc_tz).astimezone(local_tz)
 
 
-PRESSURES = {
-    'small': 0,
-    'medium': 1,
-    'large': 2
-}
-
 class ScheduleLoadTestController(WightBaseController):
     class Meta:
         label = 'schedule'
@@ -45,9 +39,8 @@ class ScheduleLoadTestController(WightBaseController):
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
             (['--url'], dict(help='The base url to run the load test against', required=True)),
-            (['--pressure'], dict(help='Pressure to apply. Impacts the number of concurrent users. Can be "small", "medium" or "large" [default: %s].', default="medium")),
-            (['--team'], dict(help='The name of the team that owns the project to schedule a load test')),
-            (['--project'], dict(help='The name of the project to schedule a load test')),
+            (['--team'], dict(help='The name of the team that owns the project to schedule a load test', required=True)),
+            (['--project'], dict(help='The name of the project to schedule a load test', required=True)),
         ]
 
     @controller.expose(hide=False, aliases=["schedule"], help='Schedules a new load test.')
@@ -57,9 +50,8 @@ class ScheduleLoadTestController(WightBaseController):
         target = self.app.user_data.target
         team_name = self._get_parameter(self.arguments.team, "team")
         project_name = self._get_parameter(self.arguments.project, "project")
-        pressure = self._get_parameter(self.arguments.pressure, "pressure")
 
-        if not team_name or not project_name or pressure.lower() not in PRESSURES:
+        if not team_name or not project_name:
             return
 
         base_url = self.arguments.url
@@ -75,8 +67,7 @@ class ScheduleLoadTestController(WightBaseController):
                 "team_name": team_name,
                 "project_name": project_name
             }, {
-                'base_url': base_url,
-                'pressure': pressure
+                'base_url': base_url
             })
 
             self.line_break()
