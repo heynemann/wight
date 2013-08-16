@@ -97,7 +97,7 @@ class FunkLoadBenchRunner(object):
             log_path=root_path,
             workers=workers
         )
-        cfg.calculate_timeout(len(cycles))
+        cfg.calculate_timeout(len(cycles[test.pressure]))
         cfg.save(join(root_path, 'bench', '%s.conf' % test.class_name))
 
         try:
@@ -106,19 +106,23 @@ class FunkLoadBenchRunner(object):
             err = sys.exc_info()[1]
             return FunkLoadTestRunResult(1, err.stdout + err.stderr, log=err.stderr, result=None, config=None)
 
-        with open(join(root_path, 'bench', 'funkload.log')) as fl_log:
-            log = fl_log.read()
+        try:
+            with open(join(root_path, 'bench', 'funkload.log')) as fl_log:
+                log = fl_log.read()
 
-        xml_path = join(root_path, 'bench', 'funkload.xml')
-        if workers:
-            MergeResultFiles(
-                [join(root_path, 'worker_%s-funkload.xml' % index) for index in range(len(workers))],
-                xml_path
-            )
+            xml_path = join(root_path, 'bench', 'funkload.xml')
+            if workers:
+                MergeResultFiles(
+                    [join(root_path, 'worker_%s-funkload.xml' % index) for index in range(len(workers))],
+                    xml_path
+                )
 
-        parser = FunkLoadXmlParser(1.5)
-        parser.parse(xml_path)
+            parser = FunkLoadXmlParser(1.5)
+            parser.parse(xml_path)
 
-        return FunkLoadTestRunResult(
-            result.exit_code, result.stdout + result.stderr, log=log,
-            result=parser.stats, config=parser.config)
+            return FunkLoadTestRunResult(
+                result.exit_code, result.stdout + result.stderr, log=log,
+                result=parser.stats, config=parser.config)
+        except Exception:
+            err = sys.exc_info()[1]
+            return FunkLoadTestRunResult(1, "Result STDOUT: %s\nResult STDERR: %s\nResult Parsing Error: %s" % (result.stdout, result.stderr, str(err)), log=None, result=None, config=None)
