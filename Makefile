@@ -127,3 +127,7 @@ default:
 
 schedule:
 	@wight schedule --url http://wight.timeho.me/
+
+doc:
+	@rm -rf docs/build
+	@cd docs && make html && open build/html/index.html
