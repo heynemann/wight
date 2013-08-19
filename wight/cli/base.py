@@ -171,45 +171,9 @@ class WightDefaultController(WightBaseController):
     class Meta:
         label = 'base'
         description = 'wight load testing scheduler and tracker.'
-        epilog = '''Getting Started
-===============
+        epilog = '''For more info refer to the documentation at https://wight.readthedocs.org
 
-Target
-------
-
-Setting what wight-api you want to use is as easy as doing 'wight target-set <url>'.
-This is required to start using wight.
-
-
-Authenticating
---------------
-
-An user account is required to use wight. To create your account (and subsequently
-to authenticate) you should use 'wight login'.
-
-
-Team Management
----------------
-
-All projects being managed by wight must belong to a team. To create a project,
-schedule jobs, and many other actions, users need to belong to teams. Look for
-commands that end in "-team" for team management. To create a new team just use
-'wight create-team <team-name>'.
-
-After the team is created, to add users to it, just use
-'wight adduser-team <team-name> <user-email>'.
-
-
-Project Management
-------------------
-
-To schedule a test you need a project. Creating one is simple, once you have a team.
-Just use 'wight project-create --team=<team-name> --project_name=<project name> --repo=<git repository>'.
-
-Wight uses the git repository for the given project to clone it and run your tests.
-You can find more information on creating your tests in wight docs at http://wight.io/docs.
-
-Wight version %s
+Wight version %s.
 ''' % __version__
 
     @controller.expose(hide=True)
@@ -232,6 +196,6 @@ def connected_controller(controller):
         target = controller.app.user_data.target
         controller.line_break()
         controller.puterror("The server did not respond. Check your connection with the target '%s%s%s'." % (
-             controller.keyword_color, target, controller.reset_error
+            controller.keyword_color, target, controller.reset_error
         ))
         controller.line_break()
