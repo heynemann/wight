@@ -15,7 +15,6 @@ except ImportError:
 
 from mock import patch, Mock
 import requests
-from tests.factories import UserFactory
 from wight.models import UserData
 from wight.cli.user import ShowUserController, ChangePasswordController
 from tests.unit.base import TestCase, ApiTestCase
@@ -108,7 +107,7 @@ class TestShowUserController(TestCase):
         """)
 
         self.ctrl.default()
-        write_mock.assert_called_with("User not logged in. Run wight authenticate")
+        write_mock.assert_called_with("You are not authenticated. Try running wight login before using user-info.")
 
     @patch.object(ShowUserController, 'get')
     @patch('sys.stdout', new_callable=StringIO)

@@ -46,7 +46,7 @@ class ShowUserController(WightBaseController):
                     members_table.add_row([team['name'], team['role']])
                 self.write(members_table)
             elif response.status_code == 401:
-                self.write("User not logged in. Run wight authenticate")
+                self.write("You are not authenticated. Try running wight login before using user-info.")
 
 
 class ChangePasswordController(WightBaseController):
