@@ -171,10 +171,8 @@ class WightDefaultController(WightBaseController):
     class Meta:
         label = 'base'
         description = 'wight load testing scheduler and tracker.'
-        epilog = '''For more info refer to the documentation at https://wight.readthedocs.org
-
-Wight version %s.
-''' % __version__
+        epilog = '''Wight version %s. For more info refer to the documentation at https://wight.readthedocs.org.
+        ''' % __version__
 
     @controller.expose(hide=True)
     def default(self):
