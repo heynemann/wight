@@ -12,6 +12,27 @@ It enables developers to keep track of whether their code is evolving performanc
 
 It's a great tool to spot performance issues and bottlenecks.
 
+Command Line Interface - CLI
+----------------------------
+
+After installing Wight, you'll have a few commands available to you. One of them is the `wight` CLI.
+
+The CLI is the toolbelt that allows developers to interact with wight when scheduling tests or adding new projects.
+
+The most important thing is the endpoint that the CLI will be talking to. We call that the `target`.
+
+To learn more about how to use the CLI, head to the :doc:`getting-started` page.
+
+.. image:: cli-list.png
+   :width: 960px
+   :alt: listing all the projects and the last 3 tests for each project
+   :align: center
+
+.. image:: cli-show.png
+   :width: 960px
+   :alt: details (as requests per second and average time per request) for a given test
+   :align: center
+
 Web Reports
 -----------
 
@@ -32,27 +53,6 @@ This means that usually the `# of requests >= # of pages >= # of tests`.
 .. image:: web-page-duration.png
    :width: 960px
    :alt: duration of the requests to pages made during the test.
-   :align: center
-
-Command Line Interface - CLI
-----------------------------
-
-After installing Wight, you'll have a few commands available to you. One of them is the `wight` CLI.
-
-The CLI is the toolbelt that allows developers to interact with wight when scheduling tests or adding new projects.
-
-The most important thing is the endpoint that the CLI will be talking to. We call that the `target`.
-
-To learn more about how to use the CLI, head to the :doc:`getting-started` page.
-
-.. image:: cli-list.png
-   :width: 960px
-   :alt: listing all the projects and the last 3 tests for each project
-   :align: center
-
-.. image:: cli-show.png
-   :width: 960px
-   :alt: details (as requests per second and average time per request) for a given test
    :align: center
 
 API
