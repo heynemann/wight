@@ -23,9 +23,8 @@ class AuthController(WightBaseController):
         config_defaults = dict()
 
         arguments = [
-            (['--email'], dict(help='E-mail to authenticate with.', required=False)),
             (['--password'], dict(help='Password to authenticate with.', required=False)),
-            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+            (['email'], dict(help='E-mail to authenticate with.')),
         ]
 
     @controller.expose(hide=True, help='Log-in to wight (or register if user not found).')

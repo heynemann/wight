@@ -6,7 +6,20 @@
 Wight - Overview
 ================
 
-test
+Wight is a continuous load testing tool.
+
+It enables developers to keep track of whether their code is evolving performance-wise.
+
+It's a great tool to spot performance issues and bottlenecks.
+
+Command Line Interface - CLI
+----------------------------
+
+After installing Wight, you'll have a few commands available to you. One of them is the `wight` CLI.
+
+The CLI is the toolbelt that allows developers to interact with wight when scheduling tests or adding new projects.
+
+
 
 .. toctree::
     :maxdepth: 2
