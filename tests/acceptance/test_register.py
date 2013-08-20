@@ -21,7 +21,7 @@ class TestRegisterUser(AcceptanceTest):
         self.execute("target-set", "http://localhost:2368")
 
         # authenticates
-        result = self.execute("login", email="acc1@gmail.com", password="password", stdin=['y'])
+        result = self.execute("login", "acc1@gmail.com", password="password", stdin=['y'])
         expect(result).to_be_like('User does not exist. Do you wish to register? [y/n] User registered and authenticated.')
 
         # user is in mongodb?

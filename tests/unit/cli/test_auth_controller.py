@@ -51,9 +51,8 @@ class AuthControllerTestCase(FullTestCase):
         expect(meta.config_defaults).to_be_empty()
 
         expect(meta.arguments).to_be_like([
-            (['--email'], dict(help='E-mail to authenticate with.', required=False)),
+            (['email'], dict(help='E-mail to authenticate with.')),
             (['--password'], dict(help='Password to authenticate with.', required=False)),
-            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
         ])
 
     @mock.patch.object(AuthController, 'write')

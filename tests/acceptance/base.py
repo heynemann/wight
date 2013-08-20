@@ -50,7 +50,7 @@ class AcceptanceTest(PythonTestCase):
         self.user = User.create(email=self.username, password=self.password)
         expect(self.user).not_to_be_null()
 
-        self.execute("login", email=self.username, password=self.password)
+        self.execute("login", self.username, password=self.password)
 
     def execute(self, command, *arguments, **kw):
         python = sh.Command(sys.executable)
