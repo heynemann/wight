@@ -42,14 +42,16 @@ class LoadTestInstanceHandler(BaseHandler):
             }
 
             for result in load_test.results:
-                last_cycle = result.cycles[-1]
-                partial_result = {}
-                partial_result['uuid'] = str(result.uuid)
-                partial_result['concurrent_users'] = last_cycle.concurrent_users
-                partial_result['title'] = result.config.title
-                partial_result['requests_per_second'] = last_cycle.request.successful_requests_per_second
-                partial_result['failed_requests'] = last_cycle.request.failed_requests
-                partial_result['p95'] = last_cycle.request.p95
+                cycles_sorted = sorted(result.cycles, key=lambda cycle: cycle.cycle_number)
+                last_cycle = cycles_sorted[-1]
+                partial_result = {
+                    'uuid': str(result.uuid),
+                    'concurrent_users': last_cycle.concurrent_users,
+                    'title': result.config.title,
+                    'requests_per_second': last_cycle.request.successful_requests_per_second,
+                    'failed_requests': last_cycle.request.failed_requests,
+                    'p95': last_cycle.request.p95
+                }
 
                 response['results'].append(partial_result)
 
