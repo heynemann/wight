@@ -32,11 +32,42 @@ target-get
 
 Gets the target wight is using currently.
 
+Example::
 
+    $ wight target-get
+
+    Current Wight target is 'http://api.wight.globoi.com'. In order to login with wight, use 'wight login <email>'.
+
+Authentication Commands
+-----------------------
+
+In order to use the CLI, users need to authenticate with Wight, as well as be part of a team (more on that in the Team Commands section).
+
+login
+~~~~~
+
+Logs in to Wight. Wight will keep your current authentication token in your home folder, meaning you won't have to login again until your token expiration.
+
+If your user is not registered, Wight will ask you if you want to create a new account.
+
+Example of registering a new account::
+
+    $ wight login test@gmail.com
+
+    Please enter the password to authenticate with (nothing will be displayed):
+    User does not exist. Do you wish to register? [y/n] y
+
+    User registered and authenticated.
+
+Example of authenticating::
+
+    $ wight login test@gmail.com
+
+    Please enter the password to authenticate with (nothing will be displayed):
+
+    Authenticated.
 
 change-password
-~~~~~~~~~~~~~~~
-
 Changes user password.
 
 default-get
@@ -47,9 +78,6 @@ Define default team and/or project to be used in subsequent commands.
 
 list
 List load tests.
-
-login
-Log-in to wight (or register if user not found).
 
 project-create
 Creates a project.

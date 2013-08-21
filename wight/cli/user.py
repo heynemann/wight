@@ -60,15 +60,15 @@ class ChangePasswordController(WightBaseController):
     @WightBaseController.authenticated
     def default(self):
         self.line_break()
-        old_pass = self.get_pass("Please enter your current password:")
+        old_pass = self.get_pass("Please enter your %scurrent password%s:" % (self.keyword_color, self.reset))
         self.line_break()
-        new_pass = self.get_pass("Please enter your new password:")
+        new_pass = self.get_pass("Please enter your %snew password%s:" % (self.keyword_color, self.reset))
         self.line_break()
-        new_pass_check = self.get_pass("Please enter your new password again:")
+        new_pass_check = self.get_pass("Please enter your %snew password again%s:" % (self.keyword_color, self.reset))
 
         if new_pass != new_pass_check:
             self.line_break()
-            self.puterror("New password check failed. Please try again.")
+            self.abort("New password check failed. Please try again.")
             self.line_break()
             return
 
@@ -77,13 +77,13 @@ class ChangePasswordController(WightBaseController):
 
             if response.status_code == 403:
                 self.line_break()
-                self.puterror("The original password didn't match. Please try again")
+                self.abort("The original password didn't match. Please try again")
                 self.line_break()
             elif response.status_code == 200:
                 self.line_break()
-                self.puts("Password changed successfuly.")
+                self.putsuccess("Password changed successfully.")
                 self.line_break()
             else:
                 self.line_break()
-                self.puterror("Wight API returned an unexpected status code!")
+                self.abort("Wight API returned an unexpected status code!")
                 self.line_break()

@@ -24,9 +24,9 @@ from preggy import expect
 class TestChangePasswordController(ApiTestCase, TestCase):
 
     @patch.object(requests, 'post')
-    @patch.object(ChangePasswordController, 'puts')
+    @patch.object(ChangePasswordController, 'putsuccess')
     @patch.object(ChangePasswordController, 'get_pass')
-    def test_change_password_normally(self, get_pass_mock, puts_mock, post_mock):
+    def test_change_password_normally(self, get_pass_mock, putsuccess_mock, post_mock):
         post_mock.return_value = Mock(status_code=200)
         get_pass_mock.return_value = "testing"
 
@@ -36,11 +36,11 @@ class TestChangePasswordController(ApiTestCase, TestCase):
         ctrl.default()
 
         call_list = get_pass_mock.call_args_list
-        expect(str(call_list[0]).split("'")[1]).to_equal("Please enter your current password:")
-        expect(str(call_list[1]).split("'")[1]).to_equal("Please enter your new password:")
-        expect(str(call_list[2]).split("'")[1]).to_equal("Please enter your new password again:")
+        expect(str(call_list[0]).split("'")[1]).to_equal("Please enter your \\x1b[35m\\x1b[1mcurrent password\\x1b[0m\\x1b[37m\\x1b[2m:")
+        expect(str(call_list[1]).split("'")[1]).to_equal("Please enter your \\x1b[35m\\x1b[1mnew password\\x1b[0m\\x1b[37m\\x1b[2m:")
+        expect(str(call_list[2]).split("'")[1]).to_equal("Please enter your \\x1b[35m\\x1b[1mnew password again\\x1b[0m\\x1b[37m\\x1b[2m:")
 
-        puts_mock.assert_called_with("Password changed successfuly.")
+        putsuccess_mock.assert_called_with("Password changed successfully.")
 
     @patch.object(requests, 'post')
     @patch.object(ChangePasswordController, 'puterror')
