@@ -39,6 +39,24 @@ class ScheduleLoadTestTest(FullTestCase):
         expect(tests[0].created_by.id).to_equal(self.user.id)
         expect(tests[0].project_name).to_equal(self.project.name)
         expect(tests[0].base_url).to_equal("http://www.globo.com")
+        expect(tests[0].simple).to_be_false()
+
+    def test_simple_schedule_test(self):
+        url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
+        response = self.post(url, **{
+            "base_url": "http://www.globo.com",
+            "simple": "true",
+        })
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+
+        tests = list(LoadTest.get_by_team_and_project_name(self.team, self.project.name))
+        expect(tests).not_to_be_null()
+        expect(tests).to_length(1)
+        expect(tests[0].created_by.id).to_equal(self.user.id)
+        expect(tests[0].project_name).to_equal(self.project.name)
+        expect(tests[0].base_url).to_equal("http://www.globo.com")
+        expect(tests[0].simple).to_be_true()
 
     def test_schedule_test_without_being_a_member(self):
         team = TeamFactory.create()

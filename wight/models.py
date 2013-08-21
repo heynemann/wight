@@ -15,6 +15,7 @@ from json import dumps, loads
 import hashlib
 import hmac
 from uuid import uuid4
+from mongoengine.fields import BooleanField
 
 import six
 from mongoengine import (
@@ -488,6 +489,7 @@ class LoadTest(Document):
     created_by = ReferenceField(User, required=True)
     last_commit = EmbeddedDocumentField(Commit)
     project_name = StringField(max_length=2000, required=True)
+    simple = BooleanField(default=False)
     base_url = URLField(max_length=2000, required=True)
     date_created = DateTimeField(default=datetime.datetime.utcnow)
     date_modified = DateTimeField(default=datetime.datetime.utcnow)

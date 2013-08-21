@@ -34,6 +34,7 @@ class AuthLoadTestHandler(BaseHandler):
     @BaseHandler.team_member
     def post(self, team, project_name):
         base_url = self.get_argument("base_url").strip()
+        simple = self.get_argument("simple", "false") == "true"
 
         if not base_url or not URL_RE.match(base_url):
             self.set_status(400)
@@ -53,7 +54,8 @@ class AuthLoadTestHandler(BaseHandler):
             base_url=base_url,
             team=team,
             created_by=self.current_user,
-            project_name=project.name
+            project_name=project.name,
+            simple=simple
         )
         test.save()
 
