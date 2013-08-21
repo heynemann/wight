@@ -21,7 +21,7 @@ class TestTarget(AcceptanceTest):
 
         # Set target to acc target
         result = self.execute("target-set", target)
-        expected = "Wight target set to '%s'. In order to login with wight, use 'wight login'."
+        expected = "Wight target set to '%s'. In order to login with wight, use 'wight login <email>'."
         expect(result).to_be_like(expected % target)
 
         ud = UserData.load()
@@ -37,4 +37,4 @@ class TestTarget(AcceptanceTest):
     def test_can_get_target(self):
         # Get target
         result = self.execute("target-get")
-        expect(result).to_be_like("Current target set to '%s'." % self.target)
+        expect(result).to_be_like("Current Wight target is '%s'. In order to login with wight, use 'wight login <email>'." % self.target)
