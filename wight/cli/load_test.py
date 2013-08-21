@@ -41,7 +41,7 @@ class ScheduleLoadTestController(WightBaseController):
             (['--url'], dict(help='The base url to run the load test against', required=True)),
             (['--team'], dict(help='The name of the team that owns the project to schedule a load test')),
             (['--project'], dict(help='The name of the project to schedule a load test')),
-            (['--simple'], dict(help='Defines that the test will just hit the url passed without need to had a bench folder in project.', default=False)),
+            (['--simple'], dict(action="store_true", help='Defines that the test will just hit the url passed without need to had a bench folder in project.', default=False)),
         ]
 
     @controller.expose(hide=False, aliases=["schedule"], help='Schedules a new load test.')
