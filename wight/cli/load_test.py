@@ -41,6 +41,7 @@ class ScheduleLoadTestController(WightBaseController):
             (['--url'], dict(help='The base url to run the load test against', required=True)),
             (['--team'], dict(help='The name of the team that owns the project to schedule a load test')),
             (['--project'], dict(help='The name of the project to schedule a load test')),
+            (['--simple'], dict(help='Defines that the test will just hit the url passed without need to had a bench folder in project.', default=False)),
         ]
 
     @controller.expose(hide=False, aliases=["schedule"], help='Schedules a new load test.')
@@ -63,11 +64,13 @@ class ScheduleLoadTestController(WightBaseController):
         )
 
         with connected_controller(self):
+            simple = "true" if self.arguments.simple else "false"
             response = self.post("/teams/%(team_name)s/projects/%(project_name)s/load_tests/" % {
                 "team_name": team_name,
                 "project_name": project_name
             }, {
-                'base_url': base_url
+                'base_url': base_url,
+                'simple': simple
             })
 
             self.line_break()

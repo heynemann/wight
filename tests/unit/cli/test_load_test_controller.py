@@ -141,9 +141,24 @@ class LoadTestControllerTestBase(TestCase):
         self.get_mock.stop()
 
 
+class SimpleLoadTestControllerTest(LoadTestControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com", "simple": True}
+        self.controller_class = ScheduleLoadTestController
+        super(SimpleLoadTestControllerTest, self).setUp()
+
+    @patch.object(ScheduleLoadTestController, 'post')
+    def test_simple_schedule_test(self, post_mock):
+        self.ctrl.default()
+        post_mock.assert_any_call("/teams/nameless/projects/project/load_tests/", {
+            "base_url": "http://www.globo.com",
+            "simple": "true"
+        })
+
+
 class LoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com"}
+        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com", "simple": None}
         self.controller_class = ScheduleLoadTestController
         super(LoadTestControllerTest, self).setUp()
 
@@ -151,7 +166,8 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
     def test_schedule_test(self, post_mock):
         self.ctrl.default()
         post_mock.assert_any_call("/teams/nameless/projects/project/load_tests/", {
-            "base_url": "http://www.globo.com"
+            "base_url": "http://www.globo.com",
+            "simple": "false"
         })
 
     @patch.object(ScheduleLoadTestController, 'post')
