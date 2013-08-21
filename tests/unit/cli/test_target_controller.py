@@ -39,12 +39,13 @@ class TestTargetGetController(TestCase):
 
         ctrl = self.make_controller(TargetGetController, conf=self.fixture_for('test.conf'))
         ctrl.default()
-        expect(mock_stdout.getvalue()).to_include("Current target set to 'http://my-target.wight.com'.")
+        expected = u"\n\x1b[0m\x1b[32m\x1b[1mWight target set to '\x1b[35m\x1b[1mhttp://my-target.wight.com\x1b[0m\x1b[32m\x1b[1m'. In order to login with wight, use '\x1b[33m\x1b[1mwight login <email>\x1b[0m\x1b[32m\x1b[1m'.\x1b[0m\x1b[32m\x1b[1m\n\n\n\x1b[0m\x1b[32m\x1b[1mCurrent Wight target set to '\x1b[35m\x1b[1mhttp://my-target.wight.com\x1b[0m\x1b[32m\x1b[1m'. In order to login with wight, use '\x1b[33m\x1b[1mwight login <email>\x1b[0m\x1b[32m\x1b[1m'.\x1b[0m\x1b[32m\x1b[1m\n\n"
+        expect(mock_stdout.getvalue()).to_equal(expected)
 
-    @mock.patch.object(TargetGetController, 'write')
+    @mock.patch.object(TargetGetController, 'abort')
     @mock.patch.object(UserData, 'load')
-    def test_get_target_without_user_data(self, load_mock, write_mock):
+    def test_get_target_without_user_data(self, load_mock, abort_mock):
         load_mock.return_value = None
         ctrl = self.make_controller(TargetGetController, conf=self.fixture_for('test.conf'))
         ctrl.default()
-        write_mock.assert_called_with("No target set.")
+        abort_mock.assert_called_with("No target set.")

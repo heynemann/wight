@@ -65,7 +65,12 @@ class TargetGetController(WightBaseController):
         user_data = UserData.load()
 
         if user_data is None:
-            self.write("No target set.")
+            self.abort("No target set.")
             return
 
-        self.write("Current target set to '%s'." % user_data.target)
+        self.line_break()
+        self.putsuccess("Current Wight target set to '%s%s%s'. In order to login with wight, use '%swight login <email>%s'." % (
+            self.keyword_color, user_data.target, self.reset_success,
+            self.commands_color, self.reset_success
+        ))
+        self.line_break()
