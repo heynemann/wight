@@ -25,7 +25,7 @@ class ShowLoadTestResultTest(FullTestCase):
         self.team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(self.team, 1)
         self.project = self.team.projects[0]
-        self.load_test = LoadTestFactory.create(created_by=self.user, team=self.team, project_name=self.project.name)
+        self.load_test = LoadTestFactory.create(created_by=self.user, team=self.team, project_name=self.project.name, status="Finished")
         self.load_test.results.append(TestResultFactory.build())
         self.load_test.save()
         self.result = self.load_test.results[0]
@@ -74,7 +74,7 @@ class ShowLoadLastTestResultTest(FullTestCase):
         self.team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(self.team, 1)
         self.project = self.team.projects[0]
-        self.load_test = LoadTestFactory.create(created_by=self.user, team=self.team, project_name=self.project.name)
+        self.load_test = LoadTestFactory.create(created_by=self.user, team=self.team, project_name=self.project.name, status="Finished")
         self.load_test.results.append(TestResultFactory.build())
         self.load_test.save()
         self.result = self.load_test.results[0]
@@ -84,7 +84,7 @@ class ShowLoadLastTestResultTest(FullTestCase):
         self.load_test.results.append(TestResultFactory.build(config=config))
         self.load_test.results.append(TestResultFactory.build())
         self.load_test.save()
-        self.load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        self.load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project, status="Finished")
         self.load_test2.results.append(TestResultFactory.build())
         self.load_test2.results.append(TestResultFactory.build(config=config))
         self.load_test2.save()
@@ -153,7 +153,7 @@ class ShowTestResultForTeamProjectAndTestTest(FullTestCase):
         self.team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(self.team, 2)
         self.project = self.team.projects[0]
-        self.load_test = LoadTestFactory.create(created_by=self.user, team=self.team, project_name=self.project.name)
+        self.load_test = LoadTestFactory.create(created_by=self.user, team=self.team, project_name=self.project.name, status="Finished")
         self.load_test.save()
         self.config = TestConfigurationFactory.build()
         self.config2 = TestConfigurationFactory.build()
@@ -163,11 +163,11 @@ class ShowTestResultForTeamProjectAndTestTest(FullTestCase):
         self.load_test.results.append(TestResultFactory.build(config=self.config))
         self.load_test.results.append(TestResultFactory.build())
         self.load_test.save()
-        self.load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        self.load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project, status="Finished")
         self.load_test2.results.append(TestResultFactory.build())
         self.load_test2.results.append(TestResultFactory.build(config=self.config))
         self.load_test2.save()
-        self.load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1])
+        self.load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1], status="Finished")
         self.load_test3.results.append(TestResultFactory.build())
         self.load_test3.results.append(TestResultFactory.build(config=self.config))
         self.load_test3.save()

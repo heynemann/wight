@@ -788,6 +788,7 @@ class LoadTest(Document):
     @classmethod
     def get_same_results_for_all_load_tests_from_project(cls, team, project_name, module, class_name, test_name):
         load_tests = LoadTest.objects(
+            status="Finished",
             team=team, project_name=project_name,
             results__config__module=module,
             results__config__class_name=class_name,

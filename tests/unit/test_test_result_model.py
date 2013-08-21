@@ -26,7 +26,7 @@ class TestTestResultModel(ModelTestCase):
         self.team = TeamFactory.create(owner=self.user)
         TeamFactory.add_projects(self.team, 2)
         self.project = self.team.projects[0]
-        self.load_test = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        self.load_test = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project, status="Finished")
 
     def test_can_get_load_test_by_test_result_uuid(self):
         self.load_test.results.append(TestResultFactory.build())
@@ -48,7 +48,7 @@ class TestTestResultModel(ModelTestCase):
         self.load_test.results.append(TestResultFactory.build(config=config))
         self.load_test.results.append(TestResultFactory.build())
         self.load_test.save()
-        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project, status="Finished")
         load_test2.results.append(TestResultFactory.build())
         load_test2.results.append(TestResultFactory.build(config=config))
         load_test2.save()
@@ -64,10 +64,10 @@ class TestTestResultModel(ModelTestCase):
         self.load_test.results.append(TestResultFactory.build(config=config))
         self.load_test.results.append(TestResultFactory.build())
         self.load_test.save()
-        load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1])
+        load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1], status="Finished")
         load_test3.results.append(TestResultFactory.build(config=config))
         load_test3.save()
-        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project, status="Finished")
         load_test2.results.append(TestResultFactory.build())
         load_test2.results.append(TestResultFactory.build(config=config))
         load_test2.save()
@@ -91,11 +91,11 @@ class TestTestResultModel(ModelTestCase):
         self.load_test.results.append(TestResultFactory.build())
         self.load_test.results.append(TestResultFactory.build(config=config))
         self.load_test.save()
-        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project, status="Finished")
         load_test2.results.append(TestResultFactory.build())
         load_test2.results.append(TestResultFactory.build(config=config))
         load_test2.save()
-        load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1])
+        load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.team.projects[1], status="Finished")
         load_test3.results.append(TestResultFactory.build(config=config))
         load_test3.results.append(TestResultFactory.build(config=config))
         load_test3.save()
@@ -106,6 +106,30 @@ class TestTestResultModel(ModelTestCase):
             str(self.load_test.results[0].uuid),
             str(self.load_test.results[2].uuid),
             str(load_test2.results[1].uuid)
+        ]
+
+        expect(results).to_be_like(expected_results)
+
+    def test_get_results_for_team_project_and_test_get_finished_only(self):
+        config = TestConfigurationFactory.build()
+        self.load_test.results.append(TestResultFactory.build(config=config))
+        self.load_test.results.append(TestResultFactory.build())
+        self.load_test.results.append(TestResultFactory.build(config=config))
+        self.load_test.save()
+        load_test2 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project, status="Failed")
+        load_test2.results.append(TestResultFactory.build())
+        load_test2.results.append(TestResultFactory.build(config=config))
+        load_test2.save()
+        load_test3 = LoadTestFactory.add_to_project(1, user=self.user, team=self.team, project=self.project)
+        load_test3.results.append(TestResultFactory.build())
+        load_test3.results.append(TestResultFactory.build(config=config))
+        load_test3.save()
+
+        results = [str(result.uuid) for result in LoadTest.get_same_results_for_all_load_tests_from_project(self.team, self.project.name, config.module, config.class_name, config.test_name)]
+
+        expected_results = [
+            str(self.load_test.results[0].uuid),
+            str(self.load_test.results[2].uuid),
         ]
 
         expect(results).to_be_like(expected_results)

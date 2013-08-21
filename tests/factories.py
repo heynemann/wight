@@ -242,7 +242,7 @@ class LoadTestFactory(factory.Factory):
         return load_test
 
     @classmethod
-    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None, repository=None, simple=False):
+    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None, repository=None, simple=False, status="Scheduled"):
         if not user:
             user = UserFactory.create()
 
@@ -259,7 +259,8 @@ class LoadTestFactory(factory.Factory):
                 created_by=team.owner,
                 team=team,
                 project_name=project.name,
-                simple=simple
+                simple=simple,
+                status=status
             )
 
             if base_url is not None:
