@@ -278,21 +278,75 @@ Load Test Commands
 list
 ~~~~
 
-List load tests.
+Lists all the load tests for the projects that the currently logged-in user has access to.
+
+The last three tests for each project get displayed.
+
+Example::
+
+    $ wight list
+
+    Team: myteam ---- Project: newproject
+    +--------------------------------------+----------+---------------------+-------------------------------------------------+
+    | uuid                                 |  status  |        since        |                                                 |
+    +--------------------------------------+----------+---------------------+-------------------------------------------------+
+    | c4dffdb6-1b67-42d8-8dac-c0534ee0065f | Finished |          -          | wight show c4dffdb6-1b67-42d8-8dac-c0534ee0065f |
+    | 925e8d32-b744-43a8-9236-bfd893b3a419 |  Failed  |          -          | wight show 925e8d32-b744-43a8-9236-bfd893b3a419 |
+    | ea7135dc-b63d-446b-82d1-cb2abaae2b6c |  Failed  |          -          | wight show ea7135dc-b63d-446b-82d1-cb2abaae2b6c |
+    +--------------------------------------+----------+---------------------+-------------------------------------------------+
+
+show
+~~~~
+
+Display a summary for one load test and all the results in it.
+
+Example::
+
+    $ wight show c4dffdb6-1b67-42d8-8dac-c0534ee0065f
+
+    Load test: c4dffdb6-1b67-42d8-8dac-c0534ee0065f
+    Status: Finished
+    Based on commit: 3a68a2a05700649c15e15cf4c1d0b98962fb1768 by John Doe
+
+    +----------------+------------------+-------+------+--------+--------------------------------------------------------+
+    |     title      | concurrent users |  rps  | p95  | failed |                                                        |
+    +----------------+------------------+-------+------+--------+--------------------------------------------------------+
+    | Login Page Tst |       100        | 264.0 | 0.31 |   0    | wight show-result 63fc4c0d-883f-444d-83c6-3d7cdffb5056 |
+    +----------------+------------------+-------+------+--------+--------------------------------------------------------+
+                     rps means requests per second, p95 means the 95 percentile in seconds and failed means request errors
+
+show-result
+~~~~~~~~~~~
+
+Show detailed information about one test result.
+
+Example::
+
+    $ wight show-result 63fc4c0d-883f-444d-83c6-3d7cdffb5056
+
+    Load test: c4dffdb6-1b67-42d8-8dac-c0534ee0065f
+    Status: Finished
+    Web Report URL: http://web.wight.com/report/63fc4c0d-883f-444d-83c6-3d7cdffb5056
+
+    Bench Configuration
+    -------------------
+    Title: Login Page Tst                                Description: Testing whether the login page works
+    Module: test_login                                   Test: LoginScreenTest.test_login_screens
+    Cycles: [100, 200, 300]                              Cycle Duration: 10s
+    Base URL: http://my.app.com/                         Test Date: 2013-08-16T17:44:16s
+
+    +-------+----------+---------+--------+---------+---------+-------+-------+---------+
+    | users | requests | error % |  rps   | minimum | average |  p90  |  p95  | maximum |
+    +-------+----------+---------+--------+---------+---------+-------+-------+---------+
+    |  100  |   2640   |  0.00%  | 264.00 |  0.03s  |  0.12s  | 0.26s | 0.31s |  1.17s  |
+    |  200  |   2833   |  0.00%  | 283.30 |  0.08s  |  0.44s  | 0.70s | 0.88s |  3.67s  |
+    |  300  |   2812   |  0.00%  | 281.20 |  0.08s  |  0.52s  | 0.78s | 1.21s |  6.92s  |
+    +-------+----------+---------+--------+---------+---------+-------+-------+---------+
+    rps means requests per second and average, p95 and maximum are all response time in seconds
 
 schedule
 ~~~~~~~~
 
 Schedules a new load test.
-
-show
-~~~~~~~~~~~
-
-Show load tests.
-
-show-result
-~~~~~~~~~~~
-
-Show load test results.
 
 
