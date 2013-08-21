@@ -160,7 +160,7 @@ team-delete
 
 Deletes a team.
 
-**WARNING: This operation cannot be undone and all the data (teams, projects and tests) for the given team will be removed from Wight.**
+**WARNING: This operation cannot be undone and all the data (projects and tests) for the given team will be removed from Wight.**
 
 Example::
 
@@ -218,14 +218,26 @@ Updates a project's information, like name or repository.
 
 Example::
 
-    $
+    $ wight project-update --team=myteam --name=newname --repo=https://github.com/heynemann/wight.git wight
+
+    Updated 'newname' project in 'myteam' team at 'http://api.wight.globoi.com'.
 
 project-delete
 ~~~~~~~~~~~~~~
 
 Deletes a project.
 
+**WARNING: This operation cannot be undone and all the tests for the given team will be removed from Wight.**
 
+Example::
+
+    $ wight project-delete --team=myteam --project=newname
+
+    This operation will delete the project 'newname' and all its tests.
+
+    Are you sure you want to delete project 'newname'? [y/n] y
+
+    Deleted 'newname' project and tests for team 'myteam' in 'http://api.wight.globoi.com' target.
 
 Defaults Commands
 -----------------
@@ -260,16 +272,27 @@ Example::
 
     Default project is 'myproject'.
 
+Load Test Commands
+------------------
+
 list
+~~~~
+
 List load tests.
 
 schedule
+~~~~~~~~
+
 Schedules a new load test.
 
 show
+~~~~~~~~~~~
+
 Show load tests.
 
 show-result
+~~~~~~~~~~~
+
 Show load test results.
 
 
