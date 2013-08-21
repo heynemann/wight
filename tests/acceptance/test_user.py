@@ -34,14 +34,17 @@ class TestUser(AcceptanceTest):
         t1 = TeamFactory.create(owner=self.user)
         t2 = TeamFactory.create(members=[self.user])
         result = self.execute("user-info")
-        expect(result).to_be_like("""User: %s
+
+        expected = ("""User: %s
           +--------+--------+
           | team   | role   |
           +--------+--------+
           | %s     | owner  |
           | %s     | member |
           +--------+--------+
-        """ % (self.user.email, t1.name, t2.name))
+        """ % (self.user.email, t1.name, t2.name)).replace('-', '')
+
+        expect(result.replace('-', '')).to_be_like(expected)
 
     def test_change_user_password(self):
         new_pass = "abcdef"

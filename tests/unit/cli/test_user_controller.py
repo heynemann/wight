@@ -36,9 +36,9 @@ class TestChangePasswordController(ApiTestCase, TestCase):
         ctrl.default()
 
         call_list = get_pass_mock.call_args_list
-        expect(str(call_list[0]).split("'")[1]).to_equal("Please enter your \\x1b[35m\\x1b[1mcurrent password\\x1b[0m\\x1b[37m\\x1b[2m:")
-        expect(str(call_list[1]).split("'")[1]).to_equal("Please enter your \\x1b[35m\\x1b[1mnew password\\x1b[0m\\x1b[37m\\x1b[2m:")
-        expect(str(call_list[2]).split("'")[1]).to_equal("Please enter your \\x1b[35m\\x1b[1mnew password again\\x1b[0m\\x1b[37m\\x1b[2m:")
+        expect(str(call_list[0]).split("'")[1]).to_be_like("Please enter your current password:")
+        expect(str(call_list[1]).split("'")[1]).to_equal("Please enter your new password:")
+        expect(str(call_list[2]).split("'")[1]).to_equal("Please enter your new password again:")
 
         putsuccess_mock.assert_called_with("Password changed successfully.")
 
