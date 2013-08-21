@@ -44,6 +44,30 @@ class TestWorkerMain(FunkLoadBaseTest):
         expect(loaded.results[0].log).not_to_be_null()
         expect(loaded.results[0].status).to_equal("Successful")
 
+    def test_can_run_simple_project(self):
+        temp_path = mkdtemp()
+        team = TeamFactory.create()
+        TeamFactory.add_projects(team, 1)
+        user = team.owner
+        project = team.projects[0]
+        load_test = LoadTestFactory.add_to_project(1, user=user, team=team, project=project, base_url="%s/healthcheck" % self.base_url, simple=True)
+
+        runner = BenchRunner()
+        runner.run_project_tests(temp_path, str(load_test.uuid), duration=1)
+
+        loaded = LoadTest.objects(uuid=load_test.uuid).first()
+
+        expect(loaded).not_to_be_null()
+        expect(loaded.status).to_equal("Finished")
+
+        expect(loaded.results).to_length(1)
+
+        expect(loaded.results[0].log).not_to_be_null()
+        expect(loaded.results[0].status).to_equal("Successful")
+        expect(loaded.results[0].config.module).to_equal("test_simple")
+        expect(loaded.results[0].config.class_name).to_equal("SimpleTestTest")
+        expect(loaded.results[0].config.test_name).to_equal("test_simple")
+
     @patch.object(BenchRunner, '_clone_repository')
     def test_fail_if_yaml_not_exists(self, clone_repo_mock):
         clone_repo_mock.return_value = None

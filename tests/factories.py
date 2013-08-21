@@ -242,7 +242,7 @@ class LoadTestFactory(factory.Factory):
         return load_test
 
     @classmethod
-    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None, repository=None):
+    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None, repository=None, simple=False):
         if not user:
             user = UserFactory.create()
 
@@ -258,7 +258,8 @@ class LoadTestFactory(factory.Factory):
             kw = dict(
                 created_by=team.owner,
                 team=team,
-                project_name=project.name
+                project_name=project.name,
+                simple=simple
             )
 
             if base_url is not None:

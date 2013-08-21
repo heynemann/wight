@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from os import mkdir
 
 import sys
 from uuid import UUID
@@ -56,6 +57,34 @@ class WorkerJob(object):
 
 
 class BenchRunner(object):
+
+    yml_file_content = """
+tests:
+  -
+    title: Test in %s
+    description: Simple test schedule to hit %s.
+    module: test_simple
+    class: SimpleTestTest
+    test: test_simple
+    pressure: small
+"""
+    test_file_content = """
+import unittest
+from funkload.FunkLoadTestCase import FunkLoadTestCase
+
+
+class SimpleTestTest(FunkLoadTestCase):
+    def setUp(self):
+        self.server_url = '%s/' % (self.conf_get('main', 'url').rstrip('/'),)
+
+    def test_simple(self):
+        self.get(self.server_url, description='Get url')
+
+if __name__ == '__main__':
+    unittest.main()
+
+"""
+
     def _clone_repository(self, base_path, load_test):
         repo = Repository.clone(url=load_test.project.repository, path=base_path)
         last_commit = tuple(repo.walk(repo.head.target, GIT_SORT_TIME))[0]
@@ -70,12 +99,7 @@ class BenchRunner(object):
         load_test.save()
 
         try:
-            repo = self._clone_repository(base_path, load_test)
-
-            bench_path = join(base_path, 'bench')
-            cfg = WightConfig.load(join(bench_path, 'wight.yml'))
-
-            self.validate_tests(base_path, repo, cfg, load_test)
+            cfg = self._build_test_config(base_path, load_test)
 
             for test in cfg.tests:
                 kw = dict(
@@ -109,7 +133,7 @@ class BenchRunner(object):
             load_test.error = str(err)
             load_test.save()
 
-    def validate_tests(self, base_path, repo, config, load_test):
+    def validate_tests(self, base_path, config, load_test):
         if not config:
             raise TestNotValidError("The wight.yml file was not found in project repository bench folder.")
 
@@ -123,6 +147,28 @@ class BenchRunner(object):
                 raise TestNotValidError("The test '%s.%s.%s' running in '%s' is not valid (%s)" %
                                         (test.module, test.class_name,
                                         test.test_name, load_test.base_url, result.text))
+
+    def _create_simple_test(self, base_path, load_test):
+        mkdir(join(base_path, "bench"))
+        init_file = open(join(base_path, "bench/__init__.py"), "w")
+        init_file.close()
+        wight_file = open(join(base_path, "bench/wight.yml"), "w")
+        wight_file.write(self.yml_file_content % (load_test.base_url, load_test.base_url))
+        wight_file.close()
+        test_file = open(join(base_path, "bench/test_simple.py"), "w")
+        test_file.write(self.test_file_content)
+        test_file.close()
+
+    def _build_test_config(self, base_path, load_test):
+        if load_test.simple:
+            self._create_simple_test(base_path, load_test)
+        else:
+            self._clone_repository(base_path, load_test)
+
+        bench_path = join(base_path, 'bench')
+        cfg = WightConfig.load(join(bench_path, 'wight.yml'))
+        self.validate_tests(base_path, cfg, load_test)
+        return cfg
 
 
 def main(args=None):
