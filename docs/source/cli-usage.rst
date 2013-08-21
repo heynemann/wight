@@ -220,7 +220,7 @@ Example::
 
     $ wight project-update --team=myteam --name=newname --repo=https://github.com/heynemann/wight.git wight
 
-    Updated 'newname' project in 'myteam' team at 'http://api.wight.globoi.com'.
+    Updated 'newname' project in 'myteam' team at 'http://wight.target.com'.
 
 project-delete
 ~~~~~~~~~~~~~~
@@ -237,7 +237,7 @@ Example::
 
     Are you sure you want to delete project 'newname'? [y/n] y
 
-    Deleted 'newname' project and tests for team 'myteam' in 'http://api.wight.globoi.com' target.
+    Deleted 'newname' project and tests for team 'myteam' in 'http://wight.target.com' target.
 
 Defaults Commands
 -----------------
