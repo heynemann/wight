@@ -32,7 +32,7 @@ class TargetSetController(WightBaseController):
 
         target = self.arguments.target
         self.line_break()
-        self.putsuccess("Wight target set to '%s%s%s'. In order to login with wight, use '%swight login%s'." % (
+        self.putsuccess("Wight target set to '%s%s%s'. In order to login with wight, use '%swight login <email>%s'." % (
             self.keyword_color, target, self.reset_success,
             self.commands_color, self.reset_success
         ))
