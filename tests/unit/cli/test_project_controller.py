@@ -58,6 +58,10 @@ A default team was not set and you do not pass one. You can:
     def test_should_be_possible_create_project_with_default_team(self, mock_stdout, post_mock):
         response = Mock(status_code=200)
         post_mock.return_value = response
+
+        self.ctrl.arguments.name = "new name"
+        self.ctrl.arguments.repo = "repo"
+
         self.ctrl.app.user_data.set_default(team="team-blah")
         self.ctrl.default()
         expect(mock_stdout.getvalue()).to_be_like(
@@ -130,7 +134,7 @@ class TestUpdateProjectController(ProjectControllerTestBase):
         self.controller_kwargs = {
             "team": "team-awesome",
             "project": "project-awesome",
-            "project_name": "new name",
+            "name": "new name",
             "repo": "repo"
         }
         self.controller_class = UpdateProjectController
@@ -174,6 +178,8 @@ class TestUpdateProjectController(ProjectControllerTestBase):
 
     @patch.object(UpdateProjectController, 'put')
     def test_update_project(self, put_mock):
+        self.ctrl.arguments.name = "new name"
+        self.ctrl.arguments.repo = "repo"
         self.ctrl.default()
         put_mock.assert_called_with(
             '/teams/%s/projects/%s' % ("team-awesome", "project-awesome"),
@@ -185,6 +191,10 @@ class TestUpdateProjectController(ProjectControllerTestBase):
     def test_update_project_notify_user(self, write_mock, put_mock):
         response = Mock(status_code=200)
         put_mock.return_value = response
+
+        self.ctrl.arguments.name = "new name"
+        self.ctrl.arguments.repo = "repo"
+
         self.ctrl.default()
         msg = "Updated 'new name' project in 'team-awesome' team at 'Target'."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
@@ -214,6 +224,9 @@ A default team was not set and you do not pass one. You can:
     def test_should_be_possible_create_project_with_default_team(self, mock_stdout, put_mock):
         response = Mock(status_code=200)
         put_mock.return_value = response
+        self.ctrl.arguments.name = "new name"
+        self.ctrl.arguments.repo = "repo"
+
         self.ctrl.app.user_data.set_default(team=self.team)
         self.ctrl.default()
         expect(mock_stdout.getvalue()).to_be_like(
@@ -245,6 +258,9 @@ A default project was not set and you do not pass one. You can:
     def test_should_be_possible_create_project_with_default_team(self, mock_stdout, put_mock):
         response = Mock(status_code=200)
         put_mock.return_value = response
+        self.ctrl.arguments.name = "new name"
+        self.ctrl.arguments.repo = "repo"
+
         self.ctrl.app.user_data.set_default(project=self.project)
         self.ctrl.default()
         expect(mock_stdout.getvalue()).to_be_like(
@@ -279,6 +295,9 @@ A default project was not set and you do not pass one. You can:
     def test_should_be_possible_create_project_with_default_team(self, mock_stdout, put_mock):
         response = Mock(status_code=200)
         put_mock.return_value = response
+        self.ctrl.arguments.name = "new name"
+        self.ctrl.arguments.repo = "repo"
+
         self.ctrl.app.user_data.set_default(team=self.team, project=self.project)
         self.ctrl.default()
         expect(mock_stdout.getvalue()).to_be_like(
@@ -377,6 +396,10 @@ A default team was not set and you do not pass one. You can:
         ask_mock.return_value = "y"
         response = Mock(status_code=200)
         delete_mock.return_value = response
+
+        self.ctrl.arguments.name = "new name"
+        self.ctrl.arguments.repo = "repo"
+
         self.ctrl.app.user_data.set_default(team=self.team)
         self.ctrl.default()
         expect(mock_stdout.getvalue()).to_be_like("""

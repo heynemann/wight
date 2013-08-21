@@ -83,17 +83,15 @@ class UpdateProjectController(WightBaseController):
         config_defaults = dict()
 
         arguments = [
-            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
-            (['--project_name'], dict(help='Name to update for this project', required=False)),
             (['--repo'], dict(help='Git repository to update for this project.', required=False)),
+            (['--name'], dict(help='Name to update for this project.', required=False)),
             (['--team'], dict(help='Name of the team that owns this project.')),
-            (['--project'], dict(help='Name of the project to be updated.')),
+            (['project'], dict(help='Name of the project to be updated.')),
         ]
 
     @controller.expose(hide=False, aliases=["project-update"], help='Updates a project.')
     @WightBaseController.authenticated
     def default(self):
-        self.load_conf()
         target = self.app.user_data.target
         team_name = self._get_parameter(self.arguments.team, "team")
         project_name = self._get_parameter(self.arguments.project, "project")
@@ -101,7 +99,7 @@ class UpdateProjectController(WightBaseController):
         if not team_name or not project_name:
             return
 
-        name = self.arguments.project_name
+        name = self.arguments.name
         repo = self.arguments.repo
 
         with connected_controller(self):

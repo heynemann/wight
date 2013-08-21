@@ -56,9 +56,19 @@ class ChangePasswordController(WightBaseController):
         stack_on = 'base'
         description = 'Change user password'
 
+        arguments = [
+            (['--no-color'], dict(help='Does not display colored output.', default=False, action="store_true")),
+        ]
+
     @controller.expose(hide=False, aliases=["change-password"], help='Changes user password.')
     @WightBaseController.authenticated
     def default(self):
+        if self.arguments.no_color:
+            self.keyword_color = ""
+            self.reset = ""
+            self.reset_error = ""
+            self.reset_success = ""
+
         self.line_break()
         old_pass = self.get_pass("Please enter your %scurrent password%s:" % (self.keyword_color, self.reset))
         self.line_break()

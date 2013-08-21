@@ -211,15 +211,21 @@ Example::
 
     Created 'myproject' project in 'myteam' team at 'http://api.wight.com'.
 
+project-update
+~~~~~~~~~~~~~~
+
+Updates a project's information, like name or repository.
+
+Example::
+
+    $
+
 project-delete
 ~~~~~~~~~~~~~~
 
 Deletes a project.
 
-project-update
-~~~~~~~~~~~~~~
 
-Updates a project.
 
 Defaults Commands
 -----------------

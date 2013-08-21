@@ -45,10 +45,10 @@ class TestUpdateProject(AcceptanceTest):
     def test_can_update_project(self):
         result = self.execute(
             "project-update",
+            self.project.name,
+            name="new-project-name",
             team=self.team.name,
-            project=self.project.name,
-            project_name="new-project-name",
-            repo="new-repo"
+            repo="new-repo",
         )
         expect(result).to_be_like(
             "Updated '%s' project in '%s' team at '%s'." % ("new-project-name", self.team.name, self.target)
@@ -60,9 +60,9 @@ class TestUpdateProject(AcceptanceTest):
     def test_can_update_project_with_name_only(self):
         result = self.execute(
             "project-update",
+            self.project.name,
+            name="new-project-name",
             team=self.team.name,
-            project=self.project.name,
-            project_name="new-project-name"
         )
         expect(result).to_be_like(
             "Updated '%s' project in '%s' team at '%s'." % ("new-project-name", self.team.name, self.target)
@@ -74,8 +74,8 @@ class TestUpdateProject(AcceptanceTest):
     def test_can_update_project_with_repository_only(self):
         result = self.execute(
             "project-update",
+            self.project.name,
             team=self.team.name,
-            project=self.project.name,
             repo="new-repo"
         )
         expect(result).to_be_like(
