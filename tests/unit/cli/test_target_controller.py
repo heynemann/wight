@@ -39,7 +39,7 @@ class TestTargetGetController(TestCase):
 
         ctrl = self.make_controller(TargetGetController, conf=self.fixture_for('test.conf'))
         ctrl.default()
-        expected = u"\n\x1b[0m\x1b[32m\x1b[1mWight target set to '\x1b[35m\x1b[1mhttp://my-target.wight.com\x1b[0m\x1b[32m\x1b[1m'. In order to login with wight, use '\x1b[33m\x1b[1mwight login <email>\x1b[0m\x1b[32m\x1b[1m'.\x1b[0m\x1b[32m\x1b[1m\n\n\n\x1b[0m\x1b[32m\x1b[1mCurrent Wight target set to '\x1b[35m\x1b[1mhttp://my-target.wight.com\x1b[0m\x1b[32m\x1b[1m'. In order to login with wight, use '\x1b[33m\x1b[1mwight login <email>\x1b[0m\x1b[32m\x1b[1m'.\x1b[0m\x1b[32m\x1b[1m\n\n"
+        expected = u"\n\x1b[0m\x1b[32m\x1b[1mWight target set to '\x1b[35m\x1b[1mhttp://my-target.wight.com\x1b[0m\x1b[32m\x1b[1m'. In order to login with wight, use '\x1b[33m\x1b[1mwight login <email>\x1b[0m\x1b[32m\x1b[1m'.\x1b[0m\x1b[32m\x1b[1m\n\n\n\x1b[0m\x1b[32m\x1b[1mCurrent Wight target is '\x1b[35m\x1b[1mhttp://my-target.wight.com\x1b[0m\x1b[32m\x1b[1m'. In order to login with wight, use '\x1b[33m\x1b[1mwight login <email>\x1b[0m\x1b[32m\x1b[1m'.\x1b[0m\x1b[32m\x1b[1m\n\n"
         expect(mock_stdout.getvalue()).to_equal(expected)
 
     @mock.patch.object(TargetGetController, 'abort')
