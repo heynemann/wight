@@ -65,7 +65,7 @@ class FunkLoadBenchRunner(object):
     def run(cls, root_path, test, base_url, workers=[], cycles=DEFAULT_CYCLES, duration=10):
         assert isinstance(test, TestConfig), "The test argument must be of type wight.worker.config.TestConfig"
 
-        #fl-run-bench --distribute --distribute-workers=localhost -u http://api.qa01.globoi.com -c 10:20:30:40:50 -D 30 --simple-fetch geo.py GeoTests.test_geo
+        #fl-run-bench --distribute --distribute-workers=localhost -u http://www.something.com -c 10:20:30:40:50 -D 30 --simple-fetch geo.py GeoTests.test_geo
 
         arguments = [test.module, "%s.%s" % (test.class_name, test.test_name)]
 
