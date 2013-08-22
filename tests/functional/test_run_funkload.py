@@ -7,9 +7,12 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from os import remove
 
 import re
-from os.path import abspath, join, dirname
+from os.path import abspath, join, dirname, exists
+
+from shutil import copy
 
 from preggy import expect
 
@@ -63,3 +66,16 @@ class TestCanRunFunkloadTest(FunkLoadBaseTest):
         expect(result).not_to_be_null()
         expect(result.exit_code).to_equal(1)
         expect(result.text).to_include("ImportError: No module named fail")
+
+    def test_can_run_funkload_with_dep(self):
+        test_path = join(root_path, 'tests', 'functional')
+        copy(join(test_path, 'with_deps.yml'), join(root_path, 'bench', 'with_deps.yml'))
+        conf = WightConfig.load(join(root_path, 'bench', 'wight.yml'))
+        test = conf.tests[0]
+        result = FunkLoadTestRunner.run(root_path, test, self.base_url)
+        expect(result).not_to_be_null()
+        expect(result.exit_code).to_equal(0)
+
+    def tearDown(self):
+        if exists(join(root_path, 'bench', 'with_deps.yml')):
+            remove(join(root_path, 'bench', 'with_deps.yml'))

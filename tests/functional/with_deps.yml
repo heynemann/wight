@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# wight load testing
+# https://github.com/heynemann/wight
+
+# Licensed under the MIT license:
+# http://www.opensource.org/licenses/mit-license
+# Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+
+tests:
+  -
+    title: HealthCheck Tests
+    description: Testando se o healthcheck aguenta carga.
+    module: test_healthcheck
+    class: HealthCheckTest
+    test: test_healthcheck
+    pressure: small
+    deps:
+      - requests
+      - six

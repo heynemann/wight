@@ -52,6 +52,8 @@ class FunkLoadTestRunner(object):
             pip = Command("%s/bin/pip" % venv_path)
             pip.install(FUNKLOAD_GIT)
 
+            for dep in test.deps:
+                pip.install(dep)
 
             fl_run_test = Command("%s/bin/fl-run-test" % venv_path)
 
