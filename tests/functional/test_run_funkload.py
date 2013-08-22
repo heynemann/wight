@@ -24,7 +24,7 @@ class TestCanRunFunkloadTest(FunkLoadBaseTest):
     def test_can_run_funkload(self):
         conf = WightConfig.load(join(root_path, 'bench', 'wight.yml'))
         test = conf.tests[0]
-        result = FunkLoadTestRunner.run(root_path, test.module, test.class_name, test.test_name, self.base_url)
+        result = FunkLoadTestRunner.run(root_path, test, self.base_url)
 
         expect(result).not_to_be_null()
         expect(result.exit_code).to_equal(0)
@@ -58,7 +58,7 @@ class TestCanRunFunkloadTest(FunkLoadBaseTest):
         test_path = join(root_path, 'tests', 'functional')
         conf = WightConfig.load(join(test_path, 'failures.yml'))
         test = conf.tests[0]
-        result = FunkLoadTestRunner.run(test_path, test.module, test.class_name, test.test_name, self.base_url)
+        result = FunkLoadTestRunner.run(test_path, test, self.base_url)
 
         expect(result).not_to_be_null()
         expect(result.exit_code).to_equal(1)

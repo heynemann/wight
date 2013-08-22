@@ -138,10 +138,7 @@ if __name__ == '__main__':
             raise TestNotValidError("The wight.yml file was not found in project repository bench folder.")
 
         for test in config.tests:
-            result = FunkLoadTestRunner.run(
-                base_path, test.module, test.class_name,
-                test.test_name, load_test.base_url
-            )
+            result = FunkLoadTestRunner.run(base_path, test, load_test.base_url)
             if result.exit_code != 0:
                 logging.error(result.log)
                 raise TestNotValidError("The test '%s.%s.%s' running in '%s' is not valid (%s)" %

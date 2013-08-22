@@ -36,7 +36,8 @@ class FunkLoadTestRunResult(object):
 class FunkLoadTestRunner(object):
 
     @classmethod
-    def run(cls, root_path, module, class_name, test_name, base_url):
+    def run(cls, root_path, test, base_url):
+        module, class_name, test_name = (test.module, test.class_name, test.test_name)
         temp_path = mkdtemp()
 
         try:
@@ -50,6 +51,7 @@ class FunkLoadTestRunner(object):
 
             pip = Command("%s/bin/pip" % venv_path)
             pip.install(FUNKLOAD_GIT)
+
 
             fl_run_test = Command("%s/bin/fl-run-test" % venv_path)
 
