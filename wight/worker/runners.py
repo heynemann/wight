@@ -11,14 +11,13 @@
 import sys
 from tempfile import mkdtemp
 from os.path import join
-import logging
 
 from sh import Command, ErrorReturnCode
 from funkload.ReportBuilder import FunkLoadXmlParser
 from funkload.MergeResultFiles import MergeResultFiles
-from six import StringIO
 import virtualenv
 
+from wight import FUNKLOAD_GIT
 from wight.worker.bench_configuration import BenchConfiguration
 from wight.worker.config import TestConfig, DEFAULT_CYCLES
 
@@ -50,7 +49,7 @@ class FunkLoadTestRunner(object):
             )
 
             pip = Command("%s/bin/pip" % venv_path)
-            pip.install('https://github.com/nuxeo/FunkLoad/archive/master.tar.gz')
+            pip.install(FUNKLOAD_GIT)
 
             fl_run_test = Command("%s/bin/fl-run-test" % venv_path)
 

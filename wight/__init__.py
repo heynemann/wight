@@ -9,3 +9,5 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 __version__ = '0.2.5'
+
+FUNKLOAD_GIT = 'https://github.com/nuxeo/FunkLoad/archive/master.tar.gz'

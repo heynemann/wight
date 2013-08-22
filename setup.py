@@ -9,7 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 from setuptools import setup, find_packages
-from wight import __version__
+from wight import __version__, FUNKLOAD_GIT
 
 tests_require = [
     'nose',
@@ -53,7 +53,7 @@ wight is a load testing scheduling and tracking tool.
     ],
     packages=find_packages(),
     include_package_data = True,
-    dependency_links = ['https://github.com/nuxeo/FunkLoad/archive/master.tar.gz#egg=funkload-1.17.0'],
+    dependency_links = ['%s#egg=funkload-1.17.0' % FUNKLOAD_GIT],
     install_requires=[
         'argparse',
         'cement',
