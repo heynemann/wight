@@ -71,8 +71,11 @@ class FunkLoadBenchRunner(object):
 
         keyword_arguments = dict(
             # keyword arguments
-            u=base_url, simple_fetch=True,
+            u=base_url,
+            simple_fetch=True,
             c=":".join([str(cycle) for cycle in cycles[test.pressure]]),
+            feedback_endpoint=join(root_path, "%s_%s" % (test.class_name, test.test_name)),
+
 
             # sh.py options
             _env={

@@ -37,6 +37,28 @@ tests:
         expect(cfg.tests[0].class_name).to_equal("HealthCheckTest")
         expect(cfg.tests[0].test_name).to_equal("test_healthcheck")
 
+    def test_can_parse_configuration_with_more_tests(self):
+        cfg_text = """
+tests:
+  -
+    module: healthcheck.py
+    class: HealthCheckTest
+    test: test_healthcheck
+  -
+    module: healthcheck2.py
+    class: HealthCheckTest2
+    test: test_healthcheck2
+"""
+
+        cfg = WightConfig(cfg_text)
+
+        expect(cfg).not_to_be_null()
+        expect(cfg.tests).to_length(2)
+
+        expect(cfg.tests[1].module).to_equal("healthcheck2.py")
+        expect(cfg.tests[1].class_name).to_equal("HealthCheckTest2")
+        expect(cfg.tests[1].test_name).to_equal("test_healthcheck2")
+
     def test_can_load_files(self):
         cfg = WightConfig.load(join(root_path, 'wight.yml'))
 

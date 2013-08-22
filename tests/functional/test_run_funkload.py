@@ -54,7 +54,6 @@ class TestCanRunFunkloadTest(FunkLoadBaseTest):
         DEBUG test_healthcheck:  Done in
         """)
 
-
     def test_can_report_failure(self):
         test_path = join(root_path, 'tests', 'functional')
         conf = WightConfig.load(join(test_path, 'failures.yml'))
