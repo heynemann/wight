@@ -11,16 +11,17 @@
 import sys
 from tempfile import mkdtemp
 from os.path import join
+import logging
 
 from sh import Command, ErrorReturnCode
 from funkload.ReportBuilder import FunkLoadXmlParser
 from funkload.MergeResultFiles import MergeResultFiles
 from six import StringIO
+import virtualenv
 
 from wight.worker.bench_configuration import BenchConfiguration
 from wight.worker.config import TestConfig, DEFAULT_CYCLES
 
-fl_run_test = Command("fl-run-test")
 fl_run_bench = Command("fl-run-bench")
 
 
@@ -40,6 +41,19 @@ class FunkLoadTestRunner(object):
         temp_path = mkdtemp()
 
         try:
+            venv_path = "%s/venv" % temp_path.rstrip('/')
+            virtualenv.create_environment(
+                venv_path,
+                site_packages=True,
+                unzip_setuptools=True,
+                use_distribute=True
+            )
+
+            pip = Command("%s/bin/pip" % venv_path)
+            pip.install('https://github.com/nuxeo/FunkLoad/archive/master.tar.gz')
+
+            fl_run_test = Command("%s/bin/fl-run-test" % venv_path)
+
             result = fl_run_test(module, "%s.%s" % (class_name, test_name), u=base_url, _env={
                 "PYTHONPATH": '$PYTHONPATH:%s' % join(root_path.rstrip('/'), "bench")
             }, simple_fetch=True, _cwd=temp_path)
