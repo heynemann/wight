@@ -59,6 +59,24 @@ tests:
         expect(cfg.tests[1].class_name).to_equal("HealthCheckTest2")
         expect(cfg.tests[1].test_name).to_equal("test_healthcheck2")
 
+    def test_can_parse_configuration_with_deps(self):
+        cfg_text = """
+tests:
+  -
+    module: healthcheck.py
+    class: HealthCheckTest
+    test: test_healthcheck
+    deps:
+      - request
+      - six
+"""
+
+        cfg = WightConfig(cfg_text)
+
+        expect(cfg).not_to_be_null()
+        expect(cfg.tests).to_length(1)
+        expect(cfg.tests[0].deps).to_be_like(["request", "six"])
+
     def test_can_load_files(self):
         cfg = WightConfig.load(join(root_path, 'wight.yml'))
 
