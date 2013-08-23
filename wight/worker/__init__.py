@@ -85,11 +85,14 @@ if __name__ == '__main__':
 
 """
 
-    def _clone_repository(self, base_path, load_test):
-        repo = Repository.clone(url=load_test.project.repository, path=base_path)
+    def _save_last_commit(self, load_test, repo):
         last_commit = tuple(repo.walk(repo.head.target, GIT_SORT_TIME))[0]
         load_test.last_commit = Commit.from_pygit(last_commit)
         load_test.save()
+
+    def _clone_repository(self, base_path, load_test):
+        repo = Repository.clone(url=load_test.project.repository, path=base_path)
+        self._save_last_commit(load_test, repo)
         return repo
 
     def run_project_tests(self, base_path, load_test_uuid, workers=[], cycles=DEFAULT_CYCLES, duration=10):
@@ -100,31 +103,7 @@ if __name__ == '__main__':
 
         try:
             cfg = self._build_test_config(base_path, load_test)
-
-            for test in cfg.tests:
-                kw = dict(
-                    root_path=base_path,
-                    test=test,
-                    base_url=load_test.base_url,
-                    cycles=cycles,
-                    duration=duration
-                )
-
-                if workers:
-                    kw['workers'] = workers
-
-                fl_result = FunkLoadBenchRunner.run(**kw)
-
-                if fl_result.exit_code != 0:
-                    load_test.status = "Failed"
-                    load_test.error = fl_result.text
-                    load_test.save()
-                    return
-
-                result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
-
-                load_test.add_result(result, log=fl_result.text)
-
+            self._run_config_tests(cfg, base_path, load_test, workers, cycles, duration)
             load_test.status = "Finished"
             load_test.save()
         except Exception:
@@ -161,11 +140,38 @@ if __name__ == '__main__':
             self._create_simple_test(base_path, load_test)
         else:
             self._clone_repository(base_path, load_test)
-
-        bench_path = join(base_path, 'bench')
-        cfg = WightConfig.load(join(bench_path, 'wight.yml'))
+        cfg = self._load_config_from_yml(base_path)
         self.validate_tests(base_path, cfg, load_test)
         return cfg
+
+    def _load_config_from_yml(self, base_path):
+        bench_path = join(base_path, 'bench')
+        return WightConfig.load(join(bench_path, 'wight.yml'))
+
+    def _run_config_tests(self, cfg, base_path, load_test, workers, cycles, duration):
+        for test in cfg.tests:
+            kw = dict(
+                root_path=base_path,
+                test=test,
+                base_url=load_test.base_url,
+                cycles=cycles,
+                duration=duration
+            )
+
+            if workers:
+                kw['workers'] = workers
+
+            fl_result = FunkLoadBenchRunner.run(**kw)
+
+            if fl_result.exit_code != 0:
+                load_test.status = "Failed"
+                load_test.error = fl_result.text
+                load_test.save()
+                return
+
+            result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
+
+            load_test.add_result(result, log=fl_result.text)
 
 
 def main(args=None):
