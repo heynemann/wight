@@ -91,6 +91,7 @@ class TestCreatingLoadTestModel(ModelTestCase):
                 "created": test.date_created.isoformat()[:19],
                 "lastModified": test.date_modified.isoformat()[:19],
                 "lastCommit": test.last_commit.to_dict(),
+                "gitBranch": test.git_branch,
                 "results": []
             }
         )

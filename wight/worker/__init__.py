@@ -91,7 +91,7 @@ if __name__ == '__main__':
         load_test.save()
 
     def _clone_repository(self, base_path, load_test):
-        repo = Repository.clone(url=load_test.project.repository, path=base_path)
+        repo = Repository.clone(url=load_test.project.repository, path=base_path, branch=load_test.git_branch)
         self._save_last_commit(load_test, repo)
         return repo
 

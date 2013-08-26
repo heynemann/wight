@@ -242,7 +242,7 @@ class LoadTestFactory(factory.Factory):
         return load_test
 
     @classmethod
-    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None, repository=None, simple=False, status="Scheduled"):
+    def add_to_project(cls, load_tests=1, user=None, team=None, project=None, base_url=None, repository=None, simple=False, status="Scheduled", branch=None):
         if not user:
             user = UserFactory.create()
 
@@ -262,6 +262,9 @@ class LoadTestFactory(factory.Factory):
                 simple=simple,
                 status=status
             )
+
+            if branch:
+                kw['git_branch'] = branch
 
             if base_url is not None:
                 kw['base_url'] = base_url

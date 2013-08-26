@@ -489,6 +489,7 @@ class LoadTest(Document):
     created_by = ReferenceField(User, required=True)
     last_commit = EmbeddedDocumentField(Commit)
     project_name = StringField(max_length=2000, required=True)
+    git_branch = StringField(max_length=255, required=False, default='refs/heads/master')
     simple = BooleanField(default=False)
     base_url = URLField(max_length=2000, required=True)
     date_created = DateTimeField(default=datetime.datetime.utcnow)
@@ -526,6 +527,7 @@ class LoadTest(Document):
             "created": format_date_to_dict(self.date_created),
             "lastModified": format_date_to_dict(self.date_modified),
             "lastCommit": self.last_commit and self.last_commit.to_dict() or None,
+            "gitBranch": self.git_branch,
             "results": [result.to_dict() for result in self.results]
         }
 
