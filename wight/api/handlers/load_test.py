@@ -34,6 +34,7 @@ class AuthLoadTestHandler(BaseHandler):
     @BaseHandler.team_member
     def post(self, team, project_name):
         base_url = self.get_argument("base_url").strip()
+        branch = self.get_argument("branch", strip=True, default=None)
         simple = self.get_argument("simple", "false") == "true"
 
         if not base_url or not URL_RE.match(base_url):
@@ -57,6 +58,10 @@ class AuthLoadTestHandler(BaseHandler):
             project_name=project.name,
             simple=simple
         )
+
+        if branch:
+            test.git_branch = branch
+
         test.save()
 
         self.application.resq.enqueue(WorkerJob, str(test.uuid))

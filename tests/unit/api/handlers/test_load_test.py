@@ -41,6 +41,21 @@ class ScheduleLoadTestTest(FullTestCase):
         expect(tests[0].base_url).to_equal("http://www.globo.com")
         expect(tests[0].simple).to_be_false()
 
+    def test_schedule_a_test_in_a_specific_branch(self):
+        url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
+        response = self.post(url, **{
+            "base_url": "http://www.globo.com",
+            "branch": "test-branch"
+        })
+        expect(response.code).to_equal(200)
+        expect(response.body).to_equal("OK")
+
+        tests = list(LoadTest.get_by_team_and_project_name(self.team, self.project.name))
+        expect(tests).not_to_be_null()
+        expect(tests).to_length(1)
+        expect(tests[0].base_url).to_equal("http://www.globo.com")
+        expect(tests[0].git_branch).to_equal("test-branch")
+
     def test_simple_schedule_test(self):
         url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
         response = self.post(url, **{
