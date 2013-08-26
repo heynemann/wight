@@ -41,8 +41,19 @@ class ScheduleLoadTestController(WightBaseController):
             (['--url'], dict(help='The base url to run the load test against', required=True)),
             (['--team'], dict(help='The name of the team that owns the project to schedule a load test')),
             (['--project'], dict(help='The name of the project to schedule a load test')),
+            (['--branch'], dict(help='The git branch to run the test for')),
             (['--simple'], dict(action="store_true", help='Defines that the test will just hit the url passed without need to had a bench folder in project.', default=False)),
         ]
+
+    def _get_log_message(self, project_name, target, team_name, branch=None):
+        if branch:
+            branch = "(branch '%s%s%s')" % (self.keyword_color, branch, self.reset_success)
+        return "Scheduled a new load test for project '%s%s%s' %s in team '%s%s%s' at '%s%s%s' target." % (
+            self.keyword_color, project_name, self.reset_success,
+            branch if branch else '',
+            self.keyword_color, team_name, self.reset_success,
+            self.keyword_color, target, self.reset_success
+        )
 
     @controller.expose(hide=False, aliases=["schedule"], help='Schedules a new load test.')
     @WightBaseController.authenticated
@@ -57,21 +68,27 @@ class ScheduleLoadTestController(WightBaseController):
 
         base_url = self.arguments.url
 
-        log_message = "Scheduled a new load test for project '%s%s%s' in team '%s%s%s' at '%s%s%s' target." % (
-            self.keyword_color, project_name, self.reset_success,
-            self.keyword_color, team_name, self.reset_success,
-            self.keyword_color, target, self.reset_success
-        )
+        log_message = self._get_log_message(project_name, target, team_name)
 
         with connected_controller(self):
             simple = "true" if self.arguments.simple else "false"
-            response = self.post("/teams/%(team_name)s/projects/%(project_name)s/load_tests/" % {
-                "team_name": team_name,
-                "project_name": project_name
-            }, {
+            query_parameters = {
                 'base_url': base_url,
                 'simple': simple
-            })
+            }
+
+            branch = self.arguments.branch
+            if branch:
+                query_parameters['branch'] = branch
+                log_message = self._get_log_message(project_name, target, team_name, branch=branch)
+
+            response = self.post(
+                "/teams/%(team_name)s/projects/%(project_name)s/load_tests/" % {
+                    "team_name": team_name,
+                    "project_name": project_name
+                },
+                query_parameters
+            )
 
             self.line_break()
 

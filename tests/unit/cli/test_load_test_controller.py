@@ -143,7 +143,7 @@ class LoadTestControllerTestBase(TestCase):
 
 class SimpleLoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com", "simple": True}
+        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com", "branch": None, "simple": True}
         self.controller_class = ScheduleLoadTestController
         super(SimpleLoadTestControllerTest, self).setUp()
 
@@ -156,9 +156,34 @@ class SimpleLoadTestControllerTest(LoadTestControllerTestBase):
         })
 
 
+class LoadTestControllerInBranchTest(LoadTestControllerTestBase):
+    def setUp(self):
+        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com", "branch": "test-branch", "simple": None}
+        self.controller_class = ScheduleLoadTestController
+        super(LoadTestControllerInBranchTest, self).setUp()
+
+    @patch.object(ScheduleLoadTestController, 'post')
+    def test_schedule_in_branch(self, post_mock):
+        self.ctrl.default()
+        post_mock.assert_any_call("/teams/nameless/projects/project/load_tests/", {
+            "base_url": "http://www.globo.com",
+            "simple": "false",
+            "branch": "test-branch"
+        })
+
+    @patch.object(ScheduleLoadTestController, 'post')
+    @patch.object(ScheduleLoadTestController, 'write')
+    def test_schedule_test_notifies_user_with_branch(self, write_mock, post_mock):
+        response = Mock(status_code=200)
+        post_mock.return_value = response
+        self.ctrl.default()
+        msg = "Scheduled a new load test for project 'project' (branch 'test-branch') in team 'nameless' at 'Target' target."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
+
+
 class LoadTestControllerTest(LoadTestControllerTestBase):
     def setUp(self):
-        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com", "simple": None}
+        self.controller_kwargs = {"team": "nameless", "project": "project", "url": "http://www.globo.com", "branch": None, "simple": None}
         self.controller_class = ScheduleLoadTestController
         super(LoadTestControllerTest, self).setUp()
 
