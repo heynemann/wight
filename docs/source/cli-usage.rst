@@ -349,4 +349,31 @@ schedule
 
 Schedules a new load test.
 
+Example::
+
+    $ wight schedule http://site.tobehitten.com --team my-team --project my-project
+
+    Scheduled a new load test for project 'my-project' in team 'my-team' at 'http://wight.targetset.com' target.
+
+Variations
+^^^^^^^^^^
+
+Schedule a simple test in a URL for a project with no funkload tests::
+
+    $ wight schedule http://site.tobehitten.com --team my-team --project my-project --simple
+
+    Scheduled a new load test for project 'my-project' in team 'my-team' at 'http://wight.targetset.com' target.
+
+
+Schedule a test where the bench folder are in a specific git branch::
+
+    $ wight schedule http://site.tobehitten.com --team my-team --project my-project --branch test-branch
+
+    Scheduled a new load test for project 'my-project' (branch 'test-branch') in team 'my-team' at 'http://wight.targetset.com' target.
+
+If you had set default team and/or project, you can omit these parameters in schedule command::
+
+    $ wight schedule http://site.tobehitten.com
+
+    Scheduled a new load test for project 'my-project' in team 'my-team' at 'http://wight.targetset.com' target.
 
