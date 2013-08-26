@@ -8,6 +8,6 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
-__version__ = '0.2.5'
+__version__ = '0.2.6'
 
 FUNKLOAD_GIT = 'https://github.com/nuxeo/FunkLoad/archive/master.tar.gz'
