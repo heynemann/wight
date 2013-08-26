@@ -98,7 +98,6 @@ data: mongo
 
 local-login:
 	@wight target-set http://0.0.0.0:2367
-	@wight login
 
 local-team:
 	@wight team-create local
@@ -112,7 +111,6 @@ pip:
 
 aws-login:
 	@wight target-set http://wight.timeho.me/
-	@wight login
 
 default:
 	@wight default-set --team local --project wight

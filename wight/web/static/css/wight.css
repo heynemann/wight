@@ -7,7 +7,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    height: 70px;
+    min-height: 210px;
 }
 
 .hero-unit p {
