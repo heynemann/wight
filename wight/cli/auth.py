@@ -27,6 +27,19 @@ class AuthController(WightBaseController):
             (['email'], dict(help='E-mail to authenticate with.')),
         ]
 
+    def _confirming_password(self, password):
+        confirm_password = self.get_pass("%sPlease retype the %spassword%s to confirm:" % (
+            self.reset, self.keyword_color, self.reset)
+        )
+        while password != confirm_password:
+            password = self.get_pass("%sConfirm not match! Please enter the %spassword%s again:" % (
+                self.reset, self.keyword_color, self.reset)
+            )
+            confirm_password = self.get_pass("%sPlease retype the %spassword%s to confirm:" % (
+                self.reset, self.keyword_color, self.reset)
+            )
+        return password
+
     @controller.expose(hide=True, help='Log-in to wight (or register if user not found).')
     def default(self):
         with connected_controller(self):
@@ -73,6 +86,8 @@ class AuthController(WightBaseController):
                     if not register or register.lower() not in ("y", "n") or register.lower() == "n":
                         self.abort()
                         return False
+
+                    password = self._confirming_password(password)
 
                     response = self.get("/auth/register", headers={
                         'email': email,

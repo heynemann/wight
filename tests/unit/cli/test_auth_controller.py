@@ -10,7 +10,9 @@
 
 import os
 from os.path import exists
+import re
 import sys
+from six import binary_type
 
 try:
     from StringIO import StringIO
@@ -35,6 +37,32 @@ def clear_token():
 def assert_token_is(token):
     data = UserData.load()
     expect(data.token).to_equal(token)
+
+
+REMOVE_COLORS_REGEX = re.compile(
+    r'(\033|\x1b|\x03)'  # prefixes
+    r'\['                # non-regex bracket
+    r'([0-9]*[;])?'      # semi-colon
+    r'[0-9]*m',          # suffix
+    flags=re.UNICODE
+)
+
+NORMALIZE_WHITESPACE_REGEX = re.compile(
+    r'\s+',
+    flags=re.UNICODE|re.MULTILINE|re.IGNORECASE
+)
+
+_filter_str = lambda s: NORMALIZE_WHITESPACE_REGEX.sub('', s.lower()).strip()
+
+
+def strip_string(text):
+    if isinstance(text, (binary_type, )):
+        text = text.decode('utf-8')
+    text = REMOVE_COLORS_REGEX.sub('', text)
+    text = _filter_str(text)
+    if isinstance(text, (binary_type, )):
+        text = text.decode('utf-8')
+    return text
 
 
 class AuthControllerTestCase(FullTestCase):
@@ -139,24 +167,54 @@ class AuthControllerTestCase(FullTestCase):
         expect(get_mock.called).to_be_true()
 
     @mock.patch('sys.stdout', new_callable=StringIO)
+    @mock.patch.object(AuthController, '_confirming_password')
     @mock.patch.object(AuthController, 'ask_for')
     @mock.patch.object(AuthController, 'get')
-    def test_default_action_when_user_not_found_but_want_to_register(self, get_mock, ask_for_mock, mock_stdout):
+    def test_default_action_when_user_not_found_but_want_to_register(self, get_mock, ask_for_mock, confirm_mock, mock_stdout):
         user = UserFactory.create()
 
         headers_mock = mock.Mock(get=lambda msg: "test-token")
         response_mock = mock.Mock(status_code=404, headers=headers_mock)
         get_mock.return_value = response_mock
         ask_for_mock.return_value = "Y"
+        confirm_mock.return_value = "123"
 
         ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email=user.email, password="123")
         ctrl.app.user_data = UserData(target=self.get_url('/'))
         expect(ctrl.default()).to_be_true()
 
+
+
         expect(mock_stdout.getvalue()).to_be_like("User registered and authenticated.")
         expect(get_mock.called).to_be_true()
 
         assert_token_is("test-token")
+
+    def get_pass_side_correct(self, message):
+        if strip_string(message) == strip_string("Please retype the password to confirm:"):
+            return "123"
+        return "321"
+
+    def get_pass_side_error(self, message):
+        if strip_string(message) == strip_string("Confirm not match! Please enter the password again:"):
+            return "123"
+        if strip_string(message) == strip_string("Please retype the password to confirm:"):
+            return "123"
+        return "321"
+
+    @mock.patch.object(AuthController, 'get_pass')
+    def test_confirm_password_correctly(self, get_pass_mock):
+        get_pass_mock.side_effect = self.get_pass_side_correct
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email="mail", password="123")
+        ctrl._confirming_password("123")
+        expect(len(get_pass_mock.call_args_list)).to_equal(1)
+
+    @mock.patch.object(AuthController, 'get_pass')
+    def test_confirm_password_with_type_error(self, get_pass_mock):
+        get_pass_mock.side_effect = self.get_pass_side_error
+        ctrl = self.make_controller(AuthController, conf=self.fixture_for('test.conf'), email="mail", password="123")
+        ctrl._confirming_password("321")
+        expect(len(get_pass_mock.call_args_list)).to_equal(3)
 
     @mock.patch('sys.stdout', new_callable=StringIO)
     @mock.patch.object(AuthController, 'get')
