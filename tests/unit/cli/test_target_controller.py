@@ -30,6 +30,14 @@ class TestTargetSetController(TestCase):
         expect(ud).not_to_be_null()
         expect(ud.target).to_equal("http://my-target.wight.com")
 
+    def test_set_target_can_complete_with_http(self):
+        ctrl = self.make_controller(TargetSetController, conf=self.fixture_for('test.conf'), target='my-target.wight.com')
+        ctrl.default()
+
+        ud = UserData.load()
+        expect(ud).not_to_be_null()
+        expect(ud.target).to_equal("http://my-target.wight.com")
+
 
 class TestTargetGetController(TestCase):
     @mock.patch('sys.stdout', new_callable=StringIO)

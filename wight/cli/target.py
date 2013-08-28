@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+from urlparse import urlparse
 
 from cement.core import controller
 
@@ -31,6 +32,10 @@ class TargetSetController(WightBaseController):
         self.load_conf()
 
         target = self.arguments.target
+        target_parsed = urlparse(target)
+        if not target_parsed.scheme:
+            target = "http://%s" % target_parsed.geturl()
+
         self.line_break()
         self.putsuccess("Wight target set to '%s%s%s'. In order to login with wight, use '%swight login <email>%s'." % (
             self.keyword_color, target, self.reset_success,
