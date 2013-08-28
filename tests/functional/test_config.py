@@ -90,3 +90,20 @@ tests:
     def test_loading_a_file_that_does_not_exist_returns_none(self):
         cfg = WightConfig.load('/invalid/path')
         expect(cfg).to_be_null()
+
+    def test_can_parse_configuration_with_utf8(self):
+        cfg_text = """
+tests:
+  -
+    description: Testa a saúde da página.
+    module: healthcheck.py
+    class: HealthCheckTest
+    test: test_healthcheck
+"""
+
+        cfg = WightConfig(cfg_text)
+
+        expect(cfg).not_to_be_null()
+        expect(cfg.tests).to_length(1)
+
+        expect(cfg.tests[0].description).to_equal("Testa a saúde da página.")
