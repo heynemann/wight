@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+import codecs
 
 import sys
 
@@ -56,7 +57,7 @@ class BenchConfiguration(object):
         self.timeout = 60 * cycles
 
     def save(self, conf_path):
-        with open(conf_path, 'w') as conf_file:
+        with codecs.open(conf_path, 'w', "utf-8") as conf_file:
             main_section = """[main]
 title=%(title)s
 description=%(description)s

@@ -101,7 +101,7 @@ local-login:
 
 local-team:
 	@wight team-create local
-	@wight project-create --team local --project wight --repo https://github.com/heynemann/wight.git
+	@wight project-create wight --team local --repo https://github.com/heynemann/wight.git
 
 local-schedule:
 	@wight schedule --team local --project wight --url http://wight.timeho.me/

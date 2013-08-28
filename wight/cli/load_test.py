@@ -386,11 +386,11 @@ class ShowResultController(WightBaseController):
             self._print_response(content)
 
     def _print_two_columns(self, first_title, first_value, second_title, second_value):
-        self.write(("%s%s%s: %s%-" + str(50 - len(first_title)) + "s%s %s%s%s: %s%ss%s") % (
+        self.write(("%s%s%s: %s%-" + unicode(50 - len(first_title)) + "s%s %s%s%s: %s%ss%s") % (
             self.keyword_color, first_title.strip(), self.reset,
-            self.commands_color, str(first_value).strip(), self.reset,
+            self.commands_color, unicode(first_value).strip(), self.reset,
             self.keyword_color, second_title.strip(), self.reset,
-            self.commands_color, str(second_value).strip(), self.reset,
+            self.commands_color, unicode(second_value).strip(), self.reset,
         ))
 
     def _print_response(self, load_test):
