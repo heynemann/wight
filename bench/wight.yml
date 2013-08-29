@@ -11,7 +11,7 @@
 tests:
   -
     title: HealthCheck Tests
-    description: Testa a saúde da página.
+    description: Vendo se a página de healthcheck aguenta.
     module: test_healthcheck
     class: HealthCheckTest
     test: test_healthcheck
