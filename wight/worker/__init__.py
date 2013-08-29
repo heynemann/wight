@@ -96,10 +96,12 @@ if __name__ == '__main__':
         return repo
 
     def run_project_tests(self, base_path, load_test_uuid, workers=[], cycles=DEFAULT_CYCLES, duration=10):
+        logging.debug("loading test")
         load_test = LoadTest.objects(uuid=UUID(load_test_uuid)).first()
         load_test.status = "Running"
         load_test.running_since = datetime.utcnow()
         load_test.save()
+        logging.debug("test saved")
 
         try:
             cfg = self._build_test_config(base_path, load_test)
@@ -113,6 +115,7 @@ if __name__ == '__main__':
             load_test.save()
 
     def validate_tests(self, base_path, config, load_test):
+        logging.debug("test validation")
         if not config:
             raise TestNotValidError("The wight.yml file was not found in project repository bench folder.")
 
@@ -136,6 +139,7 @@ if __name__ == '__main__':
         test_file.close()
 
     def _build_test_config(self, base_path, load_test):
+        logging.debug("build config")
         if load_test.simple:
             self._create_simple_test(base_path, load_test)
         else:
@@ -145,10 +149,12 @@ if __name__ == '__main__':
         return cfg
 
     def _load_config_from_yml(self, base_path):
+        logging.debug("parse yml")
         bench_path = join(base_path, 'bench')
         return WightConfig.load(join(bench_path, 'wight.yml'))
 
     def _run_config_tests(self, cfg, base_path, load_test, workers, cycles, duration):
+        logging.debug("running tests")
         for test in cfg.tests:
             kw = dict(
                 root_path=base_path,
@@ -169,6 +175,7 @@ if __name__ == '__main__':
                 load_test.save()
                 return
 
+            logging.debug("create result for %s" % test.test_name)
             result = LoadTest.get_data_from_funkload_results(fl_result.config, fl_result.result)
 
             load_test.add_result(result, log=fl_result.text)
