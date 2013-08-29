@@ -27,6 +27,7 @@ class ReportHandler(BaseHandler):
     def get(self, uuid):
         report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         kwargs = {
+            "version": self.version(),
             "uuid": uuid,
             "test": None,
             "format_date": format_date,
@@ -79,6 +80,7 @@ class DiffHandler(BaseHandler):
     def get(self, reference_uuid, challenger_uuid):
         report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         kwargs = {
+            "version": self.version(),
             "reference_uuid": reference_uuid,
             "challenger_uuid": challenger_uuid,
             "reference_test": None,
@@ -120,6 +122,7 @@ class TrendHandler(BaseHandler):
     def get(self, team, project, module, class_name, test):
         report_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         kwargs = {
+            "version": self.version(),
             "team": team,
             "project": project,
             "module": module,
@@ -131,7 +134,7 @@ class TrendHandler(BaseHandler):
             "report_date": report_date,
         }
         api_result = self.get_api("results/%s/%s/%s/%s/%s/" % (team, project, module, class_name, test))
-        if api_result.status_code == 200:
+        if api_result.status_code == 200 and api_result.content:
             results = loads(api_result.content)
             concurrent_users = self._get_concurrent_users_for_results(results)
             concurrent_users = concurrent_users[0]

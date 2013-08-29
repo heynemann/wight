@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 
-{% block title %}Report {% if test %}#{{ uuid }} - {{ format_date(runAt) }}{% else %}Not Found{% end %} - Wight v0.1.0{% end %}
+{% block title %}Report {% if test %}#{{ uuid }} - {{ format_date(runAt) }}{% else %}Not Found{% end %} - Wight v{{ version }}{% end %}
 
 {% block contents %}
 <div class="container">

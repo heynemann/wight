@@ -4,7 +4,7 @@
     {% if results %}
         Trend for project {{ project }} - {{ full_name }} - Wight v0.1.0
     {% else %}
-        Test Result for team {{ team }}, project {{ project }} and test {{ full_name }} not found - Wight v0.1.0
+        Test Result for team {{ team }}, project {{ project }} and test {{ full_name }} not found - Wight v{{ version }}
     {% end %}
 {% end %}
 
@@ -52,28 +52,31 @@
 
 
     <p class="text-center"><small>Report generated at {{ report_date }}.</small></p>
+
 {% else %}
     <div class="hero-unit">
-        <h1>No load test found</h1>
-        <p>We are unable to find a test result for team {{ team }}, project {{ project }} and test {{ full_name }}.</p>
+        <h1>No trend found</h1>
+        <p>We are unable to find any test result for team {{ team }}, project {{ project }}.</p>
     </div>
 {% end %}
 </div>
 {% end %}
 
-{% block scripts %}
-<script>
+    {% block scripts %}
+        {% if results %}
+        <script>
 
-    var testsQuantity = {{ len(results) }};
+            var testsQuantity = {{ len(results) }};
 
-    var apdexConcurrentUsers = {{ apdex_concurrent_users }};
-    var apdexValues = {{ apdex_values }};
+            var apdexConcurrentUsers = {{ apdex_concurrent_users }};
+            var apdexValues = {{ apdex_values }};
 
-    var pageConcurrentUsers = {{ page_concurrent_users }};
+            var pageConcurrentUsers = {{ page_concurrent_users }};
 
-    var ppsValues = {{ pps_values }};
-    var averageResponseTimeValues = {{ average_response_time_values }};
+            var ppsValues = {{ pps_values }};
+            var averageResponseTimeValues = {{ average_response_time_values }};
 
-</script>
-<script src="{{ static_url('js/trend.js') }}"></script>
-{% end %}
+        </script>
+        <script src="{{ static_url('js/trend.js') }}"></script>
+        {% end %}
+    {% end %}

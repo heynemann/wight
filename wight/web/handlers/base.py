@@ -9,6 +9,7 @@ import requests
 import tornado.web
 
 from wight.models import User, Team
+from wight import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,9 @@ class BaseHandler(tornado.web.RequestHandler):
             fn(decorated_self, *args, **kw)
 
         return handle
+
+    def version(self):
+        return __version__
 
     @staticmethod
     def team_member(fn):
