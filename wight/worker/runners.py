@@ -145,7 +145,7 @@ class FunkLoadBenchRunner(object):
             logging.debug("bench run")
         except ErrorReturnCode:
             err = sys.exc_info()[1]
-            logging.error(err)
+            logging.error("run bench error: %s" % err)
             return FunkLoadTestRunResult(1,  err.stderr + err.stdout, log=err.stderr, result=None, config=None)
 
         try:
@@ -170,5 +170,5 @@ class FunkLoadBenchRunner(object):
                 result=parser.stats, config=parser.config)
         except Exception:
             err = sys.exc_info()[1]
-            logging.error(err)
+            logging.error("Parse error: %s" % err)
             return FunkLoadTestRunResult(1, "Result STDOUT: %s\nResult STDERR: %s\nResult Parsing Error: %s" % (result.stdout, result.stderr, str(err)), log=None, result=None, config=None)
