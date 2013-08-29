@@ -2,7 +2,7 @@
 
 {% block title %}
     {% if results %}
-        Trend for project {{ project }} - {{ full_name }} - Wight v0.1.0
+        Trend for project {{ project }} - {{ full_name }} - Wight v{{ version }}
     {% else %}
         Test Result for team {{ team }}, project {{ project }} and test {{ full_name }} not found - Wight v{{ version }}
     {% end %}
@@ -51,7 +51,7 @@
     </div>
 
 
-    <p class="text-center"><small>Report generated at {{ report_date }}.</small></p>
+    <p class="text-center"><small>Report generated at {{ report_date }} - Wight v{{ version }}</small></p>
 
 {% else %}
     <div class="hero-unit">
