@@ -52,7 +52,7 @@ class FunkLoadTestRunner(object):
                 use_distribute=True
             )
 
-            logging.debug("installin funkload")
+            logging.debug("installing funkload")
             pip = Command("%s/bin/pip" % venv_path)
             pip.install(FUNKLOAD_GIT)
 
@@ -60,8 +60,8 @@ class FunkLoadTestRunner(object):
                 logging.debug("install deps")
                 pip.install(dep)
 
-            logging.debug("run command")
-            fl_run_test = Command("%s/bin/fl-run-test" % venv_path)
+            logging.debug("run command: %s" % ("%s/bin/fl-run-test " % venv_path))
+            fl_run_test = Command("%s/bin/fl-run-test " % venv_path)
             logging.debug("command run")
 
             logging.debug("get result")
