@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if hasattr(team, "name") %}
+        {{ team.name }} - Wight v{{ version }}
+    {% else %}
+        Team {{ team }} not found - Wight v{{ version }}
+    {% end %}
+{% end %}
+
+{% block contents %}
+<div class="trend container">
+{% if hasattr(team, "name") %}
+    <div class="hero-unit">
+        <h1>{{ project }}</h1>
+        <p>Trend results for {{ full_name }}</p>
+        <p><small>This report details the trend results for the last {{ len(results) }} bench runs for the <span class="text-info">{{ project }}</span> project, running the <span class="text-info">{{ full_name }}</span> test.</small></p>
+        <div class="toolbar">
+            <div><a href="/trend/{{ team }}/{{ project }}/{{ module }}/{{ class_name }}/{{ test }}"><i class="icon-file"></i>Permalink for this test</a></div>
+            <div><a href="/report/{{ results[-1]["uuid"] }}"><i class="icon-circle-arrow-left"></i>Last test report for this trend</a></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-header">
+          <h1>Trends <small>trends for apdex, pages per second and average response time</small></h1>
+        </div>
+
+        <h3>Apdex</h3>
+        <div class="chart apdex"><svg></svg></div>
+        <p class="legend"><small><i>apdex ranges from 0.0 to 1.0, with 1.0 being a perfect score</i></small></p>
+
+        <h3>Pages per second</h3>
+        <div class="chart pps"><svg></svg></div>
+
+        <h3>Average response time</h3>
+        <div class="chart response-time"><svg></svg></div>
+    </div>
+
+    <div class="row">
+        <div class="page-header">
+          <h1>List of Reports <small>all the reports considered for this trend report</small></h1>
+        </div>
+
+        <div class="report-list">
+            {% for index, result in enumerate(results) %}
+            <a href="/report/{{ result["uuid"] }}">{{ "%02d" % (index + 1) }} - Report for {{ format_date(result["created"]) }}</a>
+            {% end %}
+        </div>
+
+    </div>
+
+
+    <p class="text-center"><small>Report generated at {{ report_date }} - Wight v{{ version }}</small></p>
+{% else %}
+    <div class="hero-unit">
+        <h1>No team found</h1>
+        <p>We are unable to find a team with name {{ team }}.</p>
+    </div>
+{% end %}
+</div>
+{% end %}

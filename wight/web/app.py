@@ -17,6 +17,7 @@ import tornado.web
 import tornado.wsgi
 from tornado.web import url
 #from raven import Client
+from wight.web.handlers.team import TeamPageHandler
 
 from wight.web.handlers.healthcheck import HealthCheckHandler
 from wight.web.handlers.report import ReportHandler, DiffHandler, TrendHandler
@@ -42,6 +43,7 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/report/(?P<uuid>.+?)/?', ReportHandler, name="report"),
         url(r'/diff/(?P<reference_uuid>.+?)/(?P<challenger_uuid>.+?)/?', DiffHandler, name="diff"),
         url(r'/trend/(?P<team>.+?)/(?P<project>.+?)/(?P<module>.+?)/(?P<class_name>.+?)/(?P<test>.+?)/?', TrendHandler, name="trend"),
+        url(r'/team/(?P<team>.+?)/?', TeamPageHandler, name="team"),
     ]
 
     logging.info("Connecting to redis on {0}:{1}/{2}".format(self.config.REDIS_HOST, self.config.REDIS_PORT, self.config.REDIS_DB_COUNT))

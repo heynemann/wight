@@ -47,7 +47,7 @@ class FunkLoadTestRunner(object):
             venv_path = "%s/venv" % temp_path.rstrip('/')
             virtualenv.create_environment(
                 venv_path,
-                site_packages=True,
+                site_packages=False,
                 unzip_setuptools=True,
                 use_distribute=True
             )
