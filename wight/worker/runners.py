@@ -60,15 +60,15 @@ class FunkLoadTestRunner(object):
                 logging.debug("install deps")
                 pip.install(dep)
 
-            logging.debug("run command: %s" % ("%s/bin/fl-run-test " % venv_path))
             fl_run_test = Command("%s/bin/fl-run-test " % venv_path)
-            logging.debug("command run")
 
-            logging.debug("get result")
+            logging.debug("run command: %s" % ("%s/bin/fl-run-test %s %s -u %s" % (venv_path, module, ("%s.%s" % (class_name, test_name)), base_url)))
             result = fl_run_test(module, "%s.%s" % (class_name, test_name), u=base_url, _env={
                 "PYTHONPATH": '$PYTHONPATH:%s' % join(root_path.rstrip('/'), "bench")
             }, simple_fetch=True, _cwd=temp_path)
+            logging.debug("command run")
 
+            logging.debug("get result")
             exit_code = result.exit_code
             text = result.stdout + result.stderr
 
