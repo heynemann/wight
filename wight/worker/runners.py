@@ -27,6 +27,7 @@ fl_run_bench = Command("fl-run-bench")
 
 class FunkLoadTestRunResult(object):
     def __init__(self, exit_code, text, log, result=None, config=None):
+        logging.debug("creating result: %s - %s - %s - %s - %s" % (exit_code, text, log, result, config))
         self.exit_code = exit_code
         self.text = text
         self.log = log
