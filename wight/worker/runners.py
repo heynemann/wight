@@ -78,11 +78,11 @@ class FunkLoadTestRunner(object):
                 logging.debug("write log")
                 log = fl_log.read()
 
-        except Exception:
+        except ErrorReturnCode:
             err = sys.exc_info()[1]
             text = err.stderr
             exit_code = 1
-            log = err.stdout + err.stderr
+            log = err.stderr + err.stdout
             logging.error(log)
 
 
@@ -143,10 +143,10 @@ class FunkLoadBenchRunner(object):
             logging.debug("running bench")
             result = fl_run_bench(*arguments, **keyword_arguments)
             logging.debug("bench run")
-        except Exception:
+        except ErrorReturnCode:
             err = sys.exc_info()[1]
             logging.error(err)
-            return FunkLoadTestRunResult(1, err.stdout + err.stderr, log=err.stderr, result=None, config=None)
+            return FunkLoadTestRunResult(1,  err.stderr + err.stdout, log=err.stderr, result=None, config=None)
 
         try:
             with open(join(root_path, 'bench', 'funkload.log')) as fl_log:
