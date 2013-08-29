@@ -9,6 +9,7 @@
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
 
 import sys
+import logging
 from tempfile import mkdtemp
 from os.path import join
 
@@ -37,10 +38,12 @@ class FunkLoadTestRunner(object):
 
     @classmethod
     def run(cls, root_path, test, base_url):
+        logging.debug("run test")
         module, class_name, test_name = (test.module, test.class_name, test.test_name)
         temp_path = mkdtemp()
 
         try:
+            logging.debug("creating venv")
             venv_path = "%s/venv" % temp_path.rstrip('/')
             virtualenv.create_environment(
                 venv_path,
@@ -49,14 +52,19 @@ class FunkLoadTestRunner(object):
                 use_distribute=True
             )
 
+            logging.debug("installin funkload")
             pip = Command("%s/bin/pip" % venv_path)
             pip.install(FUNKLOAD_GIT)
 
             for dep in test.deps:
+                logging.debug("install deps")
                 pip.install(dep)
 
+            logging.debug("run command")
             fl_run_test = Command("%s/bin/fl-run-test" % venv_path)
+            logging.debug("command run")
 
+            logging.debug("get result")
             result = fl_run_test(module, "%s.%s" % (class_name, test_name), u=base_url, _env={
                 "PYTHONPATH": '$PYTHONPATH:%s' % join(root_path.rstrip('/'), "bench")
             }, simple_fetch=True, _cwd=temp_path)
@@ -65,6 +73,7 @@ class FunkLoadTestRunner(object):
             text = result.stdout + result.stderr
 
             with open(join(temp_path, 'funkload.log')) as fl_log:
+                logging.debug("write log")
                 log = fl_log.read()
 
         except ErrorReturnCode:
@@ -72,7 +81,10 @@ class FunkLoadTestRunner(object):
             text = err.stderr
             exit_code = 1
             log = err.stdout + err.stderr
+            logging.error(log)
 
+
+        logging.debug("test run")
         return FunkLoadTestRunResult(exit_code, text, log)
 
 
