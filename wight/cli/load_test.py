@@ -377,7 +377,11 @@ class ShowResultController(WightBaseController):
             response = self.get(url)
 
             if response.status_code == 404:
-                return self.write("Load test %s doesn't exist" % self.arguments.load_test_uuid)
+                self.line_break()
+                self.write("%sLoad test '%s%s%s' doesn't exist" % (
+                    self.error_text_color, self.keyword_color, self.arguments.load_test_uuid, self.reset_error)
+                )
+                return self.line_break()
 
             content = response.content
             if isinstance(content, six.binary_type):
