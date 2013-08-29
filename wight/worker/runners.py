@@ -94,6 +94,7 @@ class FunkLoadBenchRunner(object):
 
     @classmethod
     def run(cls, root_path, test, base_url, workers=[], cycles=DEFAULT_CYCLES, duration=10):
+        logging.debug("run bench")
         assert isinstance(test, TestConfig), "The test argument must be of type wight.worker.config.TestConfig"
 
         #fl-run-bench --distribute --distribute-workers=localhost -u http://www.something.com -c 10:20:30:40:50 -D 30 --simple-fetch geo.py GeoTests.test_geo
@@ -120,9 +121,12 @@ class FunkLoadBenchRunner(object):
             _tty_out=True
         )
 
+        logging.debug("creating arguments: %s" % str(keyword_arguments))
+
         if workers:
             keyword_arguments["distribute"] = True
 
+        logging.debug("save config")
         cfg = BenchConfiguration(
             test_name=test.test_name,
             title=test.title,
@@ -133,25 +137,32 @@ class FunkLoadBenchRunner(object):
         )
         cfg.calculate_timeout(len(cycles[test.pressure]))
         cfg.save(join(root_path, 'bench', '%s.conf' % test.class_name))
+        logging.debug("config saved")
 
         try:
+            logging.debug("running bench")
             result = fl_run_bench(*arguments, **keyword_arguments)
-        except ErrorReturnCode:
+            logging.debug("bench run")
+        except Exception:
             err = sys.exc_info()[1]
+            logging.error(err)
             return FunkLoadTestRunResult(1, err.stdout + err.stderr, log=err.stderr, result=None, config=None)
 
         try:
             with open(join(root_path, 'bench', 'funkload.log')) as fl_log:
+                logging.debug("readind log")
                 log = fl_log.read()
 
             xml_path = join(root_path, 'bench', 'funkload.xml')
             if workers:
+                logging.debug("merge resulting")
                 MergeResultFiles(
                     [join(root_path, 'worker_%s-funkload.xml' % index) for index in range(len(workers))],
                     xml_path
                 )
 
             parser = FunkLoadXmlParser(1.5)
+            logging.debug("parse xml")
             parser.parse(xml_path)
 
             return FunkLoadTestRunResult(
@@ -159,4 +170,5 @@ class FunkLoadBenchRunner(object):
                 result=parser.stats, config=parser.config)
         except Exception:
             err = sys.exc_info()[1]
+            logging.error(err)
             return FunkLoadTestRunResult(1, "Result STDOUT: %s\nResult STDERR: %s\nResult Parsing Error: %s" % (result.stdout, result.stderr, str(err)), log=None, result=None, config=None)
