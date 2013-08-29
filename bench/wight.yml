@@ -11,7 +11,7 @@
 tests:
   -
     title: HealthCheck Tests
-    description: Vendo se a página de healthcheck aguenta.
+    description: Vendo se o healthcheck aguenta.
     module: test_healthcheck
     class: HealthCheckTest
     test: test_healthcheck
