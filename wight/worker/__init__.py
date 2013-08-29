@@ -110,6 +110,7 @@ if __name__ == '__main__':
             load_test.save()
         except Exception:
             err = sys.exc_info()[1]
+            logging.error(err)
             load_test.status = "Failed"
             load_test.error = str(err)
             load_test.save()
@@ -117,15 +118,18 @@ if __name__ == '__main__':
     def validate_tests(self, base_path, config, load_test):
         logging.debug("test validation")
         if not config:
+            logging.debug("not config")
             raise TestNotValidError("The wight.yml file was not found in project repository bench folder.")
 
         for test in config.tests:
             result = FunkLoadTestRunner.run(base_path, test, load_test.base_url)
             if result.exit_code != 0:
+                logging.debug("test not valid: %s" % test.test_name)
                 logging.error(result.log)
                 raise TestNotValidError("The test '%s.%s.%s' running in '%s' is not valid (%s)" %
                                         (test.module, test.class_name,
                                         test.test_name, load_test.base_url, result.text))
+        logging.debug("finish test validation")
 
     def _create_simple_test(self, base_path, load_test):
         mkdir(join(base_path, "bench"))
