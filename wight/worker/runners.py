@@ -61,7 +61,7 @@ class FunkLoadTestRunner(object):
                 pip.install(dep)
 
             logging.debug("creating command")
-            fl_run_test = Command("%s/bin/fl-run-test " % venv_path)
+            fl_run_test = Command("%s/bin/fl-run-test" % venv_path)
             logging.debug("command created")
 
             logging.debug("run command: %s" % ("%s/bin/fl-run-test %s %s -u %s" % (venv_path, module, ("%s.%s" % (class_name, test_name)), base_url)))
@@ -78,7 +78,7 @@ class FunkLoadTestRunner(object):
                 logging.debug("write log")
                 log = fl_log.read()
 
-        except ErrorReturnCode:
+        except Exception:
             err = sys.exc_info()[1]
             text = err.stderr
             exit_code = 1
