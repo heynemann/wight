@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {% if hasattr(team, "name") %}
-        {{ team.name }} - Wight v{{ version }}
+    {% if "name" in team %}
+        {{ team['name'] }} - Wight v{{ version }}
     {% else %}
         Team {{ team }} not found - Wight v{{ version }}
     {% end %}
@@ -10,44 +10,53 @@
 
 {% block contents %}
 <div class="trend container">
-{% if hasattr(team, "name") %}
+{% if "name" in team %}
     <div class="hero-unit">
-        <h1>{{ project }}</h1>
-        <p>Trend results for {{ full_name }}</p>
-        <p><small>This report details the trend results for the last {{ len(results) }} bench runs for the <span class="text-info">{{ project }}</span> project, running the <span class="text-info">{{ full_name }}</span> test.</small></p>
+        <h1>{{ team['name'] }}</h1>
+        <p><small>This report details the trend results for the last bench runs for the <span class="text-info">{{ team['name'] }}</span> projects.</small></p>
         <div class="toolbar">
-            <div><a href="/trend/{{ team }}/{{ project }}/{{ module }}/{{ class_name }}/{{ test }}"><i class="icon-file"></i>Permalink for this test</a></div>
-            <div><a href="/report/{{ results[-1]["uuid"] }}"><i class="icon-circle-arrow-left"></i>Last test report for this trend</a></div>
+            <div><a href="/team/{{ team['name'] }}/"><i class="icon-file"></i>Permalink for this page</a></div>
         </div>
     </div>
 
     <div class="row">
         <div class="page-header">
-          <h1>Trends <small>trends for apdex, pages per second and average response time</small></h1>
+          <h1>Last <small>finished reports:</small></h1>
         </div>
-
-        <h3>Apdex</h3>
-        <div class="chart apdex"><svg></svg></div>
-        <p class="legend"><small><i>apdex ranges from 0.0 to 1.0, with 1.0 being a perfect score</i></small></p>
-
-        <h3>Pages per second</h3>
-        <div class="chart pps"><svg></svg></div>
-
-        <h3>Average response time</h3>
-        <div class="chart response-time"><svg></svg></div>
-    </div>
-
-    <div class="row">
-        <div class="page-header">
-          <h1>List of Reports <small>all the reports considered for this trend report</small></h1>
-        </div>
-
         <div class="report-list">
-            {% for index, result in enumerate(results) %}
+            {% for index, result in enumerate(team['last_finished']) %}
             <a href="/report/{{ result["uuid"] }}">{{ "%02d" % (index + 1) }} - Report for {{ format_date(result["created"]) }}</a>
             {% end %}
         </div>
+    </div>
 
+    <div class="row">
+        <div class="page-header">
+          <h1>Scheduled <small>reports:</small></h1>
+        </div>
+        <div class="report-list">
+            {% for index, result in enumerate(team['scheduled']) %}
+            <a href="/report/{{ result["uuid"] }}">{{ "%02d" % (index + 1) }} - Report for {{ format_date(result["created"]) }}</a>
+            {% end %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-header">
+          <h1>Results <small>by project</small></h1>
+        </div>
+        {% for project in team['projects'] %}
+        <div class="col-12">
+            <div class="page-header">
+                <h2>{{ project['name'] }}</h2>
+            </div>
+            <div class="report-list">
+                {% for index, result in enumerate(project['results']) %}
+                <a href="/report/{{ result["uuid"] }}">{{ "%02d" % (index + 1) }} - Report for {{ format_date(result["created"]) }}</a>
+                {% end %}
+            </div>
+        </div>
+        {% end %}
     </div>
 
 

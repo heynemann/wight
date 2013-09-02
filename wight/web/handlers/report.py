@@ -12,13 +12,7 @@ from json import loads
 
 import tornado.web
 
-from wight.web.handlers.base import BaseHandler
-
-
-def format_date(date_as_text):
-    date_as_text = date_as_text.replace("T", " ")
-    date = datetime.strptime(date_as_text, "%Y-%m-%d %H:%M:%S")
-    return date.strftime("%d/%m/%Y %H:%M:%S")
+from wight.web.handlers.base import BaseHandler, format_date
 
 
 class ReportHandler(BaseHandler):

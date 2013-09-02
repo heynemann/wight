@@ -91,3 +91,9 @@ class BaseHandler(tornado.web.RequestHandler):
     def get_api(self, url):
         url = join(self.application.config.WIGHT_API_URL, url)
         return requests.get(url)
+
+
+def format_date(date_as_text):
+    date_as_text = date_as_text.replace("T", " ")
+    date = datetime.strptime(date_as_text, "%Y-%m-%d %H:%M:%S")
+    return date.strftime("%d/%m/%Y %H:%M:%S")
