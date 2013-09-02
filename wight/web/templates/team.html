@@ -24,8 +24,8 @@
           <h1>Last <small>finished reports:</small></h1>
         </div>
         <div class="report-list">
-            {% for index, result in enumerate(team['last_finished']) %}
-            <a href="/report/{{ result["uuid"] }}">{{ "%02d" % (index + 1) }} - Report for {{ format_date(result["created"]) }}</a>
+            {% for result in team['last_finished'] %}
+            <a href="/report/{{ result["uuid"] }}">For {{ result['project'] }} at {{ format_date(result["created"]) }}</a>
             {% end %}
         </div>
     </div>
@@ -35,8 +35,8 @@
           <h1>Scheduled <small>reports:</small></h1>
         </div>
         <div class="report-list">
-            {% for index, result in enumerate(team['scheduled']) %}
-            <a href="/report/{{ result["uuid"] }}">{{ "%02d" % (index + 1) }} - Report for {{ format_date(result["created"]) }}</a>
+            {% for result in team['scheduled'] %}
+            <a href="/report/{{ result["uuid"] }}">For {{ result['project'] }} at {{ format_date(result["created"]) }}</a>
             {% end %}
         </div>
     </div>
@@ -51,8 +51,8 @@
                 <h2>{{ project['name'] }}</h2>
             </div>
             <div class="report-list">
-                {% for index, result in enumerate(project['results']) %}
-                <a href="/report/{{ result["uuid"] }}">{{ "%02d" % (index + 1) }} - Report for {{ format_date(result["created"]) }}</a>
+                {% for result in project['results'] %}
+                <a href="/report/{{ result["uuid"] }}">Created at {{ format_date(result["created"]) }}</a>
                 {% end %}
             </div>
         </div>

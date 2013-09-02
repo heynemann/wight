@@ -31,17 +31,17 @@ class TeamPageHandler(BaseHandler):
             self.finish()
 
         last_finished = [
-            {"uuid": "finished-uuid1", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "finished-uuid2", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "finished-uuid3", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "finished-uuid4", "created": datetime.now().isoformat()[:19]},
+            {"uuid": "finished-uuid1", "created": datetime.now().isoformat()[:19], "project": "project1"},
+            {"uuid": "finished-uuid2", "created": datetime.now().isoformat()[:19], "project": "project1"},
+            {"uuid": "finished-uuid3", "created": datetime.now().isoformat()[:19], "project": "project2"},
+            {"uuid": "finished-uuid4", "created": datetime.now().isoformat()[:19], "project": "project4"},
         ]
 
         scheduled = [
-            {"uuid": "scheduled-uuid1", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "scheduled-uuid2", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "scheduled-uuid3", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "scheduled-uuid4", "created": datetime.now().isoformat()[:19]},
+            {"uuid": "scheduled-uuid1", "created": datetime.now().isoformat()[:19], "project": "project1"},
+            {"uuid": "scheduled-uuid2", "created": datetime.now().isoformat()[:19], "project": "project1"},
+            {"uuid": "scheduled-uuid3", "created": datetime.now().isoformat()[:19], "project": "project1"},
+            {"uuid": "scheduled-uuid4", "created": datetime.now().isoformat()[:19], "project": "project1"},
         ]
 
         projects = [
