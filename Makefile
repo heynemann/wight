@@ -14,6 +14,13 @@ test: mongo_test redis
 	@coverage2 run --branch `which nosetests` -vv --with-yanc -s tests/unit/
 	@coverage2 report --omit="wight/worker/*" -m --fail-under=75
 
+test-web: mongo_test redis
+	@sleep 3
+	@rm -rf ~/.wighttest
+	@rm -rf .coverage
+	@coverage2 run --branch `which nosetests` -vv --with-yanc -s tests/unit/web/
+	@coverage2 report --omit="wight/worker/*" -m --fail-under=75
+
 focus: mongo_test redis
 	@sleep 1
 	@rm -rf ~/.wighttest

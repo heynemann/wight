@@ -45,22 +45,22 @@ def configure_app(self, config=None, log_level='INFO', debug=False, static_path=
         url(r'/trend/(?P<team>.+?)/(?P<project>.+?)/(?P<module>.+?)/(?P<class_name>.+?)/(?P<test>.+?)/?', TrendHandler, name="trend"),
         url(r'/team/(?P<team>.+?)/?', TeamPageHandler, name="team"),
     ]
-
-    logging.info("Connecting to redis on {0}:{1}/{2}".format(self.config.REDIS_HOST, self.config.REDIS_PORT, self.config.REDIS_DB_COUNT))
-    self.redis = redis.StrictRedis(
-        host=self.config.REDIS_HOST,
-        port=self.config.REDIS_PORT,
-        db=self.config.REDIS_DB_COUNT,
-        password=self.config.REDIS_PASSWORD
-    )
-
-    connect(
-        self.config.MONGO_DB,
-        host=self.config.MONGO_HOST,
-        port=self.config.MONGO_PORT,
-        username=self.config.MONGO_USER,
-        password=self.config.MONGO_PASS
-    )
+    #
+    # logging.info("Connecting to redis on {0}:{1}/{2}".format(self.config.REDIS_HOST, self.config.REDIS_PORT, self.config.REDIS_DB_COUNT))
+    # self.redis = redis.StrictRedis(
+    #     host=self.config.REDIS_HOST,
+    #     port=self.config.REDIS_PORT,
+    #     db=self.config.REDIS_DB_COUNT,
+    #     password=self.config.REDIS_PASSWORD
+    # )
+    #
+    # connect(
+    #     self.config.MONGO_DB,
+    #     host=self.config.MONGO_HOST,
+    #     port=self.config.MONGO_PORT,
+    #     username=self.config.MONGO_USER,
+    #     password=self.config.MONGO_PASS
+    # )
 
     #self.session_store = RedisSessionStore(
         #self.redis,
