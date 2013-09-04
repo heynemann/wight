@@ -46,6 +46,7 @@ class ReportHandler(BaseHandler):
             })
 
         self.render('report.html', **kwargs)
+        self.finish()
 
     def _get_last_result(self, uuid):
         api_result = self.get_api("load-test-result/%s/last/" % uuid)
