@@ -258,8 +258,14 @@ class TeamAddUserController(WightBaseController):
                     self.keyword_color, user_email, self.reset_success,
                     self.keyword_color, name, self.reset_success
                 ))
+            elif response.status_code == 400:
+                self.puterror("User '%s%s%s' are not registered in target '%s%s%s'. Register using '%swight login %s%s'." % (
+                    self.keyword_color, user_email, self.reset_error,
+                    self.keyword_color, target, self.reset_error,
+                    self.commands_color, user_email, self.reset_error
+                ))
             elif response.status_code == 403:
-                self.puterror("You are not authenticated. Please use '%swight login%s'." % (
+                self.puterror("You are not authenticated. Please use '%swight login <email>%s'." % (
                     self.commands_color, self.reset_error
                 ))
             elif response.status_code == 404:

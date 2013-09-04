@@ -332,7 +332,7 @@ class TestAddUserTeamController(TeamControllerTestBase):
         patch_mock.return_value = response_mock
         self.ctrl.default()
 
-        msg = "You are not authenticated. Please use 'wight login'."
+        msg = "You are not authenticated. Please use 'wight login <email>'."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(TeamAddUserController, 'patch')
@@ -343,6 +343,16 @@ class TestAddUserTeamController(TeamControllerTestBase):
         self.ctrl.default()
 
         msg = "Team 'awesome' does not exist in target 'Target'."
+        expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
+
+    @patch.object(TeamAddUserController, 'patch')
+    @patch.object(TeamAddUserController, 'write')
+    def test_add_user_to_a_non_existing_team(self, write_mock, patch_mock):
+        response_mock = Mock(status_code=400)
+        patch_mock.return_value = response_mock
+        self.ctrl.default()
+
+        msg = "User 'Ryu@streetFighter.com' are not registered in target 'Target'. Register using 'wight login Ryu@streetFighter.com'."
         expect(write_mock.call_args_list[1][0][0]).to_be_like(msg)
 
     @patch.object(TeamAddUserController, 'patch')
