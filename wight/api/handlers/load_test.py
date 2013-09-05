@@ -71,8 +71,7 @@ class AuthLoadTestHandler(BaseHandler):
         self.finish()
 
     @tornado.web.asynchronous
-    @BaseHandler.authenticated
-    @BaseHandler.team_member
+    @BaseHandler.team_exists
     def get(self, team, project_name):
         quantity = self.get_argument("quantity").strip()
         quantity = int(quantity) if quantity else 20

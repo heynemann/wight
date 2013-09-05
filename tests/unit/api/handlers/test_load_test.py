@@ -120,24 +120,10 @@ class ListLoadTestsTest(FullTestCase):
         self.team = TeamFactory.create(owner=self.user)
         self.project = self.team.add_project("schedule-test-project-1", "repo", self.user)
 
-    def test_get_return_401_if_not_authenticated(self):
-        self.user = None
-        url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
-        response = self.fetch_with_headers(url)
-        expect(response.code).to_equal(401)
-
     def test_get_return_400_if_quantity_not_passed(self):
         url = "/teams/%s/projects/%s/load_tests/" % (self.team.name, self.project.name)
         response = self.fetch_with_headers(url)
         expect(response.code).to_equal(400)
-
-    def test_get_return_403_if_not_team_owner(self):
-        user = UserFactory.create(with_token=True)
-        team = TeamFactory.create(owner=user)
-        project = team.add_project("schedule-test-project-1", "repo", user)
-        url = "/teams/%s/projects/%s/load_tests/" % (team.name, project.name)
-        response = self.fetch_with_headers(url)
-        expect(response.code).to_equal(403)
 
     def test_get_return_200_if_not_team_owner_but_team_member(self):
         TeamFactory.add_members(self.team, 1, with_token=True)

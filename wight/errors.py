@@ -15,3 +15,7 @@ class TargetNotSetError(RuntimeError):
 
 class UnauthenticatedError(RuntimeError):
     pass
+
+
+class TeamNotExist(Exception):
+    pass

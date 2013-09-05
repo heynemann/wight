@@ -20,6 +20,7 @@ from prettytable import PrettyTable
 from dateutil import tz
 
 from wight.cli.base import WightBaseController, connected_controller
+from wight.errors import TeamNotExist
 
 
 def get_local_time_from_utc(utc_date):
@@ -130,7 +131,17 @@ class ListLoadTestController(WightBaseController):
                 teams_names = [team["name"] for team in user_info["user"]["teams"]]
 
             project_name = self.arguments.project
-            teams_and_projects = self.__get_teams_and_projects_names(project_name, team_name, teams_names)
+            try:
+                teams_and_projects = self.__get_teams_and_projects_names(project_name, team_name, teams_names)
+            except TeamNotExist:
+                err = sys.exc_info()[1]
+                self.puterror(
+                    "Team '%s%s%s' was not found in target '%s%s%s'." % (
+                        self.keyword_color, str(err), self.reset_error,
+                        self.keyword_color, self.app.user_data.target, self.reset_error
+                    ))
+                return
+
             load_tests = []
             quantity = self.__define_quantity(team_name, project_name)
             for team_and_project in teams_and_projects:
@@ -154,6 +165,8 @@ class ListLoadTestController(WightBaseController):
         else:
             for name in teams_names:
                 team_info = self.get("/teams/%s" % name)
+                if team_info.status_code == 404:
+                    raise TeamNotExist(name)
                 team_info = loads(team_info.content)
                 teams_projects.extend([
                     (name, project["name"])

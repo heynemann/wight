@@ -29,6 +29,23 @@ class BaseHandler(tornado.web.RequestHandler):
         return handle
 
     @staticmethod
+    def team_exists(fn):
+        def handle(decorated_self, *args, **kw):
+            team = Team.objects.filter(name=kw['team_name']).first()
+
+            if team is None:
+                decorated_self.set_status(404)
+                decorated_self.write('Team not found')
+                decorated_self.finish()
+                return
+
+            kw['team'] = team
+            del kw['team_name']
+            fn(decorated_self, *args, **kw)
+
+        return handle
+
+    @staticmethod
     def in_team(fn, owner_only):
         def handle(decorated_self, *args, **kw):
             team = Team.objects.filter(name=kw['team_name']).first()

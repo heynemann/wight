@@ -43,13 +43,9 @@ def _get_print_lines_for_load_tests(load_tests):
 
 class TestLoadTest(AcceptanceTest):
 
-    def test_list_gets_403_if_not_team_member(self):
-        team = TeamFactory.create(owner=UserFactory.create())
-        TeamFactory.add_projects(team, 1)
-        project = team.projects[0]
-        LoadTestFactory.add_to_project(25, user=self.user, team=team, project=project)
-        result = self.execute("list", team=team.name)
-        expect(result).to_be_like("You are not the owner or a team member for '%s' and thus can't list its tests in target '%s'." % (team.name, self.target))
+    def test_list_gets_404_if_team_not_exists(self):
+        result = self.execute("list", team='not-exists')
+        expect(result).to_be_like("Team 'not-exists' was not found in target '%s'." % self.target)
 
     def test_list_load_tests_by_team_and_project(self):
         team = TeamFactory.create(owner=self.user)
