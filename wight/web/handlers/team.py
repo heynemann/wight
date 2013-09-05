@@ -35,12 +35,13 @@ class TeamPageHandler(BaseHandler):
 
         team = loads(team.content)
 
-        last_finished = [
-            {"uuid": "finished-uuid1", "created": datetime.now().isoformat()[:19], "project": "project1"},
-            {"uuid": "finished-uuid2", "created": datetime.now().isoformat()[:19], "project": "project1"},
-            {"uuid": "finished-uuid3", "created": datetime.now().isoformat()[:19], "project": "project2"},
-            {"uuid": "finished-uuid4", "created": datetime.now().isoformat()[:19], "project": "project4"},
-        ]
+        last_finished = []
+        for project in team["projects"]:
+            load_tests_response = self.get_api("teams/%s/projects/%s/load_tests/?quantity=5" % (team["name"], project["name"]))
+            if load_tests_response.status_code == 200:
+                last_finished.extend(loads(load_tests_response.content))
+
+        last_finished.sort(key=lambda load_test: load_test["created"])
 
         scheduled = [
             {"uuid": "scheduled-uuid1", "created": datetime.now().isoformat()[:19], "project": "project1"},
@@ -49,7 +50,7 @@ class TeamPageHandler(BaseHandler):
             {"uuid": "scheduled-uuid4", "created": datetime.now().isoformat()[:19], "project": "project1"},
         ]
 
-        team["last_finished"] = last_finished
+        team["last_finished"] = last_finished[:5]
         team["scheduled"] = scheduled
         team["projects"][0]["results"] = [
             {"uuid": "project4-uuid1", "created": datetime.now().isoformat()[:19]},
