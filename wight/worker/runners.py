@@ -126,6 +126,8 @@ class FunkLoadBenchRunner(object):
 
         if workers:
             keyword_arguments["distribute"] = True
+            if test.deps:
+                keyword_arguments["distributed-packages"] = ' '.join(['"%s"' % package for package in test.deps])
 
         logging.debug("save config")
         cfg = BenchConfiguration(
