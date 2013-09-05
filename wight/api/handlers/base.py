@@ -42,12 +42,14 @@ class BaseHandler(tornado.web.RequestHandler):
             if decorated_self.current_user.id != team.owner.id:
                 if owner_only:
                     decorated_self.set_status(403)
+                    decorated_self.write('Not team owner')
                     decorated_self.finish()
                     return
 
                 member_ids = [member.id for member in team.members]
                 if decorated_self.current_user.id not in member_ids:
                     decorated_self.set_status(403)
+                    decorated_self.write('Not team member')
                     decorated_self.finish()
                     return
 
