@@ -748,7 +748,8 @@ class LoadTest(Document):
 
     @classmethod
     def get_sliced_by_team_and_project_name(cls, team, project_name, quantity):
-        return LoadTest.objects(team=team, project_name=project_name)[:quantity]
+        load_tests = LoadTest.objects(team=team, project_name=project_name)[:quantity]
+        return [load_test for load_test in load_tests if (len(load_test.results) > 0 or load_test.status != "Finished")]
 
     @classmethod
     def get_by_user(cls, user):

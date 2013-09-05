@@ -105,6 +105,7 @@ data: mongo
 
 local-login:
 	@wight target-set http://0.0.0.0:2367
+	@wight login local@local.com
 
 local-team:
 	@wight team-create local

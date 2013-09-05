@@ -159,3 +159,19 @@ body {
 .trend .report-list a {
     display: block;
 }
+
+.finished {
+    color: #006600;
+}
+
+.scheduled {
+    color: #444;
+}
+
+.failed {
+    color: #802420;
+}
+
+.running {
+    color: #133f52;
+}

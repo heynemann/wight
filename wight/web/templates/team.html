@@ -13,7 +13,7 @@
 {% if "name" in team %}
     <div class="hero-unit">
         <h1>{{ team['name'] }}</h1>
-        <p><small>This report details the trend results for the last bench runs for the <span class="text-info">{{ team['name'] }}</span> projects.</small></p>
+        <p><small>This report details the load test results for the last bench runs for the <span class="text-info">{{ team['name'] }}</span>team projects.</small></p>
         <div class="toolbar">
             <div><a href="/team/{{ team['name'] }}/"><i class="icon-file"></i>Permalink for this page</a></div>
         </div>
@@ -21,22 +21,56 @@
 
     <div class="row">
         <div class="page-header">
-          <h1>Last <small>finished reports:</small></h1>
+          <h1>Running <small>tests:</small></h1>
         </div>
         <div class="report-list">
-            {% for result in team['last_finished'] %}
-            <a href="/report/{{ result["uuid"] }}">For {{ result['project'] }} at {{ format_date(result["created"]) }}</a>
+            {% if len(team['running']) == 0 %}
+                <div class="text-info running">No tests running</div>
+            {% end %}
+            {% for result in team['running'] %}
+            <div class="text-info running">For {{ result['project'] }} at {{ format_date(result["created"]) }}</div>
             {% end %}
         </div>
     </div>
 
     <div class="row">
         <div class="page-header">
-          <h1>Scheduled <small>reports:</small></h1>
+          <h1>Finished <small>tests:</small></h1>
         </div>
         <div class="report-list">
+            {% if len(team['finished']) == 0 %}
+                <div class="text-info finished">No tests finished</div>
+            {% end %}
+            {% for result in team['finished'] %}
+            <a class="finished" href="/report/{{ result["uuid"] }}">For {{ result['project'] }} at {{ format_date(result["created"]) }}</a>
+            {% end %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-header">
+          <h1>Scheduled <small>tests:</small></h1>
+        </div>
+        <div class="report-list">
+            {% if len(team['scheduled']) == 0 %}
+                <div class="text-info scheduled">No tests scheduled</div>
+            {% end %}
             {% for result in team['scheduled'] %}
-            <a href="/report/{{ result["uuid"] }}">For {{ result['project'] }} at {{ format_date(result["created"]) }}</a>
+            <div class="text-info scheduled">For {{ result['project'] }} at {{ format_date(result["created"]) }}</div>
+            {% end %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-header">
+          <h1>Failed <small>reports:</small></h1>
+        </div>
+        <div class="report-list">
+            {% if len(team['failed']) == 0 %}
+                <div class="text-info failed">No tests failed</div>
+            {% end %}
+            {% for result in team['failed'] %}
+            <div class="text-info failed">For {{ result['project'] }} at {{ format_date(result["created"]) }}</div>
             {% end %}
         </div>
     </div>
@@ -51,8 +85,15 @@
                 <h2>{{ project['name'] }}</h2>
             </div>
             <div class="report-list">
-                {% for result in project['results'] %}
-                <a href="/report/{{ result["uuid"] }}">Created at {{ format_date(result["created"]) }}</a>
+                {% if len(project['load_tests']) == 0 %}
+                    <div class="text-info running">No tests for project</div>
+                {% end %}
+                {% for result in project['load_tests'] %}
+                    {% if result['status'] == "Finished" %}
+                        <a class="{{ result['status'].lower() }}" href="/report/{{ result["uuid"] }}">Created at {{ format_date(result["created"]) }}</a>
+                    {% else %}
+                        <div class="text-info {{ result['status'].lower() }}">Created at {{ format_date(result["created"]) }}</div>
+                    {% end %}
                 {% end %}
             </div>
         </div>
@@ -68,4 +109,13 @@
     </div>
 {% end %}
 </div>
+{% end %}
+
+{% block scripts %}
+<script type="text/JavaScript">
+    function timedRefresh(timeoutPeriod) {
+	    setTimeout("location.reload(true);", timeoutPeriod);
+    }
+    timedRefresh(15000);
+</script>
 {% end %}

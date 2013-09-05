@@ -35,31 +35,24 @@ class TeamPageHandler(BaseHandler):
 
         team = loads(team.content)
 
-        last_finished = []
-        for project in team["projects"]:
-            load_tests_response = self.get_api("teams/%s/projects/%s/load_tests/?quantity=5" % (team["name"], project["name"]))
+        all_load_tests = []
+        for index, project in enumerate(team["projects"]):
+            load_tests_response = self.get_api("teams/%s/projects/%s/load_tests/?quantity=30" % (team["name"], project["name"]))
             if load_tests_response.status_code == 200:
-                last_finished.extend(loads(load_tests_response.content))
+                project_load_tests = loads(load_tests_response.content)
+                team["projects"][index]["load_tests"] = project_load_tests
+                all_load_tests.extend(project_load_tests)
 
-        last_finished.sort(key=lambda load_test: load_test["created"])
+        all_load_tests.sort(key=lambda load_test: load_test["created"])
+        running = [test for test in all_load_tests if test["status"] == "Running"]
+        finished = [test for test in all_load_tests if test["status"] == "Finished"]
+        scheduled = [test for test in all_load_tests if test["status"] == "Scheduled"]
+        failed = [test for test in all_load_tests if test["status"] == "Failed"]
 
-        scheduled = [
-            {"uuid": "scheduled-uuid1", "created": datetime.now().isoformat()[:19], "project": "project1"},
-            {"uuid": "scheduled-uuid2", "created": datetime.now().isoformat()[:19], "project": "project1"},
-            {"uuid": "scheduled-uuid3", "created": datetime.now().isoformat()[:19], "project": "project1"},
-            {"uuid": "scheduled-uuid4", "created": datetime.now().isoformat()[:19], "project": "project1"},
-        ]
-
-        team["last_finished"] = last_finished[:5]
-        team["scheduled"] = scheduled
-        team["projects"][0]["results"] = [
-            {"uuid": "project4-uuid1", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "project4-uuid2", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "project4-uuid3", "created": datetime.now().isoformat()[:19]},
-            {"uuid": "project4-uuid4", "created": datetime.now().isoformat()[:19]},
-
-        ]
-
+        team["finished"] = finished[:9]
+        team["scheduled"] = scheduled[:9]
+        team["failed"] = failed[:9]
+        team["running"] = running[:9]
         kwargs["team"] = team
         self.set_status(200)
         self.render('team.html', **kwargs)
