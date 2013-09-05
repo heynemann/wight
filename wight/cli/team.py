@@ -264,7 +264,7 @@ class TeamAddUserController(WightBaseController):
                     self.keyword_color, target, self.reset_error,
                     self.commands_color, user_email, self.reset_error
                 ))
-            elif response.status_code == 403:
+            elif response.status_code == 401:
                 self.puterror("You are not authenticated. Please use '%swight login <email>%s'." % (
                     self.commands_color, self.reset_error
                 ))
@@ -273,7 +273,7 @@ class TeamAddUserController(WightBaseController):
                     self.keyword_color, name, self.reset_error,
                     self.keyword_color, target, self.reset_error
                 ))
-            elif response.status_code == 401:
+            elif response.status_code == 403:
                 self.puterror("You need to be the team owner or member to add users.")
             elif response.status_code == 409:
                 self.puterror(response.content)

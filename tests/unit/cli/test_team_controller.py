@@ -328,7 +328,7 @@ class TestAddUserTeamController(TeamControllerTestBase):
     @patch.object(TeamAddUserController, 'patch')
     @patch.object(TeamAddUserController, 'write')
     def test_add_user_without_user_parameter(self, write_mock, patch_mock):
-        response_mock = Mock(status_code=403)
+        response_mock = Mock(status_code=401)
         patch_mock.return_value = response_mock
         self.ctrl.default()
 
@@ -358,7 +358,7 @@ class TestAddUserTeamController(TeamControllerTestBase):
     @patch.object(TeamAddUserController, 'patch')
     @patch.object(TeamAddUserController, 'write')
     def test_add_user_when_not_owner(self, write_mock, patch_mock):
-        response_mock = Mock(status_code=401)
+        response_mock = Mock(status_code=403)
         patch_mock.return_value = response_mock
         self.ctrl.default()
 
