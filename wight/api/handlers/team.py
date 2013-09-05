@@ -24,7 +24,6 @@ from wight.models import Team, User
 class TeamHandler(BaseHandler):
 
     @tornado.web.asynchronous
-    @BaseHandler.authenticated
     def get(self, team_name):
         team = Team.objects.filter(name=team_name).first()
 
