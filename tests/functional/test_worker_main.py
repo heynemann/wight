@@ -7,6 +7,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2013 Bernardo Heynemann heynemann@gmail.com
+
 import os
 from os.path import join
 from os import mkdir
@@ -26,7 +27,7 @@ class TestWorkerMain(FunkLoadBaseTest):
     def test_can_run_project(self):
         temp_path = mkdtemp()
 
-        team = TeamFactory.create()
+        team = TeamFactory.create(name="teste")
         TeamFactory.add_projects(team, 1)
         user = team.owner
         project = team.projects[0]
@@ -41,7 +42,7 @@ class TestWorkerMain(FunkLoadBaseTest):
         expect(loaded).not_to_be_null()
         expect(loaded.status).to_equal("Finished")
 
-        expect(loaded.results).to_length(1)
+        expect(loaded.results).to_length(2)
 
         expect(loaded.results[0].log).not_to_be_null()
         expect(loaded.results[0].status).to_equal("Successful")

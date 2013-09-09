@@ -27,7 +27,7 @@ class AcceptanceTest(PythonTestCase):
     @classmethod
     def setUpClass(cls):
         connect(
-            "mongo-acceptance-test",
+            "mongo-test",
             host="localhost",
             port=7778
         )
