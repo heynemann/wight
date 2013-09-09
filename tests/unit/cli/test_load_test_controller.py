@@ -206,6 +206,15 @@ class LoadTestControllerTest(LoadTestControllerTestBase):
 
     @patch.object(ScheduleLoadTestController, 'post')
     @patch.object(ScheduleLoadTestController, 'write')
+    def test_schedule_test_saves_user_data(self, write_mock, post_mock):
+        response = Mock(status_code=200)
+        post_mock.return_value = response
+        expect(self.ctrl.app.user_data.last_schedule).to_be_empty()
+        self.ctrl.default()
+        expect(self.ctrl.app.user_data.last_schedule).to_be_like({"team": "nameless", "project": "project"})
+
+    @patch.object(ScheduleLoadTestController, 'post')
+    @patch.object(ScheduleLoadTestController, 'write')
     def test_schedule_gets_server_error_and_notify(self, write_mock, post_mock):
         post_mock.side_effect = requests.ConnectionError
         self.ctrl.default()

@@ -38,6 +38,7 @@ class UserData(object):
     def __init__(self, target, token=None):
         self.target = target
         self.token = token
+        self.last_schedule = {}
 
     def to_dict(self):
         user_data = {
@@ -52,6 +53,10 @@ class UserData(object):
             user_data["project"] = self.project
 
         return user_data
+
+    def set_last_schedule(self, team, project):
+        self.last_schedule["team"] = team
+        self.last_schedule["project"] = project
 
     def set_default(self, team=None, project=None):
         if team:

@@ -94,6 +94,7 @@ class ScheduleLoadTestController(WightBaseController):
             self.line_break()
 
             if response.status_code == 200:
+                self.app.user_data.set_last_schedule(team_name, project_name)
                 self.putsuccess(log_message)
             elif response.status_code == 404:
                 self.puterror("Project or Team not found at target '%s%s%s'." % (
@@ -239,9 +240,31 @@ class ListLoadTestController(WightBaseController):
 
 
 class ShowControllerBase(WightBaseController):
+    @controller.expose(hide=False, aliases=["show"], help='Show load tests.')
+    @WightBaseController.authenticated
+    def default(self):
+        self.load_conf()
+        with connected_controller(self):
+            content = self._load_response()
+            track = getattr(self.arguments, "track", False) or self.Meta.track
+            while track and (content['status'] == "Running" or content['status'] == "Scheduled"):
+                try:
+                    time.sleep(5)
+                    self.line_break()
+                    self.write("-" * 80)
+                    content = self._load_response()
+                except KeyboardInterrupt:
+                    sys.exit(1)
+                except CaughtSignal:
+                    sys.exit(1)
+
+    def get_load_test_id(self):
+        if hasattr(self.arguments, "load_test_uuid"):
+            return self.arguments.load_test_uuid
+
     def _load_response(self):
 
-        url = '/load_tests/%s' % self.arguments.load_test_uuid
+        url = '/load_tests/%s' % self.get_load_test_id()
 
         response = self.get(url)
 
@@ -344,30 +367,27 @@ class InstanceLoadTestController(ShowControllerBase):
         stack_on = 'base'
         description = 'Show load tests.'
         config_defaults = dict()
-
+        track = False
         arguments = [
             (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
             (['--track'], dict(help='Keep pinging the server until the test is finished.', action="store_true", default=False, required=False)),
             (['load_test_uuid'], dict(help='Load test uuid')),
         ]
 
-    @controller.expose(hide=False, aliases=["show"], help='Show load tests.')
-    @WightBaseController.authenticated
-    def default(self):
-        self.load_conf()
-        with connected_controller(self):
-            content = self._load_response()
 
-            while self.arguments.track and (content['status'] == "Running" or content['status'] == "Scheduled"):
-                try:
-                    time.sleep(5)
-                    self.line_break()
-                    self.write("-" * 80)
-                    content = self._load_response()
-                except KeyboardInterrupt:
-                    sys.exit(1)
-                except CaughtSignal:
-                    sys.exit(1)
+class TrackLoadTestController(ShowControllerBase):
+    class Meta:
+        label = 'track'
+        stack_on = 'base'
+        description = 'Track the last running load test.'
+        config_defaults = dict()
+        track = True
+        arguments = [
+            (['--conf'], dict(help='Configuration file path.', default=None, required=False)),
+        ]
+
+    def get_load_test_id(self):
+        pass
 
 
 class ShowResultController(WightBaseController):
