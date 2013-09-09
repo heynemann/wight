@@ -8,7 +8,7 @@ class ShowTeamTest(FunkLoadTestCase):
         self.server_url = '%s/teams/' % (self.conf_get('main', 'url').rstrip('/'),)
 
     def test_show_team(self):
-        self.get("%/teste" % self.server_url, description='show team url')
+        self.get("%s/teste" % self.server_url, description='show team url')
 
 if __name__ == '__main__':
     unittest.main()
