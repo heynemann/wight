@@ -11,8 +11,15 @@
 tests:
   -
     title: HealthCheck Tests
-    description: Vendo se o healthcheck aguenta.
+    description: Check if healthcheck can handle requests
     module: test_healthcheck
     class: HealthCheckTest
     test: test_healthcheck
+    pressure: small
+  -
+    title: Show Team
+    description: API call for chow team information including member and projects
+    module: test_team
+    class: ShowTeamTest
+    test: test_show_team
     pressure: small
